@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="snmpMon.Resources.Constrols.LabelControls.Cards"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+             xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="87" d:DesignWidth="855">
+    <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <ctrl:StatusLabel Grid.Row="1"
+                                      Title="Online / Up Devices" Count="{Binding DevciesCount, UpdateSourceTrigger=PropertyChanged}"
+                                      Image="/Resources/Imgs/Device.png" Width="280"/>
+            <ctrl:StatusLabel Grid.Row="1"
+                                      Title="Average Network Latency" Count="9"
+                                      Image="/Resources/Imgs/Network.png" Width="auto"/>
+            <ctrl:StatusLabel Grid.Row="1"
+                                      Title="Active Alerts / Traps" Count="9"
+                                      Image="/Resources/Imgs/Alert.png" Width="280"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

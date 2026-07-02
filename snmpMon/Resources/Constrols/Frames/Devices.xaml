@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="snmpMon.Resources.Constrols.Frames.Devices"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.Devices"
+             xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Frames"
+             mc:Ignorable="d" 
+             d:DesignHeight="595" d:DesignWidth="980">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="2" Style="{StaticResource Sequre_Button}" Width="35" Height="35"
+                    FontFamily="{StaticResource Wafeq_Font}" FontSize="13" Margin="5"
+                    Command="{Binding AddDev}" Background="#3457D5" Tag="/Resources/Imgs/Add_White.png"/>
+            
+        </Grid>
+        <Line Grid.Row="1" X1="0" X2="1" Stretch="Fill" Stroke="White" StrokeThickness="0.5" Height="0.5"/>
+
+        <Border Grid.Row="2" Padding="5" Margin="5" SnapsToDevicePixels="True"
+                CornerRadius="7" Background="#211E21" Width="auto"
+                Height="auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Style="{StaticResource SrollViewer_Style}">
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding Devices, UpdateSourceTrigger=PropertyChanged}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ctrl:DeviceCard Height="auto" Width="auto"
+                                     GoCommand="{Binding DataContext.TestCMD , RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                     CommandParameter="{Binding}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </ScrollViewer>
+
+        </Border>
+    </Grid>
+</UserControl>

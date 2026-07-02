@@ -1,0 +1,29 @@
+﻿<Application x:Class="snmpMon.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:snmpMon"
+             StartupUri="View/MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles/RadioButton_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Button_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/TextBox_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Close_Button.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Button_Modern.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Squer_Button.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/ToolTip_Style.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/ToastNotifications.Messages;component/Themes/Default.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/Go_Button_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Interface_Button_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/ScrollViewer_Style.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <FontFamily x:Key="Hacen_Font">/Resources/Fonts/#Hacen Liner Screen Bd</FontFamily>
+            <FontFamily x:Key="Wafeq_Font">/Resources/Fonts/#Wafeq Medium</FontFamily>
+            <FontFamily x:Key="Simple_Font">/Resources/Fonts/#Simple Think</FontFamily>
+            <FontFamily x:Key="Google_Sans">/Resources/Fonts/#Google Sans</FontFamily>
+            <FontFamily x:Key="Exo_2">/Resources/Fonts/#Exo 2 Light</FontFamily>
+            <FontFamily x:Key="Exo_2_Medium">/Resources/Fonts/#Exo 2 Medium</FontFamily>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

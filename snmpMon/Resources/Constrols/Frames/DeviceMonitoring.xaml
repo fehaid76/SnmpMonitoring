@@ -1,0 +1,123 @@
+﻿<UserControl x:Class="snmpMon.Resources.Constrols.Frames.DeviceMonitoring"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Frames"
+             xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.Charts"
+             xmlns:ctrl_alert="clr-namespace:snmpMon.Resources.Constrols.BoxesControls"
+             xmlns:ctrl_lb="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="850" d:DesignWidth="1200" Background="#242124">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0">
+            <TextBlock Text="Device" FontFamily="{StaticResource Exo_2}" FontSize="31" Foreground="#1E90FF" VerticalAlignment="Center"
+                       Margin="5"/>
+            <TextBlock Text="{Binding Device.DeviceName, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource Exo_2_Medium}" FontSize="26" Foreground="#1E90FF" VerticalAlignment="Bottom"
+                       Margin="5"/>
+        </StackPanel>
+        <Line Grid.Row="1" Stroke="White" X1="0" X2="1" Stretch="Fill" Height="0.3"/>
+        <WrapPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2" Margin="5,10,5,0">
+            <ctrl:LinerChart Width="500" Height="250"
+                             Title="Test title"
+                             SeriesCol="{Binding SeriesViews, UpdateSourceTrigger=PropertyChanged}"
+                             LabelsX="{Binding LabelsX, UpdateSourceTrigger=PropertyChanged}"
+                             LabelsY="{Binding LabelsX, UpdateSourceTrigger=PropertyChanged}"/>
+            <ctrl:Gauge Width="220" Height="250"
+                        Title="CPU Utilization"
+                        Value="{Binding CpuUtilization,UpdateSourceTrigger=PropertyChanged}"
+                        FromValue="0"
+                        ToValue="95"/>
+
+            <ctrl:Gauge Width="220" Height="250"
+                        Title="Memory Usage"
+                        Value="{Binding MemoryUsage,UpdateSourceTrigger=PropertyChanged}"
+                        FromValue="0"
+                        ToValue="100"/>
+
+            <ctrl:Gauge Width="220" Height="250"
+                        Title="Device Temperature"
+                        Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                        FromValue="0"
+                        ToValue="95"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Border CornerRadius="10" SnapsToDevicePixels="True" Padding="5" Grid.Column="0"
+                     Background="#1B1B1B" Width="700" Height="490" Margin="5">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" CornerRadius="7"
+                            SnapsToDevicePixels="True" Padding="5" Margin="5" Width="auto" Height="30"
+                            Background="#1A1110">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Port name" FontFamily="{StaticResource Google_Sans}" Grid.Column="0" FontSize="14"
+                                       Foreground="#F0FFFF" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="35,0,0,0"/>
+                                <TextBlock Text="Type" FontFamily="{StaticResource Google_Sans}" Grid.Column="1" FontSize="14"
+                                       Foreground="#F0FFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="Port speed" FontFamily="{StaticResource Google_Sans}" Grid.Column="2" FontSize="14"
+                                       Foreground="#F0FFFF" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                                <TextBlock Text="Admin status" FontFamily="{StaticResource Google_Sans}" Grid.Column="3" FontSize="14"
+                                       Foreground="#F0FFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="Operation status" FontFamily="{StaticResource Google_Sans}" Grid.Column="4" FontSize="14"
+                                       Foreground="#F0FFFF" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            </Grid>
+                        </Border>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" Style="{StaticResource SrollViewer_Style}" Margin="5">
+                            <ItemsControl ItemsSource="{Binding Interfaces, UpdateSourceTrigger=PropertyChanged}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ctrl_lb:InterfacesView PortDescr="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                                            PortType="{Binding Type}"
+                                                            PortSpeed="{Binding FormattedSpeed}"
+                                                            AdminStatus="{Binding FormattedAdminStatus}"
+                                                            CurrentStatus="{Binding FormattedOperationStatus}"
+                                                            PortCommand="{Binding DataContext.InterfaceCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                            CommandParameter="{Binding}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+                <StackPanel Grid.Column="1">
+                    <ctrl_lb:SystemInformation Grid.Column="1" Height="auto" Width="450"
+                                               SystemName="{Binding SysInformation.SystemName, UpdateSourceTrigger=PropertyChanged}"
+                                               Location="{Binding SysInformation.Location, UpdateSourceTrigger=PropertyChanged}"
+                                               Status="{Binding SysInformation.IsConnected, UpdateSourceTrigger=PropertyChanged}"
+                                               UpTime="{Binding SysInformation.UpTime, UpdateSourceTrigger=PropertyChanged}"/>
+                    <ctrl_alert:AlertingBox Height="335" x:Name="AlertBox"
+                                            RouterIP="{Binding DataContext.Device.IPAddress, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                </StackPanel>
+            </Grid>
+
+        </WrapPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="snmpMon.Resources.Constrols.LabelControls.InterfacesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="700">
+    <Grid>
+        <Border CornerRadius="7" SnapsToDevicePixels="True"
+                  Padding="5" Margin="1" Background="#242124"
+                BorderBrush="#1A1110" BorderThickness="3">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Image Source="/Resources/Imgs/Right.png" RenderOptions.BitmapScalingMode="HighQuality"
+                       Height="20" Width="20" Grid.Column="0" HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+
+
+                <Button Grid.Column="1" Content="{Binding PortDescr, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="{StaticResource Google_Sans}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" 
+                        Style="{StaticResource Interface_Button_Style}" Command="{Binding PortCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding CommandParameter, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                <TextBlock Grid.Column="2" FontFamily="{StaticResource Google_Sans}" FontSize="12" Foreground="#C0C0C0"
+                           Text="{Binding PortType, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="3" FontFamily="{StaticResource Google_Sans}" FontSize="12" Foreground="#CDB280"
+                           Text="{Binding PortSpeed, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="4" FontFamily="{StaticResource Google_Sans}" FontSize="12" Foreground="#C0C0C0"
+                           Text="{Binding AdminStatus, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="5" FontFamily="{StaticResource Google_Sans}" FontSize="12" Foreground="#C0C0C0"
+                           Text="{Binding CurrentStatus,RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>  
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,48 @@
+﻿<Window x:Class="snmpMon.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:snmpMon"
+        xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="1100" MinHeight="600" MinWidth="950" WindowStartupLocation="CenterScreen"  Background="#242124">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Source="/Resources/Imgs/Logo.png" RenderOptions.BitmapScalingMode="HighQuality"
+                   Grid.Column="0" Height="55" Width="55" Margin="5"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border BorderBrush="#1A1110" BorderThickness="1" Grid.Column="1">
+                <Frame x:Name="MaifFrame" Margin="10" NavigationUIVisibility="Hidden" Content="{Binding CurrentView, UpdateSourceTrigger=PropertyChanged}"/>
+            </Border>
+            <Border BorderBrush="#1A1110" BorderThickness="0,1,0,0"
+                        Padding="4">
+                <StackPanel Grid.Column="0">
+                    <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/dashboard.png"
+                               Content="Dashboard" FontSize="14" Command="{Binding DashboardCmd}"/>
+                    <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/Devices.png"
+                               Content="Devices" FontSize="14" Command="{Binding DevicesCmd}"/>
+                    <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/dashboard.png"
+                               Content="Dashboard" FontSize="14"/>
+                </StackPanel>
+            </Border>
+
+
+
+        </Grid>
+    </Grid>
+</Window>
