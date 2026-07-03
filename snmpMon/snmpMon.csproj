@@ -7,7 +7,10 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\Imgs\Check.png" />
     <None Remove="Resources\Imgs\CiscoLogo.png" />
+    <None Remove="Resources\Imgs\Hashtag.png" />
+    <None Remove="Resources\Imgs\inf.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
@@ -42,6 +45,7 @@
     <Resource Include="Resources\Fonts\Simple Think.otf" />
     <Resource Include="Resources\Fonts\Wafeq Medium.otf" />
     <Resource Include="Resources\Fonts\Hacen Liner Screen Bd.ttf" />
+    <Resource Include="Resources\Imgs\Check.png" />
     <Resource Include="Resources\Imgs\CiscoLogo.png" />
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +53,8 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\dashboard.png" />
+    <Resource Include="Resources\Imgs\Hashtag.png" />
+    <Resource Include="Resources\Imgs\inf.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\Logo.png" />

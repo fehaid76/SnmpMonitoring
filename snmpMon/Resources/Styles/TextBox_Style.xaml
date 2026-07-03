@@ -5,16 +5,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" 
-                                 Text="{TemplateBinding Tag}" FontFamily="/Resources/Fonts/#Wafeq Medium"
-                                 FontSize="12" FontWeight="Light" Foreground="White" Margin="5"/>
+
                         <Border CornerRadius="5" SnapsToDevicePixels="True"
-                         Background="White" Grid.Row="1" Height="23" Width="350"
-                         BorderThickness="0">
+                         Background="White" Height="30" Width="350"
+                         BorderThickness="0" x:Name="border">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           HorizontalScrollBarVisibility="Hidden"
                                           VerticalScrollBarVisibility="Hidden"
@@ -23,6 +17,18 @@
 
                         </Border>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="Silver"/>
+                        </Trigger>
+
+                        <Trigger Property="IsReadOnly" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="Transparent"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="Silver"/>
+                            <Setter TargetName="border" Property="BorderThickness" Value="1"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter> 

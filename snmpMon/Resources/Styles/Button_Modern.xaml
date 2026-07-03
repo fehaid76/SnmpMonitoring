@@ -8,25 +8,27 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="border" CornerRadius="6" SnapsToDevicePixels="True"
-                            BorderThickness="0" Background="#3457D5">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
+                            BorderThickness="0" Background="{TemplateBinding Background}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image x:Name="IconImage" Source="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                   Grid.Column="0" Height="21" Width="21" RenderOptions.BitmapScalingMode="HighQuality"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7,0,0,0"/>
                             <ContentPresenter x:Name="PART_ContentHost"
                                               Grid.Column="1"
                                               VerticalAlignment="Center"
-                                              HorizontalAlignment="Center" Margin="17,0,0,0"/>
-                            <Image Source="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
-                                   Grid.Column="0" Height="21" Width="21" RenderOptions.BitmapScalingMode="HighQuality"
-                                   VerticalAlignment="Center" HorizontalAlignment="Center" Margin="7,0,0,0"/>
-                        </Grid>
+                                              HorizontalAlignment="Center" Margin="17,0,10,0"/>
+                        </StackPanel>
+
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#0047AB"/>
+                            <Setter TargetName="border" Property="Opacity" Value="0.7"/>
                         </Trigger>
+
+                        <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
+                            <Setter TargetName="IconImage" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="IconImage" Property="Margin" Value="0"/>
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
