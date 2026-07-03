@@ -5,7 +5,6 @@ using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.MibJson.Services;
 using snmpMon.Resources.Constrols.Frames.FrameServices;
-using snmpMon.Sensors.SensorsServices;
 using snmpMon.Services;
 using snmpMon.Services.Agent;
 using snmpMon.Services.AlertServices;
@@ -45,7 +44,6 @@ namespace snmpMon
             service.AddTransient<AddDevicWin>();
             service.AddTransient<DevicesVM>();
             service.AddTransient<IDeviceWindowService, DeviceWindowService>();
-            service.AddTransient<IDefaultSensors, DefaultSensors>();
             service.AddTransient<IDeviceRepository, DeviceRepository>();
             service.AddTransient<DeviceMonitoringWindow>();
             service.AddTransient<DeviceMonitoringVM>();

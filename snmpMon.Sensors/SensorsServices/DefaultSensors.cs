@@ -13,6 +13,8 @@ namespace snmpMon.Sensors.SensorsServices
 {
     public class DefaultSensors : IDefaultSensors
     {
+
+
         public async Task<bool> PingSensorAsync(string iPAddress)
         {
             bool isSucc = false;
@@ -37,31 +39,31 @@ namespace snmpMon.Sensors.SensorsServices
         }
         public async Task<string> GetDeviceName(string ipAddress, string communityString)
         {
-            string _deviceName = string.Empty;
-            var oid = new ObjectIdentifier(".1.3.6.1.2.1.1.5.0");
-            List<Variable> vcl = new List<Variable>() { new Variable(oid) };
+            string _deviceName = "nEW dEVICE";
+            //var oid = new ObjectIdentifier(".1.3.6.1.2.1.1.5.0");
+            //List<Variable> vcl = new List<Variable>() { new Variable(oid) };
 
-            try
-            {
-                var result = await Messenger.GetAsync(VersionCode.V2,
-                    new IPEndPoint(IPAddress.Parse(ipAddress),
-                    161), new OctetString(communityString), vcl);
+            //try
+            //{
+            //    var result = await Messenger.GetAsync(VersionCode.V2,
+            //        new IPEndPoint(IPAddress.Parse(ipAddress),
+            //        161), new OctetString(communityString), vcl);
 
-                if (result != null && result.Count > 0)
-                {
-                    foreach (var v in result)
-                    {
-                        if (v.Data is OctetString octet)
-                        {
-                            _deviceName = octet.ToString();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
+            //    if (result != null && result.Count > 0)
+            //    {
+            //        foreach (var v in result)
+            //        {
+            //            if (v.Data is OctetString octet)
+            //            {
+            //                _deviceName = octet.ToString();
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
 
-            }
+            //}
 
             return _deviceName;
         }

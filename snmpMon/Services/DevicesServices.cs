@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using snmpMon.Core.Models;
 using snmpMon.Engine.Data;
-using snmpMon.Engine.Model;
 using snmpMon.Models;
 using System;
 using System.Collections.Generic;
@@ -25,10 +24,10 @@ namespace snmpMon.Services
 
         }
 
-        public async Task<List<DeviceData>> GetAllDevicesAsync()
+        public async Task<List<Device>> GetAllDevicesAsync()
         {
             return await _deviceRepository.GetAllDevicesAsync();
-            
+
         }
 
     }

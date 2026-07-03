@@ -23,19 +23,19 @@ namespace snmpMon.MibParse.Models
         public string Class { get; set; }
 
         [JsonProperty("syntax")]
-        public SyntaxInfo Syntax { get; set; } // الكائن المتداخل
+        public SyntaxInfo Syntax { get; set; } 
 
-        [JsonProperty("description")] // تأكد أن الاسم يطابق الـ JSON تماماً في العقد الأخرى
+        [JsonProperty("description")] 
         public string Desc { get; set; }
 
-        // خاصية ذكية مضافة (شورت كت) لجلب الـ Type مباشرة من كائن الـ Syntax النظيف
+        
         public string ActualType => Syntax?.Type;
     }
 
     public class SyntaxInfo
     {
         [JsonProperty("type")]
-        public string Type { get; set; } // هنا سيقرأ كلمة "INTEGER" بنجاح
+        public string Type { get; set; } 
 
         [JsonProperty("class")]
         public string Class { get; set; }

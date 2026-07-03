@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using snmpMon.Data.Model;
 using snmpMon.Models;
 using snmpMon.Services;
 using System;
@@ -62,13 +63,13 @@ namespace snmpMon.ViewModel
 
             AddCMD = new RelayCommand(() =>
             {
-                Device = new Device()
+                Device device = new Device()
                 {
-                    DeviceName = this.DeviceName,
+                    Name = this.DeviceName,
                     IPAddress = this.IpAddress,
-                    CommunityString = this.ComString
-
+                    CommunityString = this.ComString,
                 };
+                
             });
 
         }

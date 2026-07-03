@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace snmpMon.Models
 {
-    public class Device
+    public class DeviceAdd
     {
         public string DeviceName {  get; set; }
         public string IPAddress {  get; set; }

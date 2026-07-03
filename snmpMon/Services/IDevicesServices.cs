@@ -1,12 +1,13 @@
-﻿using snmpMon.Engine.Model;
+﻿using snmpMon.Engine;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using snmpMon.Models;
 
 namespace snmpMon.Services
 {
     public interface IDevicesServices
     {
         
-        Task<List<DeviceData>> GetAllDevicesAsync();
+        Task<List<Device>> GetAllDevicesAsync();
     }
 }

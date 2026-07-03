@@ -10,7 +10,7 @@ namespace snmpMon.Services.WindowServices
 {
     public interface IDeviceWindowService
     {
-        event Action<Device> OnDeviceDetails;
+        event Action<DeviceAdd> OnDeviceDetails;
 
         void ShowAddDeviceWindow();
         void ShowDeviceMonitoringWin(DeviceInfo device);

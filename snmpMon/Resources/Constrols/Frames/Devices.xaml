@@ -5,8 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.Devices"
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Frames"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="595" d:DesignWidth="980">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadDevicesCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -38,7 +44,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <ctrl:DeviceCard Height="auto" Width="auto"
+                            <ctrl:DeviceCard Height="auto" Width="300"
                                      GoCommand="{Binding DataContext.TestCMD , RelativeSource={RelativeSource AncestorType=UserControl}}"
                                      CommandParameter="{Binding}"/>
                         </DataTemplate>

@@ -19,7 +19,7 @@ namespace snmpMon.Services.WindowServices
 {
     public class DeviceWindowService : IDeviceWindowService
     {
-        public event Action<Device> OnDeviceDetails;
+        public event Action<DeviceAdd> OnDeviceDetails;
         private readonly IRouterWindowMonitor _routerWindowMonitor;
         public DeviceWindowService(IRouterWindowMonitor routerWindowMonitor)
         {

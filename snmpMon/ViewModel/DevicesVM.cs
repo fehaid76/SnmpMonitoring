@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames;
-using snmpMon.Sensors.SensorsServices;
 using snmpMon.Services;
 using snmpMon.Services.Agent;
 using snmpMon.Services.SensorServices;
@@ -13,6 +12,7 @@ using snmpMon.View;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -38,6 +38,7 @@ namespace snmpMon.ViewModel
 
         public ICommand AddDev {  get; set; }
         public ICommand TestCMD {  get; set; }
+        public IAsyncRelayCommand LoadDevicesCommand {  get; set; }
         private readonly IDeviceWindowService _windowService;
         private readonly IDevicesServices _devicesServices;
         public DevicesVM(IDeviceWindowService windowService, IDevicesServices devicesServices)
@@ -45,7 +46,11 @@ namespace snmpMon.ViewModel
             _windowService = windowService;
             _devicesServices = devicesServices;
             _windowService.OnDeviceDetails += _windowService_OnDeviceAdded;
-            _ = GetAllDevices();
+
+            LoadDevicesCommand = new AsyncRelayCommand(GetAllDevices);
+            LoadDevicesCommand.Execute(null);
+            
+
 
             AddDev = new RelayCommand(() =>
             {
@@ -63,7 +68,7 @@ namespace snmpMon.ViewModel
 
 
 
-        private void _windowService_OnDeviceAdded(Device obj)
+        private void _windowService_OnDeviceAdded(DeviceAdd obj)
         {
             if(obj == null) return;
             var agentOrch = App.serviceProvider.GetRequiredService<IMonitoringAgentServices>();
@@ -80,7 +85,9 @@ namespace snmpMon.ViewModel
         }
         private async Task GetAllDevices()
         {
+
             var _devicesList = await _devicesServices.GetAllDevicesAsync();
+            Devices.Clear();
             foreach (var d in _devicesList)
             {
                 var agentOrch = App.serviceProvider.GetRequiredService<IMonitoringAgentServices>();
@@ -91,6 +98,7 @@ namespace snmpMon.ViewModel
                     IPAddress = d.IPAddress,
                     CommunityString = d.CommunityString,
                 };
+
                 Devices.Add(deviceInfo);
 
                 _= agentOrch.StartMonitoring(deviceInfo.IPAddress, d.CommunityString, deviceInfo);

@@ -7,8 +7,12 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\Imgs\CiscoLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.Configuration" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
@@ -23,7 +27,6 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.142" />
     <PackageReference Include="SharpSnmpLib.Engine" Version="12.0.0" />
     <PackageReference Include="System.Buffers" Version="4.6.1" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Memory" Version="4.6.3" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.6.1" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
@@ -39,6 +42,7 @@
     <Resource Include="Resources\Fonts\Simple Think.otf" />
     <Resource Include="Resources\Fonts\Wafeq Medium.otf" />
     <Resource Include="Resources\Fonts\Hacen Liner Screen Bd.ttf" />
+    <Resource Include="Resources\Imgs\CiscoLogo.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\Close.png" />
@@ -67,12 +71,13 @@
   <ItemGroup>
     <Resource Include="Resources\Imgs\Devices.png" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\snmpMon.Core\snmpMon.Core.csproj" />
-    <ProjectReference Include="..\snmpMon.Data\snmpMon.Engine.csproj" />
-    <ProjectReference Include="..\snmpMon.MibParse\snmpMon.MibJson.csproj" />
-    <ProjectReference Include="..\snmpMon.Sensors\snmpMon.Sensors.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\snmpMon.Core\snmpMon.Core.csproj" />
+		<ProjectReference Include="..\snmpMon.Data\snmpMon.Data.csproj" />
+		<ProjectReference Include="..\snmpMon.Data\snmpMon.Engine.csproj" />
+		<ProjectReference Include="..\snmpMon.Engine\snmpMon.Engine.csproj" />
+		<ProjectReference Include="..\snmpMon.MibParse\snmpMon.MibJson.csproj" />
+	</ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\Information.png" />
   </ItemGroup>
