@@ -15,15 +15,26 @@ namespace snmpMon.Data.Model
         public string CommunityString {  get; set; }
 
 
-        //public Device(int iD, string name, string vendor, string iPAddress, string communityString)
-        //{
-        //    ID = iD;
-        //    Name = name;
-        //    Vendor = vendor;
-        //    IPAddress = iPAddress;
-        //    CommunityString = communityString;
-        //}
+        public Device(int iD, string name, string vendor, string iPAddress, string communityString)
+        {
+            ID = iD;
+            Name = name;
+            Vendor = vendor;
+            IPAddress = iPAddress;
+            CommunityString = communityString;
+        }
 
-        
+        public Device(string iPAddress, string communityString)
+        {
+
+            IPAddress = iPAddress;
+            CommunityString = communityString;
+        }
+
+        public Device() { }
+
+
+
+
     }
 }

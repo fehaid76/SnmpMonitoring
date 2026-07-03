@@ -8,6 +8,7 @@ namespace snmpMon.Data.Servicces
 {
     public static class ConnectionString
     {
+        
         public static string GetConnectionString() => "Data Source=snmpMonDB.db";
     }
 }

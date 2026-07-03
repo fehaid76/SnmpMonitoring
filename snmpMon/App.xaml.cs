@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using snmpMon.Engine.Data;
 using snmpMon.Engine.Services.OidServices;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
@@ -19,6 +18,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using snmpMon.Data;
+using snmpMon.Data.Repositories;
 
 namespace snmpMon
 {

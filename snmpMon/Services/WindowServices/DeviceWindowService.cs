@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using snmpMon.Core.Models;
-using snmpMon.Engine.Data;
+using snmpMon.Data.Model;
 using snmpMon.Engine.Model;
 using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames;
@@ -19,7 +19,7 @@ namespace snmpMon.Services.WindowServices
 {
     public class DeviceWindowService : IDeviceWindowService
     {
-        public event Action<DeviceAdd> OnDeviceDetails;
+        public event Action<Device> OnDeviceDetails;
         private readonly IRouterWindowMonitor _routerWindowMonitor;
         public DeviceWindowService(IRouterWindowMonitor routerWindowMonitor)
         {
@@ -29,7 +29,7 @@ namespace snmpMon.Services.WindowServices
         public void ShowAddDeviceWindow()
         {
             var win = App.serviceProvider.GetRequiredService<AddDevicWin>();
-            var deviceRepository = App.serviceProvider.GetRequiredService<IDeviceRepository>();
+            var deviceRepository = App.serviceProvider.GetRequiredService<snmpMon.Data.Repositories.IDeviceRepository>();
             EventHandler closedHandler = null;
 
             closedHandler = (s, e) =>
@@ -41,7 +41,7 @@ namespace snmpMon.Services.WindowServices
                     OnDeviceDetails?.Invoke(winDataContext.Device);
                     Task.Run(async () =>
                     {
-                        DeviceData device = new DeviceData(winDataContext.Device.IPAddress, winDataContext.Device.CommunityString);
+                        Device device = new Device(winDataContext.Device.IPAddress, winDataContext.Device.CommunityString);
                         await deviceRepository.AddDeviceAsync(device);
                     });
                 }

@@ -1,4 +1,5 @@
-﻿using snmpMon.Models;
+﻿using snmpMon.Data.Model;
+using snmpMon.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace snmpMon.Services.WindowServices
 {
     public interface IDeviceWindowService
     {
-        event Action<DeviceAdd> OnDeviceDetails;
+        event Action<Device> OnDeviceDetails;
 
         void ShowAddDeviceWindow();
         void ShowDeviceMonitoringWin(DeviceInfo device);

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using snmpMon.Data.Model;
 using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames;
 using snmpMon.Services;
@@ -68,7 +69,7 @@ namespace snmpMon.ViewModel
 
 
 
-        private void _windowService_OnDeviceAdded(DeviceAdd obj)
+        private void _windowService_OnDeviceAdded(Device obj)
         {
             if(obj == null) return;
             var agentOrch = App.serviceProvider.GetRequiredService<IMonitoringAgentServices>();

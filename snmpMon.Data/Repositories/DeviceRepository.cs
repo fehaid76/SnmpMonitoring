@@ -26,11 +26,12 @@ namespace snmpMon.Data.Repositories
                 try
                 {
                     await con.OpenAsync();
+                    
 
                     using (var cmd = new SqliteCommand(insertQuery, con))
                     {
-                        cmd.Parameters.AddWithValue("$Name", device.Name);
-                        cmd.Parameters.AddWithValue("$Vendor", device.Vendor);
+                        cmd.Parameters.AddWithValue("$Name", device.Name ?? "");
+                        cmd.Parameters.AddWithValue("$Vendor", device.Vendor ?? "");
                         cmd.Parameters.AddWithValue("$IPAddress", device.IPAddress);
                         cmd.Parameters.AddWithValue("$CommunityString", device.CommunityString);
 

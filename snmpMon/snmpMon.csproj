@@ -74,9 +74,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\snmpMon.Core\snmpMon.Core.csproj" />
 		<ProjectReference Include="..\snmpMon.Data\snmpMon.Data.csproj" />
-		<ProjectReference Include="..\snmpMon.Data\snmpMon.Engine.csproj" />
 		<ProjectReference Include="..\snmpMon.Engine\snmpMon.Engine.csproj" />
-		<ProjectReference Include="..\snmpMon.MibParse\snmpMon.MibJson.csproj" />
+		<ProjectReference Include="..\snmpMon.MibJson\snmpMon.MibJson.csproj" />
 	</ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\Information.png" />
@@ -138,5 +137,21 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\AlertImgs\info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="snmpMonDB.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

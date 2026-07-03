@@ -69,6 +69,7 @@ namespace snmpMon.ViewModel
                     IPAddress = this.IpAddress,
                     CommunityString = this.ComString,
                 };
+                Device = device;
                 
             });
 
