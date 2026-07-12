@@ -55,7 +55,7 @@ namespace snmpMon.Services.SensorServices
             }
         }
 
-        private async Task<bool> PingAsync(string ipAddress)
+        private async Task<bool> PingAsync(string ipAddress, int timeout = 4000)
         {
             
 
@@ -64,13 +64,12 @@ namespace snmpMon.Services.SensorServices
 
                 using (Ping ping = new Ping())
                 {
-                    var result = await ping.SendPingAsync(ipAddress, 4000);
+                    var result = await ping.SendPingAsync(ipAddress, timeout);
                     return result.Status == IPStatus.Success;
                 }
             }
             catch (PingException ex)
             {
-                Debug.WriteLine($"this is ping exception => {ex.Message}");
                 return false;
             }
 

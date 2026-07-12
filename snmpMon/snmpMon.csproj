@@ -11,6 +11,11 @@
     <None Remove="Resources\Imgs\CiscoLogo.png" />
     <None Remove="Resources\Imgs\Hashtag.png" />
     <None Remove="Resources\Imgs\inf.png" />
+    <None Remove="Resources\Imgs\protect.png" />
+    <None Remove="Resources\Imgs\vendor.png" />
+    <None Remove="Resources\Imgs\VerificationIcons\failure.gif" />
+    <None Remove="Resources\Imgs\VerificationIcons\loading.gif" />
+    <None Remove="Resources\Imgs\VerificationIcons\success.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
@@ -37,6 +42,7 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
     <PackageReference Include="ToastNotifications" Version="2.5.1" />
     <PackageReference Include="ToastNotifications.Messages" Version="2.5.1" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Fonts\Exo 2 Medium.ttf" />
@@ -54,7 +60,10 @@
   <ItemGroup>
     <Resource Include="Resources\Imgs\dashboard.png" />
     <Resource Include="Resources\Imgs\Hashtag.png" />
-    <Resource Include="Resources\Imgs\inf.png" />
+    <Resource Include="Resources\Imgs\protect.png" />
+    <Resource Include="Resources\Imgs\vendor.png" />
+    <Resource Include="Resources\Imgs\VerificationIcons\failure.gif" />
+    <Resource Include="Resources\Imgs\VerificationIcons\inf.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\Logo.png" />
@@ -143,6 +152,8 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\AlertImgs\info.png" />
+    <Resource Include="Resources\Imgs\VerificationIcons\loading.gif" />
+    <Resource Include="Resources\Imgs\VerificationIcons\success.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">

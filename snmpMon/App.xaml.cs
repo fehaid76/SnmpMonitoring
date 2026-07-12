@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using snmpMon.Core.Services;
+using snmpMon.Data;
+using snmpMon.Data.Repositories;
 using snmpMon.Engine.Services.OidServices;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
@@ -18,8 +21,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using snmpMon.Data;
-using snmpMon.Data.Repositories;
 
 namespace snmpMon
 {
@@ -44,6 +45,7 @@ namespace snmpMon
             service.AddTransient<AddDeviceVM>();
             service.AddTransient<AddDevicWin>();
             service.AddTransient<DevicesVM>();
+            service.AddTransient<VerificationViewModel>();
             service.AddTransient<IDeviceWindowService, DeviceWindowService>();
             service.AddTransient<IDeviceRepository, DeviceRepository>();
             service.AddTransient<DeviceMonitoringWindow>();
@@ -55,6 +57,7 @@ namespace snmpMon
             service.AddTransient<IAlertNotify, AlertNotify>();
             service.AddTransient<AlertViewModel>();
             service.AddSingleton<IRouterWindowMonitor, RouterWindowMonitor>();
+            service.AddSingleton<IDeviceVerficationServices, DeviceVerficationServices>();
 
             service.AddSingleton<IMibParser ,MibParser>();
 

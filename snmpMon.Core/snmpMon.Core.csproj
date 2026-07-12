@@ -15,4 +15,9 @@
 	  <Folder Include="Properties\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\snmpMon.Engine\snmpMon.Engine.csproj" />
+	  <ProjectReference Include="..\snmpMon.MibJson\snmpMon.MibJson.csproj" />
+	</ItemGroup>
+
 </Project>

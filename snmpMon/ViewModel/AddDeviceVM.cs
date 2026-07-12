@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using snmpMon.Core.Services;
 using snmpMon.Data.Model;
 using snmpMon.Models;
 using snmpMon.Services;
@@ -17,11 +18,12 @@ namespace snmpMon.ViewModel
     {
         public event Action RequestCloseEvent; 
         public Device Device;
-        
 
+        private bool _canAddDevice;
         private string _deviceName;
         private string _ipAddress;
         private string _comString;
+        private string _deviceVendor;
 
         public string DeviceName
         {
@@ -50,12 +52,37 @@ namespace snmpMon.ViewModel
                 OnPropertyChanged(nameof(ComString));
             }
         }
+        public bool CanAddDevice
+        {
+            get => _canAddDevice;
+            set
+            {
+                _canAddDevice = value;
+                OnPropertyChanged(nameof(CanAddDevice));
+                
+            }
+        }
 
-        public ICommand AddCMD {  get; set; }
+        public string DeviceVendor
+        {
+            get => _deviceVendor;
+            set
+            {
+                _deviceVendor = value;
+                OnPropertyChanged(nameof(DeviceVendor));
+            }
+        }
+
+        public IRelayCommand AddCMD {  get; set; }
         public ICommand CloseCMD {  get; set; }
 
-        public AddDeviceVM()
+        private readonly IDeviceVerficationServices _verficationServices;
+        public AddDeviceVM(IDeviceVerficationServices verficationServices)
         {
+            _verficationServices = verficationServices;
+            _verficationServices.OnDeviceVendorRecieved += _verficationServices_OnDeviceVendorRecieved;
+            _verficationServices.OnSnmpEnabled += OnSnmpEnabled;
+            CanAddDevice = false;
             CloseCMD = new RelayCommand(()=>
             {
                 RequestClose();
@@ -71,8 +98,27 @@ namespace snmpMon.ViewModel
                 };
                 Device = device;
                 
-            });
+            }, CanExecute);
 
+
+
+        }
+
+        private void OnSnmpEnabled(bool obj)
+        {
+            CanAddDevice = obj;
+            AddCMD.NotifyCanExecuteChanged();
+        }
+
+        private bool CanExecute()
+        {
+            
+            return CanAddDevice;
+        }
+        private void _verficationServices_OnDeviceVendorRecieved(string obj)
+        {
+            if(!string.IsNullOrEmpty(obj))
+                DeviceVendor = obj;
         }
 
         private void RequestClose() => RequestCloseEvent?.Invoke();

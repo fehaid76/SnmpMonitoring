@@ -11,33 +11,33 @@ namespace snmpMon.MibParse.Models
     public class MibNode
     {
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonProperty("oid")]
-        public string Oid { get; set; }
+        public string? Oid { get; set; }
 
         [JsonProperty("nodetype")]
-        public string NodeType { get; set; } 
+        public string? NodeType { get; set; } 
 
         [JsonProperty("class")]
-        public string Class { get; set; }
+        public string? Class { get; set; }
 
         [JsonProperty("syntax")]
-        public SyntaxInfo Syntax { get; set; } 
+        public SyntaxInfo? Syntax { get; set; } 
 
         [JsonProperty("description")] 
-        public string Desc { get; set; }
+        public string? Desc { get; set; }
 
         
-        public string ActualType => Syntax?.Type;
+        public string? ActualType => Syntax?.Type;
     }
 
     public class SyntaxInfo
     {
         [JsonProperty("type")]
-        public string Type { get; set; } 
+        public string? Type { get; set; } 
 
         [JsonProperty("class")]
-        public string Class { get; set; }
+        public string? Class { get; set; }
     }
 }

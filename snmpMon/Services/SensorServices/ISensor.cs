@@ -14,6 +14,7 @@ namespace snmpMon.Services.SensorServices
 
 
         Task PollAsync(string ipAddress, string communityString);
+        
 
     }
 

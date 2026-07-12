@@ -21,7 +21,9 @@
             <TextBlock Grid.Column="1" Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="{StaticResource Exo_2}" FontSize="15" Foreground="White"
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
-        <TextBox Grid.Row="1" Height="55" Width="360" Style="{StaticResource TextBox_Style}" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Center"
-                 FontFamily="{StaticResource Exo_2_Medium}" IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+        <TextBox Grid.Row="1" Height="55" Width="360" Style="{StaticResource TextBox_Style}" Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center"
+                 FontFamily="{StaticResource Exo_2_Medium}" IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                 Foreground="{Binding TextInputColor, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                 Focusable="{Binding FoucableTextInput, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
     </Grid>
 </UserControl>

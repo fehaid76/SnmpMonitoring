@@ -24,6 +24,9 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="border" Property="Opacity" Value="0.7"/>
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="Silver"/>
+                        </Trigger>
 
                         <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
                             <Setter TargetName="IconImage" Property="Visibility" Value="Collapsed"/>

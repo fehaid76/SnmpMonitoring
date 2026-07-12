@@ -34,9 +34,10 @@ namespace snmpMon.Resources.Constrols.InputControls
         }
 
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(TextInput), new PropertyMetadata(string.Empty));
+            DependencyProperty.Register("Text", typeof(string), typeof(TextInput),
+                new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-
+        
 
         public string Title
         {
@@ -69,6 +70,32 @@ namespace snmpMon.Resources.Constrols.InputControls
 
         public static readonly DependencyProperty IsReadOnlyProperty =
             DependencyProperty.Register("IsReadOnly", typeof(bool), typeof(TextInput), new PropertyMetadata(false));
+
+
+
+        public Brush TextInputColor
+        {
+            get { return (Brush)GetValue(TextInputColorProperty); }
+            set { SetValue(TextInputColorProperty, value); }
+        }
+
+        public static readonly DependencyProperty TextInputColorProperty =
+            DependencyProperty.Register("TextInputColor", typeof(Brush), typeof(TextInput), new PropertyMetadata(Brushes.Black));
+
+
+
+        public bool FoucableTextInput
+        {
+            get { return (bool)GetValue(FoucableTextInputProperty); }
+            set { SetValue(FoucableTextInputProperty, value); }
+        }
+
+        public static readonly DependencyProperty FoucableTextInputProperty =
+            DependencyProperty.Register("FoucableTextInput", typeof(bool), typeof(TextInput), new PropertyMetadata(true));
+
+
+
+
 
 
 

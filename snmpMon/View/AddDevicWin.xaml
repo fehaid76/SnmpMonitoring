@@ -8,8 +8,8 @@
         xmlns:dev="clr-namespace:snmpMon.Resources.Constrols.Devices"
         xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
         mc:Ignorable="d"
-        Title="AddDevicWin" Height="600" Width="400" MaxHeight="600" MaxWidth="500"
-        MinHeight="330" MinWidth="400" WindowStartupLocation="CenterScreen"  WindowStyle="None" MouseDown="Window_MouseDown"  Background="#292629">
+        Title="AddDevicWin" Height="600" Width="400" MaxHeight="650" MaxWidth="500"
+        MinHeight="650" MinWidth="400" WindowStartupLocation="CenterScreen"  WindowStyle="None" MouseDown="Window_MouseDown"  Background="#292629">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -30,7 +30,7 @@
         </Grid>
         <Line Stroke="White" StrokeThickness="0.5" Grid.Row="1" Width="500" Height="0.5" X1="500"/>
         <ctrl:Information 
-            Title="This Box for information about this service!"
+            Title="Please ensure that the SNMP protocol is enabled on the device first to establish a successful connection, after which you can add the device."
             Image="/Resources/Imgs/Information.png" Grid.Row="2"/>
         
         <StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="10">
@@ -41,27 +41,33 @@
                 Title="Device Name"/>        
 
             <i:TextInput
-                Text="{Binding ipAddress, UpdateSourceTrigger=PropertyChanged}"
+                Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}"
+                x:Name="txtIPAddress"
                 Icon="/Resources/Imgs/ip.png"
                 Title="IP Address"/>
 
             <i:TextInput
                 Text="{Binding ComString, UpdateSourceTrigger=PropertyChanged}"
-                Icon="/Resources/Imgs/ip.png"
+                Icon="/Resources/Imgs/protect.png"
+                x:Name="txtCommunityString"
                 Title="Community String"/>
 
             <i:TextInput
-                Text="{Binding ComString, UpdateSourceTrigger=PropertyChanged}"
-                Icon="/Resources/Imgs/ip.png"
+                Text="{Binding DeviceVendor, UpdateSourceTrigger=PropertyChanged}"
+                Icon="/Resources/Imgs/vendor.png"
                 Title="Vendor"
-                IsReadOnly="True"/>
+                IsReadOnly="True"
+                TextInputColor="White"
+                FoucableTextInput="False"/>
 
 
 
         </StackPanel>
 
 
-        <dev:DeviceVerification Grid.Row="4"/>
+        <dev:DeviceVerification Grid.Row="4"
+                                IpAddress="{Binding Text,ElementName=txtIPAddress, UpdateSourceTrigger=PropertyChanged}"
+                                CommunityString="{Binding Text,ElementName=txtCommunityString, UpdateSourceTrigger=PropertyChanged}"/>
         <Button Grid.Row="5" Height="30" Width="110"
                 Content="Add"
                 Style="{StaticResource Button_Modern}"

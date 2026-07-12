@@ -9,6 +9,7 @@ using System.Net;
 using snmpMon.Engine.Helper;
 using System.Threading;
 using Lextm.SharpSnmpLib.Security;
+using System.Threading.Channels;
 
 namespace snmpMon.Engine.Services.SnmpServices
 {
@@ -95,16 +96,15 @@ namespace snmpMon.Engine.Services.SnmpServices
                 new IPEndPoint(IPAddress.Parse(ip), 161),
                 new OctetString(communityString), new ObjectIdentifier(oid),
                 internalList, WalkMode.WithinSubtree);
-
                 return internalList;
-            }
-            catch (Lextm.SharpSnmpLib.Messaging.TimeoutException tx)
-            {
-                Logger.LogCriticalException(tx, tx.Message);
             }
             catch (System.Net.Sockets.SocketException socketEx)
             {
                 Logger.LogCriticalException(socketEx, socketEx.Message);
+            }
+            catch (Lextm.SharpSnmpLib.Messaging.TimeoutException tx)
+            {
+                Logger.LogCriticalException(tx, tx.Message);
             }
             catch (Exception ex)
             {

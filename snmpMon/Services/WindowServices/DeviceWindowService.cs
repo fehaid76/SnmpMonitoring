@@ -41,7 +41,7 @@ namespace snmpMon.Services.WindowServices
                     OnDeviceDetails?.Invoke(winDataContext.Device);
                     Task.Run(async () =>
                     {
-                        Device device = new Device(winDataContext.Device.IPAddress, winDataContext.Device.CommunityString);
+                        Device device = new Device(winDataContext.Device?.IPAddress, winDataContext.Device?.CommunityString);
                         await deviceRepository.AddDeviceAsync(device);
                     });
                 }

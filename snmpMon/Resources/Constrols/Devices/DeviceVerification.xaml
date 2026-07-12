@@ -4,8 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Devices"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
+             xmlns:convertors="clr-namespace:snmpMon.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="370">
+    <UserControl.Resources>
+        <convertors:VarificationStatusToIconConverter x:Key="StatusToIcon"/>
+    </UserControl.Resources>
     <Grid>
         <Border CornerRadius="10" BorderBrush="Silver" BorderThickness="0.7"
                 SnapsToDevicePixels="True" Padding="3" Margin="5">
@@ -21,19 +26,19 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <Image Source="/Resources/Imgs/inf.png" Height="13" RenderOptions.BitmapScalingMode="HighQuality"
+                        <Image gif:ImageBehavior.AnimatedSource="{Binding DeviceVerification.PingVerification, Converter={StaticResource StatusToIcon}, UpdateSourceTrigger=PropertyChanged}" Height="15" RenderOptions.BitmapScalingMode="HighQuality"
                                HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3"/>
                         <TextBlock Text="Ping verification" FontFamily="{StaticResource Exo_2}" FontSize="13" Foreground="White" HorizontalAlignment="Left"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <Image Source="/Resources/Imgs/inf.png" Height="13" RenderOptions.BitmapScalingMode="HighQuality"
+                        <Image gif:ImageBehavior.AnimatedSource="{Binding DeviceVerification.SNMPProtocolVerification, Converter={StaticResource StatusToIcon}, UpdateSourceTrigger=PropertyChanged}" Height="15" RenderOptions.BitmapScalingMode="HighQuality"
                                HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3"/>
                         <TextBlock Text="SNMP Protocol verification" FontFamily="{StaticResource Exo_2}" FontSize="13" Foreground="White" HorizontalAlignment="Left"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Grid.Row="2" Orientation="Horizontal">
-                        <Image Source="/Resources/Imgs/inf.png" Height="13" RenderOptions.BitmapScalingMode="HighQuality"
+                        <Image gif:ImageBehavior.AnimatedSource="{Binding DeviceVerification.DeviceVendorVerification, Converter={StaticResource StatusToIcon}, UpdateSourceTrigger=PropertyChanged}" Height="15" RenderOptions.BitmapScalingMode="HighQuality"
                                HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3"/>
                         <TextBlock Text="Device vendor verification" FontFamily="{StaticResource Exo_2}" FontSize="13" Foreground="White" HorizontalAlignment="Left"
                                    VerticalAlignment="Center"/>
@@ -42,7 +47,7 @@
 
                 </Grid>
                 <Button Grid.Column="1" Style="{StaticResource Button_Modern}" Height="40" Width="auto" Background="#177245"
-                        Content="verification" Foreground="White" FontSize="14" Tag="/Resources/Imgs/Check.png" Margin="10"/>
+                        Content="verification" Foreground="White" FontSize="14" Tag="/Resources/Imgs/Check.png" Margin="10" Command="{Binding VerificationCommand}"/>
                 
             </Grid>
 
