@@ -9,8 +9,11 @@
   <ItemGroup>
     <None Remove="Resources\Imgs\Check.png" />
     <None Remove="Resources\Imgs\CiscoLogo.png" />
+    <None Remove="Resources\Imgs\Delete.png" />
+    <None Remove="Resources\Imgs\Delete_Red.png" />
     <None Remove="Resources\Imgs\Hashtag.png" />
     <None Remove="Resources\Imgs\inf.png" />
+    <None Remove="Resources\Imgs\JuniperLogo.png" />
     <None Remove="Resources\Imgs\protect.png" />
     <None Remove="Resources\Imgs\vendor.png" />
     <None Remove="Resources\Imgs\VerificationIcons\failure.gif" />
@@ -59,7 +62,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\dashboard.png" />
+    <Resource Include="Resources\Imgs\Delete.png" />
+    <Resource Include="Resources\Imgs\Delete_Red.png" />
     <Resource Include="Resources\Imgs\Hashtag.png" />
+    <Resource Include="Resources\Imgs\JuniperLogo.png" />
     <Resource Include="Resources\Imgs\protect.png" />
     <Resource Include="Resources\Imgs\vendor.png" />
     <Resource Include="Resources\Imgs\VerificationIcons\failure.gif" />

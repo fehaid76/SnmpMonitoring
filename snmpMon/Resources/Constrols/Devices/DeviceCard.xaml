@@ -120,12 +120,15 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
+                    <Button Grid.Column="2" Style="{StaticResource Delete_Button_Style}" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                            Command="{Binding DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding DeleteCommandParameter, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                     <Button Grid.Column="1" Style="{StaticResource Go_Button_Style}" Command="{Binding GoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                         CommandParameter="{Binding CommandParameter, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
 
                     <Border CornerRadius="10" SnapsToDevicePixels="True" Margin="5" Grid.Column="0" Background="White"
                             VerticalAlignment="Center" HorizontalAlignment="Left">
-                        <Image RenderOptions.BitmapScalingMode="HighQuality" Height="20" Source="/Resources/Imgs/CiscoLogo.png"
+                        <Image RenderOptions.BitmapScalingMode="HighQuality" Height="20" Width ="20" Source="{Binding Vendor, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                            HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5"/>
                     </Border>
 

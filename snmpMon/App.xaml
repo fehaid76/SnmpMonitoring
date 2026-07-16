@@ -17,6 +17,7 @@
                 <ResourceDictionary Source="/Resources/Styles/Go_Button_Style.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/Interface_Button_Style.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/ScrollViewer_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Delete_Button_Style.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <FontFamily x:Key="Hacen_Font">/Resources/Fonts/#Hacen Liner Screen Bd</FontFamily>
             <FontFamily x:Key="Wafeq_Font">/Resources/Fonts/#Wafeq Medium</FontFamily>

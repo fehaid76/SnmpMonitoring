@@ -11,5 +11,6 @@ namespace snmpMon.Data.Repositories
     {
         Task<bool> AddDeviceAsync(Device device);
         Task<List<Device>> GetAllDevicesAsync();
+        Task<bool> DeleteDeviceAsync(string ipAddress);
     }
 }

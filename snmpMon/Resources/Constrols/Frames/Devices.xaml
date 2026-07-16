@@ -6,8 +6,12 @@
              xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.Devices"
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Frames"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:con="clr-namespace:snmpMon.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="595" d:DesignWidth="980">
+    <UserControl.Resources>
+        <con:DeviceLogoVendorIconConverter x:Key="VendorLogo"/>
+    </UserControl.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadDevicesCommand}"/>
@@ -36,7 +40,7 @@
                 CornerRadius="7" Background="#211E21" Width="auto"
                 Height="auto">
             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Style="{StaticResource SrollViewer_Style}">
-                <ItemsControl Grid.Row="2" ItemsSource="{Binding Devices, UpdateSourceTrigger=PropertyChanged}">
+                <ItemsControl Grid.Row="2" ItemsSource="{Binding Devices}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
@@ -45,8 +49,11 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <ctrl:DeviceCard Height="auto" Width="300"
-                                     GoCommand="{Binding DataContext.TestCMD , RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                     CommandParameter="{Binding}"/>
+                                             Vendor="{Binding Vendor, Converter={StaticResource VendorLogo}}"
+                                     GoCommand="{Binding DataContext.MonitoringCMD , RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                     CommandParameter="{Binding}"
+                                             DeleteCommand="{Binding DataContext.DeleteCMD, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                             DeleteCommandParameter="{Binding}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

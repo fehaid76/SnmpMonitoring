@@ -100,5 +100,32 @@ namespace snmpMon.Data.Repositories
 
             return _devices;
         }
+
+        public async Task<bool> DeleteDeviceAsync(string ipAddress)
+        {
+            int rowsAf = 0;
+            string query = @"DELETE FROM Devices WHERE IPAddress = $IPAddress";
+
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+
+                    using (var cmd = new SqliteCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("$IPAddress", ipAddress);
+
+                        rowsAf = await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+
+            return rowsAf > 0;
+        }
     }
 }

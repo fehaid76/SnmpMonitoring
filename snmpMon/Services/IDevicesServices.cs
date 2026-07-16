@@ -10,5 +10,6 @@ namespace snmpMon.Services
     {
         
         Task<List<Device>> GetAllDevicesAsync();
+        Task<bool> DeleteDeviceAsync(string ipAddress);
     }
 }

@@ -15,6 +15,7 @@ namespace snmpMon.Models
     {
 
         private string _deviceName;
+        private string _vendor;
         private int _seccessCount;
         private int _errorsCount;
         private int _warnningCount;
@@ -28,6 +29,15 @@ namespace snmpMon.Models
             {
                 _deviceName = value;
                 OnPropertyChanged(nameof(DeviceName));
+            }
+        }
+        public string Vendor
+        {
+            get => _vendor;
+            set
+            {
+                _vendor = value;
+                OnPropertyChanged(nameof(Vendor));
             }
         }
         public string IPAddress { get; set; }

@@ -38,7 +38,8 @@ namespace snmpMon.ViewModel
         }
 
         public ICommand AddDev {  get; set; }
-        public ICommand TestCMD {  get; set; }
+        public ICommand MonitoringCMD {  get; set; }
+        public ICommand DeleteCMD {  get; set; }
         public IAsyncRelayCommand LoadDevicesCommand {  get; set; }
         private readonly IDeviceWindowService _windowService;
         private readonly IDevicesServices _devicesServices;
@@ -59,16 +60,28 @@ namespace snmpMon.ViewModel
 
             });
 
-            TestCMD = new RelayCommand<DeviceInfo>(d =>
+            MonitoringCMD = new RelayCommand<DeviceInfo>(d =>
             {
                 _windowService.ShowDeviceMonitoringWin(d);
+            });
+
+            DeleteCMD = new RelayCommand<DeviceInfo>(async d =>
+            {
+                await _deleteDevice(d);
             });
         }
 
 
 
 
-
+        private async Task _deleteDevice(DeviceInfo device)
+        {
+            var isDelete = await _devicesServices.DeleteDeviceAsync(device.IPAddress);
+            if (isDelete)
+            {
+                Devices.Remove(device); 
+            }
+        }
         private void _windowService_OnDeviceAdded(Device obj)
         {
             if(obj == null) return;
@@ -98,6 +111,7 @@ namespace snmpMon.ViewModel
                     DeviceName = string.Empty,
                     IPAddress = d.IPAddress,
                     CommunityString = d.CommunityString,
+                    Vendor = d.Vendor,
                 };
 
                 Devices.Add(deviceInfo);

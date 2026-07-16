@@ -31,6 +31,15 @@ namespace snmpMon.Data.Model
             CommunityString = communityString;
         }
 
+        public Device(string iPAddress, string communityString, string vendor, string name)
+        {
+
+            IPAddress = iPAddress;
+            CommunityString = communityString;
+            Vendor = vendor;
+            Name = name;
+        }
+
         public Device() { }
 
 

@@ -95,6 +95,7 @@ namespace snmpMon.ViewModel
                     Name = this.DeviceName,
                     IPAddress = this.IpAddress,
                     CommunityString = this.ComString,
+                    Vendor = this.DeviceVendor,
                 };
                 Device = device;
                 

@@ -100,14 +100,17 @@ namespace snmpMon.Core.Services
         private void GetSystemVendor(string? sysOID)
         {
             string sysVendor = string.Empty;
-            string? sysOidSub = string.Empty;
+            string[] sysOidSub;
+            string vendorOid = string.Empty;
             if (!string.IsNullOrEmpty(sysOID))
             {
-                sysOidSub = sysOID?.Substring(0, 13);
+                sysOidSub = sysOID.Split('.');
+                vendorOid = sysOidSub[6];
 
             }
-            if (_sysVendors.TryGetValue(sysOidSub, out string? sysV))
+            if (_sysVendors.TryGetValue(vendorOid, out string? sysV))
             {
+                
                 sysVendor = sysV;
                 OnDeviceVendorRecieved?.Invoke(sysVendor);
             }
@@ -119,10 +122,10 @@ namespace snmpMon.Core.Services
         }
         private void _sysSystemsVendor()
         {
-            _sysVendors.Add("1.3.6.1.4.1.9", "Cisco");
-            _sysVendors.Add("1.3.6.1.4.1.11", "HP");
-            _sysVendors.Add("1.3.6.1.4.1.2011", "Huawei");
-            _sysVendors.Add("1.3.6.1.4.1.2636", "Juniper");
+            _sysVendors.Add("9", "Cisco");
+            _sysVendors.Add("11", "HP");
+            _sysVendors.Add("2011", "Huawei");
+            _sysVendors.Add("2636", "Juniper");
 
         }
         private async Task<string> GetOidDevice(string oid)

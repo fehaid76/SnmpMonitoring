@@ -135,5 +135,39 @@ namespace snmpMon.Resources.Constrols.Devices
             DependencyProperty.Register("CommandParameter", typeof(object), typeof(DeviceCard), new PropertyMetadata(default));
 
 
+
+        public ICommand DeleteCommand
+        {
+            get { return (ICommand)GetValue(DeleteCommandProperty); }
+            set { SetValue(DeleteCommandProperty, value); }
+        }
+
+        public static readonly DependencyProperty DeleteCommandProperty =
+            DependencyProperty.Register("DeleteCommand", typeof(ICommand), typeof(DeviceCard), new PropertyMetadata(default));
+
+
+
+        public object DeleteCommandParameter
+        {
+            get { return (object)GetValue(DeleteCommandParameterProperty); }
+            set { SetValue(DeleteCommandParameterProperty, value); }
+        }
+
+        public static readonly DependencyProperty DeleteCommandParameterProperty =
+            DependencyProperty.Register("DeleteCommandParameter", typeof(object), typeof(DeviceCard), new PropertyMetadata(default));
+
+
+
+
+        public ImageSource Vendor
+        {
+            get { return (ImageSource)GetValue(VendorProperty); }
+            set { SetValue(VendorProperty, value); }
+        }
+
+        public static readonly DependencyProperty VendorProperty =
+            DependencyProperty.Register("Vendor", typeof(ImageSource), typeof(DeviceCard), new PropertyMetadata(null));
+
+
     }
 }

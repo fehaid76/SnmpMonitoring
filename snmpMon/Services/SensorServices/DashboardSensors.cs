@@ -141,10 +141,10 @@ namespace snmpMon.Services.SensorServices
         }
         private async Task GetInterfacesAsync()
         {
-            var descTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _oidService.InterfacesDescOid());
-            var speedTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _oidService.InterfacesSpeed());
+            var descTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifDescr").Oid);
+            var speedTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifSpeed").Oid);
             var adminStatusTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifAdminStatus").Oid);
-            var operStatusTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _oidService.InterfaceOperStatusOid());
+            var operStatusTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifOperStatus").Oid);
 
             await Task.WhenAll(descTask, speedTask, adminStatusTask, operStatusTask);
 
@@ -198,9 +198,7 @@ namespace snmpMon.Services.SensorServices
         }     
         private void _snmpListener_OnInterfaceStatusChanged(string arg1, bool arg2)
         {
-            Debug.WriteLine("#################################################");
-            Debug.WriteLine($"## New SNMP Traps : {arg1} - {arg2} ##");
-            Debug.WriteLine("#################################################");
+
 
             int interfaceStatus = arg2 ? 1 : 2;
             OnInterfaceStatusChanged?.Invoke(arg1, interfaceStatus);

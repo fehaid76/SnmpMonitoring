@@ -30,6 +30,10 @@ namespace snmpMon.Services
             return await _deviceRepository.GetAllDevicesAsync();
 
         }
+        public async Task<bool> DeleteDeviceAsync(string ipAddress)
+        {
+            return await _deviceRepository.DeleteDeviceAsync(ipAddress);
+        }
 
     }
 }
