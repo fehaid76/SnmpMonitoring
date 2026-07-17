@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace snmpMon.Engine.Services.SnmpTraslatorServices
 {
-    enum AlertLevels
+    public enum AlertLevels
     {
         Info = 1,
         Success,
@@ -115,8 +115,12 @@ namespace snmpMon.Engine.Services.SnmpTraslatorServices
             {
                 return (int)AlertLevels.Info;
             }
+            else if(msg.Contains("DHCP address conflict"))
+            {
+                return (int)AlertLevels.Warnning;
+            }
 
-            return (int)AlertLevels.Info;
+                return (int)AlertLevels.Info;
         }
     }
 }

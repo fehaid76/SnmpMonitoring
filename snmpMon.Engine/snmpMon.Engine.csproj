@@ -10,6 +10,7 @@
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
 		<PackageReference Include="Lextm.SharpSnmpLib" Version="12.5.7" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
 		<PackageReference Include="SharpSnmpLib.Engine" Version="12.0.0" />
 		<PackageReference Include="Lextm.SharpSnmpLib.MibParser" Version="1.0.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

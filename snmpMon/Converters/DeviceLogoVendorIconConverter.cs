@@ -14,8 +14,13 @@ namespace snmpMon.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string imgPath = "";
-            if (value?.ToString() == "Cisco") imgPath = "Cisco.png";
+            if (value?.ToString() == "Cisco") imgPath = "CiscoLogo.png";
             if (value?.ToString() == "Juniper") imgPath = "JuniperLogo.png";
+
+            if (string.IsNullOrEmpty(imgPath))
+            {
+                return null;
+            }
 
             string uriPath = $"pack://application:,,,/Resources/Imgs/{imgPath}";
             try

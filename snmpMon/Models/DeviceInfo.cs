@@ -13,7 +13,7 @@ namespace snmpMon.Models
 {
     public class DeviceInfo : ObservableObject
     {
-
+        private int _deviceID;
         private string _deviceName;
         private string _vendor;
         private int _seccessCount;
@@ -22,6 +22,15 @@ namespace snmpMon.Models
         private int _portsCount;
         private bool _isConnected;
 
+        public int DeviceID
+        {
+            get => _deviceID;
+            set
+            {
+                _deviceID = value;
+                OnPropertyChanged(nameof(DeviceID));
+            }
+        }
         public string DeviceName
         {
             get => _deviceName;

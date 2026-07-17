@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using LiveCharts;
 using LiveCharts.Definitions.Series;
 using LiveCharts.Wpf;
+using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Models;
 using snmpMon.Services.AlertServices;
 using snmpMon.Services.SensorServices;
@@ -16,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+
 
 namespace snmpMon.ViewModel
 {
@@ -130,8 +132,10 @@ namespace snmpMon.ViewModel
         public ICommand InterfaceCommand {  get; set; }
 
         private readonly IDashboardSensors _dashboardSensors;
+        
         public DeviceMonitoringVM(IDashboardSensors dashboardSensors)
         {
+            
             _dashboardSensors = dashboardSensors;
             _dashboardSensors.OnDeviceInterfaceReceived += _dashboardSensors_OnDeviceInterfaceRecieved;
             _dashboardSensors.OnMemoryUsageReceived += _dashboardSensors_OnMemoryUsageRecieved;
@@ -151,6 +155,7 @@ namespace snmpMon.ViewModel
                 
             });
         }
+
 
 
         private void _dashboardSensors_OnUpTimeReceived(TimeSpan obj)

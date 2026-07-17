@@ -12,7 +12,6 @@ namespace snmpMon.Data.Repositories
 {
     public class DeviceRepository : IDeviceRepository
     {
-        
         public async Task<bool> AddDeviceAsync(Device device)
         {
             int rowsAffected = 0;
@@ -52,6 +51,46 @@ namespace snmpMon.Data.Repositories
 
 
             return (rowsAffected > 0);
+        }
+        public async Task<bool> AddAlertMessageAsync(string AlertMessage, int AlertLevel, string AlertTime, string IPAddress)
+        {
+            int rowsAf = 0;
+            string query = @"INSERT INTO SnmpMessages(DeviceID, AlertMessage, AlertLevel, AlertTime)
+                                VALUES(
+                                (SELECT ID 
+	                                FROM Devices
+	                                WHERE IPAddress = $IPAddress),
+                                $AlertMessage,
+                                $AlertLevel,
+                                $AlertTime);";
+
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+
+                    using (var cmd = new SqliteCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("$IPAddress", IPAddress);
+                        cmd.Parameters.AddWithValue("$AlertMessage", AlertMessage);
+                        cmd.Parameters.AddWithValue("$AlertLevel", AlertLevel);
+                        cmd.Parameters.AddWithValue("$AlertTime", AlertTime);
+
+                        rowsAf = await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+                catch (SqliteException ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+            }
+
+            return rowsAf > 0;
         }
 
         public async Task<List<Device>> GetAllDevicesAsync()
@@ -100,7 +139,50 @@ namespace snmpMon.Data.Repositories
 
             return _devices;
         }
+        public async Task<List<DeviceAlert>> GetAllMessagesAsync(string IPAddress)
+        {
+            List<DeviceAlert> _deviceAlerts = new List<DeviceAlert>();
+            string query = @"SELECT * FROM SnmpMessagesView
+                              WHERE IPAddress = $IPAddress;";
 
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+                    using (var cmd = new SqliteCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("$IPAddress", IPAddress);
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                DeviceAlert d = new DeviceAlert
+                                {
+                                    IPAddress = reader["IPAddress"].ToString() ?? "N/A",
+                                    Message = reader["AlertMessage"].ToString() ?? "N/A",
+                                    Level = Convert.ToInt32(reader["AlertLevel"]),
+                                    MessageTime = reader["AlertTime"].ToString() ?? "N/A",
+                                };
+
+                                _deviceAlerts.Add(d);
+                            }
+                        }
+                    }
+                }
+                catch (SqliteException ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
+                return _deviceAlerts;
+            }
+
+        }
         public async Task<bool> DeleteDeviceAsync(string ipAddress)
         {
             int rowsAf = 0;

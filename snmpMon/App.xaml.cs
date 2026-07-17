@@ -21,6 +21,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using snmpMon.Engine.Services.DI;
 
 namespace snmpMon
 {
@@ -76,6 +77,9 @@ namespace snmpMon
             service.AddTransient<ISnmpService, SnmpService>();
             service.AddTransient<IOidService, OidService>();
             service.AddTransient<ISnmpTranslator, SnmpTranslator>();
+
+            // Sub Projects 
+            service.AddDatabaseServices();
         }
 
 

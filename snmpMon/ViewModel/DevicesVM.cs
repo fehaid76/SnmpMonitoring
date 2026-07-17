@@ -3,6 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using snmpMon.Data.Model;
+using snmpMon.Engine.Services.SnmpServices;
+using snmpMon.Engine.Services.SnmpTraslatorServices.Model;
+using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames;
 using snmpMon.Services;
@@ -43,15 +46,17 @@ namespace snmpMon.ViewModel
         public IAsyncRelayCommand LoadDevicesCommand {  get; set; }
         private readonly IDeviceWindowService _windowService;
         private readonly IDevicesServices _devicesServices;
-        public DevicesVM(IDeviceWindowService windowService, IDevicesServices devicesServices)
+        private readonly ISnmpListener _snmpListener;
+        public DevicesVM(IDeviceWindowService windowService, IDevicesServices devicesServices, ISnmpListener snmpListener)
         {
+            _snmpListener = snmpListener;
             _windowService = windowService;
             _devicesServices = devicesServices;
             _windowService.OnDeviceDetails += _windowService_OnDeviceAdded;
-
+            _snmpListener.OnSnmpTrapRecieved += _snmpListener_OnSnmpTrapRecieved;
             LoadDevicesCommand = new AsyncRelayCommand(GetAllDevices);
             LoadDevicesCommand.Execute(null);
-            
+            _snmpListener.StartSnmpListener();
 
 
             AddDev = new RelayCommand(() =>
@@ -63,6 +68,9 @@ namespace snmpMon.ViewModel
             MonitoringCMD = new RelayCommand<DeviceInfo>(d =>
             {
                 _windowService.ShowDeviceMonitoringWin(d);
+                d.ErrorsCount = 0;
+                d.WarnningCount = 0;
+                d.SuccessCount = 0;
             });
 
             DeleteCMD = new RelayCommand<DeviceInfo>(async d =>
@@ -71,8 +79,25 @@ namespace snmpMon.ViewModel
             });
         }
 
-
-
+        private void _snmpListener_OnSnmpTrapRecieved(string arg1, SnmpAlert arg2)
+        {
+            var device = Devices.FirstOrDefault(d => d.IPAddress ==  arg1);
+            if (device != null)
+            {
+                switch (arg2.AlertLevel)
+                {
+                    case (int)AlertLevels.Success:
+                        device.SuccessCount++;
+                        break;
+                    case (int)AlertLevels.Error:
+                        device.ErrorsCount++;
+                        break;
+                    case (int)AlertLevels.Warnning:
+                        device.WarnningCount++;
+                        break;
+                }
+            }
+        }
 
         private async Task _deleteDevice(DeviceInfo device)
         {
@@ -108,7 +133,8 @@ namespace snmpMon.ViewModel
 
                 DeviceInfo deviceInfo = new DeviceInfo()
                 {
-                    DeviceName = string.Empty,
+                    DeviceID = d.ID,
+                    DeviceName = d.Name,
                     IPAddress = d.IPAddress,
                     CommunityString = d.CommunityString,
                     Vendor = d.Vendor,

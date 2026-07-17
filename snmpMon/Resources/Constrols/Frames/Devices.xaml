@@ -9,8 +9,9 @@
              xmlns:con="clr-namespace:snmpMon.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="595" d:DesignWidth="980">
+
     <UserControl.Resources>
-        <con:DeviceLogoVendorIconConverter x:Key="VendorLogo"/>
+        <con:DeviceLogoVendorIconConverter x:Key="VendorDeviceConverter"/>
     </UserControl.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -49,7 +50,6 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <ctrl:DeviceCard Height="auto" Width="300"
-                                             Vendor="{Binding Vendor, Converter={StaticResource VendorLogo}}"
                                      GoCommand="{Binding DataContext.MonitoringCMD , RelativeSource={RelativeSource AncestorType=UserControl}}"
                                      CommandParameter="{Binding}"
                                              DeleteCommand="{Binding DataContext.DeleteCMD, RelativeSource={RelativeSource AncestorType=UserControl}}"

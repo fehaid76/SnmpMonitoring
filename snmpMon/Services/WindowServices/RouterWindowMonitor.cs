@@ -42,17 +42,11 @@ namespace snmpMon.Services.WindowServices
             window.DeviceMonitoring.DataContext = deviceSession.MainGenericViewModel;
 
             window.vm.Device = device;
-            //if (window.DeviceMonitoring.DataContext is DeviceMonitoringVM devMonitoringVm)
-            //{
-            //    window.DeviceMonitoring.DataContext = deviceSession.MainGenericViewModel;
-            //    devMonitoringVm.Device = device;
-            //    window.vm.Device = device;
-            //}
-            
             
             if (window.DeviceMonitoring is DeviceMonitoring devMon)
             {
                 devMon.AlertBox.DataContext = deviceSession.SubGenericViewModel;
+
             }
 
             window.Show();

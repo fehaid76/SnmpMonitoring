@@ -25,6 +25,8 @@ namespace snmpMon.Engine.Services.SnmpTraslatorServices.Model
                         return "/Resources/Imgs/AlertImgs/Warnning.png";
                     case (int)AlertLevels.Error:
                         return "/Resources/Imgs/AlertImgs/Error.png";
+                    case (int)AlertLevels.Info:
+                        return "/Resources/Imgs/AlertImgs/Info.png";
                 }
                 return "";
             }

@@ -159,14 +159,23 @@ namespace snmpMon.Resources.Constrols.Devices
 
 
 
-        public ImageSource Vendor
+
+
+        public string Vendor
         {
-            get { return (ImageSource)GetValue(VendorProperty); }
+            get { return (string)GetValue(VendorProperty); }
             set { SetValue(VendorProperty, value); }
         }
 
         public static readonly DependencyProperty VendorProperty =
-            DependencyProperty.Register("Vendor", typeof(ImageSource), typeof(DeviceCard), new PropertyMetadata(null));
+            DependencyProperty.Register("Vendor", typeof(string), typeof(DeviceCard), new PropertyMetadata(string.Empty));
+
+
+
+
+
+
+
 
 
     }

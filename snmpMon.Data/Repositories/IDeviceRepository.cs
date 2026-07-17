@@ -10,7 +10,9 @@ namespace snmpMon.Data.Repositories
     public interface IDeviceRepository
     {
         Task<bool> AddDeviceAsync(Device device);
+        Task<bool> AddAlertMessageAsync(string AlertMessage, int AlertLevel, string AlertTime, string IPAddress);
         Task<List<Device>> GetAllDevicesAsync();
+        Task<List<DeviceAlert>> GetAllMessagesAsync(string IPAddress);
         Task<bool> DeleteDeviceAsync(string ipAddress);
     }
 }

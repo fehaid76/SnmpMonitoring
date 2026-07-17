@@ -13,6 +13,7 @@ using System.Threading;
 using System.Net.Sockets;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices.Model;
+using snmpMon.Data.Repositories;
 
 namespace snmpMon.Engine.Services.SnmpServices
 {
@@ -26,10 +27,11 @@ namespace snmpMon.Engine.Services.SnmpServices
         private  UdpClient udpClient;
         private CancellationToken token;
         private readonly ISnmpTranslator _snmpTranslator;
-
-        public SnmpListener(ISnmpTranslator snmpTranslator)
+        private readonly IDeviceRepository _deviceRepository;
+        public SnmpListener(ISnmpTranslator snmpTranslator, IDeviceRepository deviceRepository)
         {
             _snmpTranslator = snmpTranslator;
+            _deviceRepository = deviceRepository;
         }
 
         public void StartSnmpListener()
@@ -56,18 +58,10 @@ namespace snmpMon.Engine.Services.SnmpServices
                         string message = string.Empty;
                         string routerIP = e.Sender.Address.ToString();
 
-                        //Debug.WriteLine("###################[ Trap ]#######################");
-                        //Debug.WriteLine(e.Message.Pdu());
-                        //foreach (var item in e.Message.Variables())
-                        //{
-                        //    Debug.WriteLine(item);
-
-                        //}
-                        //Debug.WriteLine("##################################################");
                         var trapMessage = trapsAnalys(e);
 
                         OnSnmpTrapRecieved?.Invoke(routerIP, trapMessage);
-
+                        _= uploadMessagesToDatabase(routerIP, trapMessage);
                     }
                     catch (System.Net.Sockets.SocketException ex)
                     {
@@ -102,6 +96,16 @@ namespace snmpMon.Engine.Services.SnmpServices
             }
         }
 
+        private async Task uploadMessagesToDatabase(string ipAddress, SnmpAlert snmpAlert)
+        {
+            if (!string.IsNullOrEmpty(ipAddress) && snmpAlert != null)
+            {
+                var isUploaded = await _deviceRepository.AddAlertMessageAsync(snmpAlert.AlertMessage,
+                                 snmpAlert.AlertLevel, snmpAlert.AlertTime, ipAddress);
+            }
+
+
+        }
         private void FitleringInterfacesTraps(Variable varBind)
         {
             var oid = varBind.Id.ToString();

@@ -58,9 +58,7 @@ namespace snmpMon.Services.WindowServices
         public void ShowDeviceMonitoringWin(DeviceInfo device)
         {
             _routerWindowMonitor.OpenMonitoringWindow(device);
-            //var win = App.serviceProvider.GetRequiredService<DeviceMonitoringWindow>();
-            //win.vm.Device = device;
-            //win.Show();
+
         }
 
     }

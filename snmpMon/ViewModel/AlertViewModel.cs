@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using snmpMon.Data.Repositories;
+using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices.Model;
 using System;
@@ -16,6 +18,17 @@ namespace snmpMon.ViewModel
     {
         private ObservableCollection<SnmpAlert> _alerts = new ObservableCollection<SnmpAlert>();
         private string _routerIP;
+        private int _routerID;
+
+        public int RouterID
+        {
+            get => _routerID;
+            set
+            {
+                _routerID = value;
+                OnPropertyChanged(nameof(RouterID));
+            }
+        }
         public string RouterIP
         {
             get => _routerIP;
@@ -38,15 +51,22 @@ namespace snmpMon.ViewModel
         public IRelayCommand CleanupCommand {  get; set; }
 
         private readonly ISnmpListener _snmpListener;
-        public AlertViewModel(ISnmpListener snmpListener)
+        private readonly IDeviceRepository _deviceRepository;
+        public AlertViewModel(ISnmpListener snmpListener, IDeviceRepository deviceRepository)
         {
             _snmpListener = snmpListener;
+            _deviceRepository = deviceRepository;
+
             _snmpListener.OnSnmpTrapRecieved += _snmpListener_OnSnmpTrapRecieved;
+
+            _= _getAllMessages();
+
             CleanupCommand = new RelayCommand(() =>
             {
                 Dispose();
             });
         }
+
 
         private void _snmpListener_OnSnmpTrapRecieved(string arg1, SnmpAlert arg2)
         {
@@ -64,7 +84,37 @@ namespace snmpMon.ViewModel
             });
 
         }
+        private async Task _getAllMessages()
+        {
+            try
+            {
 
+                if (Alerts.Count < 1)
+                {
+                    await Task.Delay(500);
+                    var msgs = await _deviceRepository.GetAllMessagesAsync(RouterIP);
+
+                    await App.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        foreach (var msg in msgs)
+                        {
+                            SnmpAlert alert = new SnmpAlert
+                            {
+                                AlertMessage = msg.Message,
+                                AlertLevel = msg.Level,
+                                AlertTime = msg.MessageTime,
+                            };
+                            Alerts.Insert(0, alert);
+                        }
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+            }
+        }
         private void Dispose()
         {
             _snmpListener.OnSnmpTrapRecieved -= _snmpListener_OnSnmpTrapRecieved;
