@@ -5,7 +5,7 @@ namespace snmpMon.MibJson.Services
 {
     public interface IMibParser
     {
-        MibNode GetNode(string nodeName);
+        Task<MibNode> GetNode(string nodeName);
         Task ParseMibJson();
     }
 }

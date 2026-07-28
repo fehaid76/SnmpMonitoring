@@ -16,6 +16,7 @@ namespace snmpMon.MibJson.Services
     {
         Dictionary<string, MibNode> _mibTree;
         private readonly HttpClient _httpClient;
+        private TaskCompletionSource<bool> _initializationTcs = new TaskCompletionSource<bool>();
 
         public MibParser()
         {
@@ -32,33 +33,27 @@ namespace snmpMon.MibJson.Services
                 string jsonString = await _httpClient.GetStringAsync(url);
                 if (!string.IsNullOrEmpty(jsonString))
                 {
-                    _mibTree = JsonConvert.DeserializeObject<Dictionary<string, MibNode>>(jsonString);
-
+                    var result = JsonConvert.DeserializeObject<Dictionary<string, MibNode>>(jsonString);
+                    _mibTree = result ?? new Dictionary<string, MibNode>();
+                    
                 }
 
+                _initializationTcs.TrySetResult(true);
 
-
-            }
-            catch (HttpRequestException ex)
-            {
-                _mibTree = new Dictionary<string, MibNode>();
-                Debug.WriteLine(ex.Message);
-            }
-            catch (JsonException ex)
-            {
-                _mibTree = new Dictionary<string, MibNode>();
-                Debug.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {
                 _mibTree = new Dictionary<string, MibNode>();
+                _initializationTcs.TrySetResult(false);
                 Debug.WriteLine(ex.Message);
 
             }
         }
 
-        public MibNode GetNode(string nodeName)
+        public async Task<MibNode> GetNode(string nodeName)
         {
+            await _initializationTcs.Task;
+
             if (_mibTree != null && _mibTree.TryGetValue(nodeName, out var node))
             {
                 return node;

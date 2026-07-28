@@ -54,5 +54,29 @@ namespace snmpMon.Resources.Constrols.LabelControls
         }
 
 
+
+        public Visibility ButtonRefreshVisibility
+        {
+            get { return (Visibility)GetValue(ButtonRefreshVisibilityProperty); }
+            set { SetValue(ButtonRefreshVisibilityProperty, value); }
+        }
+
+        public static readonly DependencyProperty ButtonRefreshVisibilityProperty =
+            DependencyProperty.Register("ButtonRefreshVisibility", typeof(Visibility), typeof(StatusLabel), new PropertyMetadata(Visibility.Hidden));
+
+
+
+        public ICommand RefreshCommand
+        {
+            get { return (ICommand)GetValue(RefreshCommandProperty); }
+            set { SetValue(RefreshCommandProperty, value); }
+        }
+
+        public static readonly DependencyProperty RefreshCommandProperty =
+            DependencyProperty.Register("RefreshCommand", typeof(ICommand), typeof(StatusLabel), new PropertyMetadata(default));
+
+
+
+
     }
 }

@@ -33,17 +33,17 @@ namespace snmpMon.Services.AlertServices
 
         public void ShowSuccess(string message)
         {
-            _notifier.ShowSuccess(message);
+            //_notifier.ShowSuccess(message);
         }
 
         public void ShowWrannings(string message)
         {
-            _notifier.ShowWarning(message);
+           // _notifier.ShowWarning(message);
         }
 
         public void ShowErrors(string message)
         {
-            _notifier.ShowError(message);
+           // _notifier.ShowError(message);
         }
 
 

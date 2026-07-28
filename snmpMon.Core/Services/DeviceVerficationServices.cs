@@ -59,6 +59,7 @@ namespace snmpMon.Core.Services
 
         private async Task<bool> PingVerification(int timeout = 4000)
         {
+            
             bool isSuccess = false;
             try
             {

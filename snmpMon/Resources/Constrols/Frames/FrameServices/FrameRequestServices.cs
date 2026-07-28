@@ -10,9 +10,15 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
     public class FrameRequestServices : IFrameRequestServices
     {
         private readonly Devices devices = new Devices();
+        private readonly Dashboard dashboard = new Dashboard();
         public UserControl GetDevicesFrame()
         {
             return devices;
+        }
+
+        public UserControl GetOverviewFrame()
+        {
+            return dashboard;
         }
     }
 }

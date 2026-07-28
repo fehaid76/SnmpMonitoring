@@ -58,7 +58,7 @@
 
                     <Grid>
                         <Grid.RowDefinitions>
-                            
+
                             <RowDefinition Height="auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
@@ -113,7 +113,7 @@
                                                Location="{Binding SysInformation.Location, UpdateSourceTrigger=PropertyChanged}"
                                                Status="{Binding SysInformation.IsConnected, UpdateSourceTrigger=PropertyChanged}"
                                                UpTime="{Binding SysInformation.UpTime, UpdateSourceTrigger=PropertyChanged}"/>
-                    <ctrl_alert:AlertingBox Height="335" x:Name="AlertBox"
+                    <ctrl_alert:AlertingBox Height="335" x:Name="AlertBox" Width="450"
                                             RouterIP="{Binding DataContext.Device.IPAddress, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                 </StackPanel>
             </Grid>

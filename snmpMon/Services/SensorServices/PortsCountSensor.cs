@@ -1,6 +1,9 @@
 ﻿using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using snmpMon.Engine.Helper;
+using snmpMon.Engine.Services.SnmpServices;
+using snmpMon.MibJson.Extenstions;
+using snmpMon.MibJson.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,96 +23,66 @@ namespace snmpMon.Services.SensorServices
 
         public event Action<string, int> OnSensorExecuted;
 
-        public PortsCountSensor()
+        IMibParser _mibParser;
+        ISnmpService _snmpService;
+
+        public PortsCountSensor(IMibParser mibParser, ISnmpService snmpService)
         {
+            _mibParser = mibParser;
+            _snmpService = snmpService;
+
             isRunning = false;
             _cts = new CancellationTokenSource();
         }
 
         public async Task PollAsync(string ipAddress, string communityString)
         {
-            if (!isRunning)
-            {
-                isRunning = true;
-                try
-                {
-                    while (!_cts.IsCancellationRequested)
-                    {
-
-                        try
-                        {
-                            var portsResult = await _portsCountAsync(ipAddress, communityString);
-                            OnSensorExecuted?.Invoke(ipAddress, portsResult);
-
-                            await Task.Delay(TimeSpan.FromSeconds(10));
-                        }
-                        catch (Lextm.SharpSnmpLib.Messaging.TimeoutException timeOutEx)
-                        {
-                            Logger.LogCriticalException(timeOutEx, timeOutEx.InnerException.Message);
-                        }
-                        catch (SocketException socketEx)
-                        {
-                            Logger.LogCriticalException(socketEx, socketEx.InnerException.Message);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine(ex.Message);
-                        }
-
-
-                    }
-                }
-                finally
-                {
-                    isRunning = false;
-
-                }
-
-            }
-
-
-        }
-
-        private async Task<int> _portsCountAsync(string ipAddress, string communityString)
-        {
-            int _ports = 0;
-            var oid = new ObjectIdentifier(".1.3.6.1.2.1.2.1.0");
-            List<Variable> _vcl = new List<Variable>() { new Variable(oid) };
+            if (isRunning) return; 
+            isRunning = true;
 
             try
             {
-                
-                var result = await Messenger.GetAsync(VersionCode.V2,
-                    new IPEndPoint(IPAddress.Parse(ipAddress), 161),
-                    new OctetString(communityString),
-                    _vcl);
+                var ip = new IPEndPoint(IPAddress.Parse(ipAddress), 161);
+                var comString = new OctetString(communityString);
+                var oid = _mibParser.GetNode("ifNumber").Oid.ToScalarOid();
+                var objectOid = new ObjectIdentifier(oid);
 
-                if(result != null && result.Count > 0)
+                while (!_cts.IsCancellationRequested)
                 {
-                    if (result[0].Data is Integer32 snmpInteger)
+
+                    try
                     {
-                        _ports = snmpInteger.ToInt32();
+                        var portsResult = await _snmpService.GetIntAsyn(ip, comString, objectOid);
+                        OnSensorExecuted?.Invoke(ipAddress, portsResult);
+
+                        await Task.Delay(TimeSpan.FromSeconds(10), _cts.Token);
                     }
+                    catch (Lextm.SharpSnmpLib.Messaging.TimeoutException timeOutEx)
+                    {
+                        Logger.LogCriticalException(timeOutEx, timeOutEx.Message);
+                    }
+                    catch (SocketException socketEx)
+                    {
+                        Logger.LogCriticalException(socketEx, socketEx.InnerException.Message);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogCriticalException(ex, ex.Message);
+                    }
+
+
                 }
             }
-            catch (Lextm.SharpSnmpLib.Messaging.TimeoutException timeOutEx)
+            finally
             {
-                Logger.LogCriticalException(timeOutEx, timeOutEx.Message);
-            }
-            catch (SocketException socketEx)
-            {
-                Logger.LogCriticalException(socketEx, socketEx.Message);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogCriticalException(ex, ex.Message);
+                isRunning = false;
             }
 
-            return _ports; 
+
         }
 
         public void Dispose()

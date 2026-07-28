@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Frames"
              xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
              mc:Ignorable="d" 
-             d:DesignHeight="595" d:DesignWidth="980">
+             d:DesignHeight="850" d:DesignWidth="980">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>

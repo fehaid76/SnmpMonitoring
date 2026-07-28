@@ -1,5 +1,6 @@
 ﻿using Lextm.SharpSnmpLib.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
+using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.MibJson.Services;
 using snmpMon.Services.SensorServices;
@@ -37,7 +38,10 @@ namespace snmpMon
             this.Closed += MainWindow_Closed;
             snmpListener = App.serviceProvider.GetRequiredService<ISnmpListener>();
             mibParser = App.serviceProvider.GetRequiredService<IMibParser>();
-            mibParser.ParseMibJson();
+
+            this.Loaded += MainWindow_Loaded;
+            //mibParser.ParseMibJson();
+            
 
 
             try
@@ -45,12 +49,23 @@ namespace snmpMon
                 snmpListener.StartSnmpListener();
 
             }
-            catch (System.Net.Sockets.SocketException sex)
+            catch (System.Net.Sockets.SocketException ex)
             {
-                Debug.WriteLine($"Socket Error Code: {sex.SocketErrorCode}");
-                Debug.WriteLine($"Socket Error Message: {sex.Message}");
+                Logger.LogCriticalException(ex, ex.Message);
             }
 
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await mibParser.ParseMibJson();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+            }
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)

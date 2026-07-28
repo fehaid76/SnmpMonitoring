@@ -14,7 +14,8 @@ namespace snmpMon.Services
 {
     public class DevicesServices : IDevicesServices
     {
-        
+        public event Action<string> OnDeviceDeleted; 
+        public event Action<Device> OnDeviceAdded;
         private readonly snmpMon.Data.Repositories.IDeviceRepository _deviceRepository;
 
         public DevicesServices(snmpMon.Data.Repositories.IDeviceRepository deviceRepository)
@@ -25,6 +26,17 @@ namespace snmpMon.Services
 
         }
 
+        public async Task<bool> AddDeviceAsync(Device device)
+        {
+            var isAdded = await _deviceRepository.AddDeviceAsync(device);
+            if (isAdded)
+            {
+                OnDeviceAdded?.Invoke(device);
+            }
+
+            return isAdded;
+        }
+
         public async Task<List<Device>> GetAllDevicesAsync()
         {
             return await _deviceRepository.GetAllDevicesAsync();
@@ -32,7 +44,13 @@ namespace snmpMon.Services
         }
         public async Task<bool> DeleteDeviceAsync(string ipAddress)
         {
-            return await _deviceRepository.DeleteDeviceAsync(ipAddress);
+            var isDeleted = await _deviceRepository.DeleteDeviceAsync(ipAddress);
+            if (isDeleted)
+            {
+                OnDeviceDeleted?.Invoke(ipAddress);
+            }
+
+            return isDeleted;
         }
 
     }

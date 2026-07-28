@@ -1,0 +1,62 @@
+﻿<Window x:Class="snmpMon.View.ConfirmDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:snmpMon.View"
+        xmlns:converter="clr-namespace:snmpMon.Converters"
+        mc:Ignorable="d"
+        Title="ConfirmDialog" Height="150" Width="450"
+        
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False" Background="#292629" WindowStyle="None" BorderThickness="0.5" BorderBrush="#f8f9fa" MouseDown="Window_MouseDown">
+
+    <Window.Resources>
+        <converter:MessageBoxIconConverter x:Key="IconCovertor"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" Style="{StaticResource Close_Button}" Height="15" Width="15" HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Margin="5" Command="{Binding CloseCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <TextBlock Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" FontFamily="{StaticResource Exo_2_Medium}" Foreground="#f8f9fa" HorizontalAlignment="Left"
+                       VerticalAlignment="Center" Margin="10,0,0,0" FontSize="12"/>
+        </Grid>
+        <Line X1="50" X2="1" Stretch="Fill" Opacity="0.5" StrokeThickness="0.4" Stroke="#f8f9fa" Grid.Row="1" HorizontalAlignment="Center"
+              VerticalAlignment="Top"/>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1" FontFamily="{StaticResource Google_Sans}" Foreground="White" FontSize="15"
+                       Text="{Binding Message, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+            <Image Source="{Binding Icon, Converter={StaticResource IconCovertor}, UpdateSourceTrigger=PropertyChanged}" Height="48" Width="48" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   RenderOptions.BitmapScalingMode="HighQuality" Margin="30,0,0,0"/>
+        </Grid>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Content="OK" Foreground="#1b263b" Grid.Column="0" Style="{StaticResource Confirm_Button}"
+                    Height="40" Width="110" Background="#f8f9fa" FontFamily="{StaticResource Google_Sans}" FontWeight="DemiBold" Margin="40,0,0,5"
+                    Command="{Binding OkCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <Button Content="Cancel" Foreground="#1b263b" Grid.Column="2" Style="{StaticResource Confirm_Button}"
+                    Height="40" Width="110" Background="#f8f9fa" FontFamily="{StaticResource Google_Sans}" FontWeight="DemiBold" Margin="0,0,40,5"
+                    Command="{Binding CloseCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+        </Grid>
+    </Grid>
+</Window>

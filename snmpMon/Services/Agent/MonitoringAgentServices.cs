@@ -1,4 +1,5 @@
-﻿using snmpMon.Models;
+﻿using snmpMon.Engine.Helper;
+using snmpMon.Models;
 using snmpMon.Services.AlertServices;
 using snmpMon.Services.SensorServices;
 using System;
@@ -27,27 +28,24 @@ namespace snmpMon.Services.Agent
 
         public async Task StartMonitoring(string ipAddress, string communityString, DeviceInfo deviceInfo)
         {
-            _deviceInfo = deviceInfo;
-            List<Task> tasks = new List<Task>();
-            if (_deviceInfo.DeviceName == string.Empty)
+
+            _deviceInfo = deviceInfo ?? new DeviceInfo();
+            if (string.IsNullOrWhiteSpace(_deviceInfo.DeviceName))
                 _deviceInfo.DeviceName = "Unknown device";
-            foreach (var sensor in _sensors)
+
+            var tasks = _sensors.Select(async sensor =>
             {
-                var task = Task.Run(async () =>
+                try
                 {
-                    try
-                    {
-                        await sensor.PollAsync(ipAddress, communityString);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.Message);
-                    }
-                });
-                tasks.Add(task);
 
+                    await sensor.PollAsync(ipAddress, communityString);
 
-            }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCriticalException(ex, ex.Message);
+                }
+            });
 
             await Task.WhenAll(tasks);
             

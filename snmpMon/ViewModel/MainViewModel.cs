@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using snmpMon.Data.Model;
 using snmpMon.Resources.Constrols.Devices;
 using snmpMon.Resources.Constrols.Frames;
 using snmpMon.Resources.Constrols.Frames.FrameServices;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace snmpMon.ViewModel
 {
@@ -25,6 +27,8 @@ namespace snmpMon.ViewModel
             }
         }
 
+        private readonly object _dashboardView;
+        private object _devicesView; 
         public ICommand DevicesCmd { get; set; }
         public ICommand DashboardCmd { get; set; }
 
@@ -33,18 +37,21 @@ namespace snmpMon.ViewModel
         {
             _requestServices = requestServices;
 
-            CurrentView = new Dashboard();
+            _dashboardView = _requestServices.GetOverviewFrame();
+            CurrentView = _dashboardView;
 
             DevicesCmd = new RelayCommand(() =>
             {
-                CurrentView = _requestServices.GetDevicesFrame();
+                _devicesView = _requestServices.GetDevicesFrame();
+                CurrentView = _devicesView;
             });
 
             DashboardCmd = new RelayCommand(() =>
             {
-                CurrentView = new Dashboard();
+                CurrentView = _dashboardView;
             });
-            
+
         }
+
     }
 }

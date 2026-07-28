@@ -1,5 +1,7 @@
-﻿using System;
+﻿using LiveChartsCore;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +38,7 @@ namespace snmpMon.Resources.Constrols.Charts
         }
 
         public static readonly DependencyProperty ValueProperty =
-    DependencyProperty.Register("Value", typeof(double), typeof(Gauge), new PropertyMetadata(default));
+        DependencyProperty.Register("Value", typeof(double), typeof(Gauge), new PropertyMetadata(default));
 
         public double Value
         {
@@ -44,6 +46,8 @@ namespace snmpMon.Resources.Constrols.Charts
             set { SetValue(ValueProperty, value); }
 
         }
+
+
 
         public static readonly DependencyProperty FromValueProperty =
             DependencyProperty.Register("FromValue", typeof(double), typeof(Gauge), new PropertyMetadata(default));

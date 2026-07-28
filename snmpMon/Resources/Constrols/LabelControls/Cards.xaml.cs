@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using LiveCharts.Wpf;
+using Microsoft.Extensions.DependencyInjection;
 using snmpMon.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -27,5 +28,7 @@ namespace snmpMon.Resources.Constrols.LabelControls
             InitializeComponent();
             this.DataContext = App.serviceProvider.GetRequiredService<CardsViewModel>();
         }
+
+        
     }
 }

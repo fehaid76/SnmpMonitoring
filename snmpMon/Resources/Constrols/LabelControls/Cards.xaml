@@ -5,19 +5,55 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
              xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+             xmlns:charts="clr-namespace:snmpMon.Resources.Constrols.Charts"
+             xmlns:box="clr-namespace:snmpMon.Resources.Constrols.BoxesControls"
              mc:Ignorable="d" 
-             d:DesignHeight="87" d:DesignWidth="855">
+             d:DesignHeight="640" d:DesignWidth="855">
     <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <ctrl:StatusLabel Grid.Row="1"
-                                      Title="Online / Up Devices" Count="{Binding DevciesCount, UpdateSourceTrigger=PropertyChanged}"
-                                      Image="/Resources/Imgs/Device.png" Width="280"/>
+                                      Title="Online / Up Devices" Count="{Binding DevicesCount, UpdateSourceTrigger=PropertyChanged}"
+                                      Image="/Resources/Imgs/Device.png" Width="315" ButtonRefreshVisibility="Visible" RefreshCommand="{Binding RefreshCommand}"/>
             <ctrl:StatusLabel Grid.Row="1"
-                                      Title="Average Network Latency" Count="9"
-                                      Image="/Resources/Imgs/Network.png" Width="auto"/>
+                                      Title="Average Network Latency" Count="{Binding AverageLatency, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F2}}"
+                                      Image="/Resources/Imgs/Network.png" Width="315"/>
             <ctrl:StatusLabel Grid.Row="1"
                                       Title="Active Alerts / Traps" Count="9"
-                                      Image="/Resources/Imgs/Alert.png" Width="280"/>
-        </StackPanel>
+                                      Image="/Resources/Imgs/Alert.png" Width="315"/>
+
+            </StackPanel>
+        </Grid>
+        <UniformGrid Grid.Row="2" Columns="2">
+
+            <charts:LineChart Grid.Column="0"
+                              Height="250"
+                              SeriesViews="{Binding SeriesViews2, UpdateSourceTrigger=PropertyChanged}"
+                              XAxes="{Binding XAxesList, UpdateSourceTrigger=PropertyChanged}"
+                              Title="Average Network Latency"
+                              ClearCommand="{Binding ClearCommand}"/>
+
+            <charts:LineChart Grid.Column="1"
+                   Height="250"   
+                   HighValueVisibility="Visible"
+                   HighValue="{Binding TopConsumerDevice, UpdateSourceTrigger=PropertyChanged}"
+                   SeriesViews="{Binding InTrafficViews, UpdateSourceTrigger=PropertyChanged}"
+                   XAxes="{Binding XAxesList, UpdateSourceTrigger=PropertyChanged}"
+                   Title="Inbound/Outbound Traffic"
+                   LegendTextPaint="{Binding LegendTextPaint}"
+                   LegPosition="Top"
+                   ClearCommand="{Binding ClearCommand}"/>
+
+            <box:AlertingBox Width="auto"/>
+
+
+
+        </UniformGrid>
+
     </Grid>
 </UserControl>

@@ -17,7 +17,7 @@ using System.Windows.Controls;
 
 namespace snmpMon.Services.WindowServices
 {
-    public class DeviceWindowService : IDeviceWindowService
+    public class DeviceWindowService : IWindowService
     {
         public event Action<Device> OnDeviceDetails;
         private readonly IRouterWindowMonitor _routerWindowMonitor;
@@ -29,7 +29,7 @@ namespace snmpMon.Services.WindowServices
         public void ShowAddDeviceWindow()
         {
             var win = App.serviceProvider.GetRequiredService<AddDevicWin>();
-            var deviceRepository = App.serviceProvider.GetRequiredService<snmpMon.Data.Repositories.IDeviceRepository>();
+            var devicesServices = App.serviceProvider.GetRequiredService<IDevicesServices>();
             EventHandler closedHandler = null;
 
             closedHandler = (s, e) =>
@@ -43,7 +43,7 @@ namespace snmpMon.Services.WindowServices
                     {
                         Device device = new Device(winDataContext.Device?.IPAddress, winDataContext.Device?.CommunityString, winDataContext.Device?.Vendor, 
                             winDataContext?.Device.Name);
-                        await deviceRepository.AddDeviceAsync(device);
+                        await devicesServices.AddDeviceAsync(device);
                     });
                 }
 
@@ -60,6 +60,18 @@ namespace snmpMon.Services.WindowServices
             _routerWindowMonitor.OpenMonitoringWindow(device);
 
         }
+        public bool ShowConfirmDialog(string message, string title, MessageBoxIcon icon)
+        {
+            var diWin = new ConfirmDialog();
+            var dialogDataContext = App.serviceProvider.GetRequiredService<ConfirmDialogVM>();
+            diWin.DataContext = dialogDataContext;
+            dialogDataContext.Message = message;
+            dialogDataContext.Icon = icon;  
+            dialogDataContext.Title = title;
+            diWin.ShowDialog();
+            return dialogDataContext.IsOk;
+        }
 
+        
     }
 }

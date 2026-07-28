@@ -1,4 +1,5 @@
-﻿using System;
+﻿using snmpMon.Engine.Helper;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace snmpMon.Services.SensorServices
 
         public bool isRunning { get; set; }
         public CancellationTokenSource _cts { get; set; }
+
         public PingSensor()
         {
             _cts = new CancellationTokenSource();
@@ -24,10 +26,11 @@ namespace snmpMon.Services.SensorServices
 
         public async Task PollAsync(string ipAddress, string communityString)
         {
-            
-            if (!isRunning)
+            if (isRunning) return;
+            isRunning = true;
+
+            try
             {
-                isRunning = true;
                 while (!_cts.Token.IsCancellationRequested)
                 {
                     try
@@ -36,27 +39,26 @@ namespace snmpMon.Services.SensorServices
                         OnSensorExecuted?.Invoke(ipAddress, pingEcho);
                         await Task.Delay(TimeSpan.FromSeconds(10), _cts.Token);
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException)
                     {
                         break;
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine(ex.Message);
-                    }
-                    finally
-                    {
-                        isRunning = false;
-
+                        Logger.LogCriticalException(ex, ex.Message);
                     }
 
                 }
-
+            }
+            finally
+            {
+                isRunning = false; 
             }
         }
 
         private async Task<bool> PingAsync(string ipAddress, int timeout = 4000)
         {
+            
             
 
             try
@@ -72,12 +74,6 @@ namespace snmpMon.Services.SensorServices
             {
                 return false;
             }
-
-
-            
-
-
-
         }
 
         public void Dispose()

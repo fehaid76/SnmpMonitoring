@@ -9,12 +9,20 @@
   <ItemGroup>
     <None Remove="Resources\Imgs\Check.png" />
     <None Remove="Resources\Imgs\CiscoLogo.png" />
+    <None Remove="Resources\Imgs\Clear.png" />
     <None Remove="Resources\Imgs\Delete.png" />
     <None Remove="Resources\Imgs\Delete_Red.png" />
     <None Remove="Resources\Imgs\Hashtag.png" />
     <None Remove="Resources\Imgs\inf.png" />
     <None Remove="Resources\Imgs\JuniperLogo.png" />
+    <None Remove="Resources\Imgs\MessageBoxIcons\Error.png" />
+    <None Remove="Resources\Imgs\MessageBoxIcons\Information.png" />
+    <None Remove="Resources\Imgs\MessageBoxIcons\Question.png" />
+    <None Remove="Resources\Imgs\MessageBoxIcons\Warning.png" />
+    <None Remove="Resources\Imgs\Overview.png" />
     <None Remove="Resources\Imgs\protect.png" />
+    <None Remove="Resources\Imgs\Refresh.png" />
+    <None Remove="Resources\Imgs\Top.png" />
     <None Remove="Resources\Imgs\vendor.png" />
     <None Remove="Resources\Imgs\VerificationIcons\failure.gif" />
     <None Remove="Resources\Imgs\VerificationIcons\loading.gif" />
@@ -22,9 +30,11 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.5" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="ScottPlot.WPF" Version="5.1.59" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
@@ -56,6 +66,7 @@
     <Resource Include="Resources\Fonts\Hacen Liner Screen Bd.ttf" />
     <Resource Include="Resources\Imgs\Check.png" />
     <Resource Include="Resources\Imgs\CiscoLogo.png" />
+    <Resource Include="Resources\Imgs\Clear.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\Close.png" />
@@ -66,7 +77,14 @@
     <Resource Include="Resources\Imgs\Delete_Red.png" />
     <Resource Include="Resources\Imgs\Hashtag.png" />
     <Resource Include="Resources\Imgs\JuniperLogo.png" />
+    <Resource Include="Resources\Imgs\MessageBoxIcons\Error.png" />
+    <Resource Include="Resources\Imgs\MessageBoxIcons\Information.png" />
+    <Resource Include="Resources\Imgs\MessageBoxIcons\Question.png" />
+    <Resource Include="Resources\Imgs\MessageBoxIcons\Warning.png" />
+    <Resource Include="Resources\Imgs\Overview.png" />
     <Resource Include="Resources\Imgs\protect.png" />
+    <Resource Include="Resources\Imgs\Refresh.png" />
+    <Resource Include="Resources\Imgs\Top.png" />
     <Resource Include="Resources\Imgs\vendor.png" />
     <Resource Include="Resources\Imgs\VerificationIcons\failure.gif" />
     <Resource Include="Resources\Imgs\VerificationIcons\inf.png" />

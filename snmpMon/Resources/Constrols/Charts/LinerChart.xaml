@@ -7,6 +7,7 @@
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="250" d:DesignWidth="500">
+    
     <Grid>
         <Border CornerRadius="5" SnapsToDevicePixels="True"
                 Margin="5" BorderBrush="#F0F8FF" BorderThickness="0.5">
@@ -20,7 +21,11 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
+                    <Button Grid.Column="2" Height="20"   HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Margin="0,5,8,5" Style="{StaticResource Clear_Button}" Visibility="{Binding ClearButtonVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Command="{Binding ClearCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Content="Clear" Tag="/Resources/Imgs/Clear.png"/>
                     <Image Source="/Resources/Imgs/Title.png" Grid.Column="0" Margin="5"
                            RenderOptions.BitmapScalingMode="HighQuality" Height="20" HorizontalAlignment="Left"
                            VerticalAlignment="Center"/>
@@ -29,19 +34,33 @@
                                Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                 </Grid>
                 <Line Grid.Row="1" Stroke="#F0F8FF" X1="0" X2="1" Stretch="Fill" Height="0.4"/>
-                <lvc:CartesianChart Grid.Row="2" Series="{Binding SeriesCol, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                <lvc:CartesianChart Grid.Row="2" Series="{Binding SeriesCol, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat={}{0:F2}}"
+                                    Zoom="Xy" ZoomingSpeed="10" Margin="5">
+                    <lvc:CartesianChart.Resources>
+                        <Style TargetType="lvc:LineSeries">
+                            <Setter Property="PointGeometry" Value="{x:Null}"/>
+                            <Setter Property="StrokeThickness" Value="1"/>
+                            
+                        </Style>
+                    </lvc:CartesianChart.Resources>
+                    
                     <lvc:CartesianChart.AxisX>
-                        <lvc:Axis Title="X" Labels="{Binding LabelsX, RelativeSource={RelativeSource AncestorType=UserControl}}">
+
+
+                        <lvc:Axis Title="" Labels="10" HorizontalAlignment="Left"
+                                  MinValue="0"
+                                  MaxValue="{Binding AxisMax, RelativeSource={RelativeSource AncestorType=UserControl}}">
                             <lvc:Axis.Separator>
                                 <lvc:Separator IsEnabled="False"/>
                             </lvc:Axis.Separator>
                         </lvc:Axis>
-                        
+
+
                     </lvc:CartesianChart.AxisX>
                     <lvc:CartesianChart.AxisY>
-                        <lvc:Axis Title="Y" Labels="{Binding LabelsY, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                        <lvc:Axis Title="" Labels="{Binding LabelsY, RelativeSource={RelativeSource AncestorType=UserControl}}">
                             <lvc:Axis.Separator>
-                                <lvc:Separator StrokeThickness="0.3"/>
+                                <lvc:Separator StrokeThickness="0.1" Opacity="0.4"/>
                             </lvc:Axis.Separator>
                         </lvc:Axis>
                     </lvc:CartesianChart.AxisY>

@@ -2,10 +2,12 @@
 using snmpMon.Core.Services;
 using snmpMon.Data;
 using snmpMon.Data.Repositories;
+using snmpMon.Engine.Services.DI;
 using snmpMon.Engine.Services.OidServices;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.MibJson.Services;
+using snmpMon.Resources.Constrols.Frames;
 using snmpMon.Resources.Constrols.Frames.FrameServices;
 using snmpMon.Services;
 using snmpMon.Services.Agent;
@@ -21,7 +23,6 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using snmpMon.Engine.Services.DI;
 
 namespace snmpMon
 {
@@ -40,30 +41,38 @@ namespace snmpMon
 
         private void ConfigurationServices(IServiceCollection service)
         {
+            service.AddTransient<IDeviceInterfacesServices, DeviceInterfacesServices>();
             service.AddTransient<MainViewModel>();
-            service.AddTransient<IDevicesServices, DevicesServices>();
-            service.AddTransient<CardsViewModel>();
+            service.AddSingleton<IDevicesServices, DevicesServices>();
+
+            service.AddSingleton<CardsViewModel>();
+
             service.AddTransient<AddDeviceVM>();
             service.AddTransient<AddDevicWin>();
-            service.AddTransient<DevicesVM>();
             service.AddTransient<VerificationViewModel>();
-            service.AddTransient<IDeviceWindowService, DeviceWindowService>();
+            service.AddTransient<IWindowService, DeviceWindowService>();
             service.AddTransient<IDeviceRepository, DeviceRepository>();
             service.AddTransient<DeviceMonitoringWindow>();
             service.AddTransient<DeviceMonitoringVM>();
             service.AddTransient<IDashboardSensors, DashboardSensors>();
+            service.AddTransient<ConfirmDialogVM>();
             // Test
             service.AddTransient<IMonitoringAgentServices,  MonitoringAgentServices>();
             service.AddSingleton<IFrameRequestServices,  FrameRequestServices>();
-            service.AddTransient<IAlertNotify, AlertNotify>();
+            // Alert Notify and Devices VM
+            service.AddSingleton<IAlertNotify, AlertNotify>();
+            service.AddSingleton<DevicesVM>();
+            ////////////////////////////////////////////////
             service.AddTransient<AlertViewModel>();
             service.AddSingleton<IRouterWindowMonitor, RouterWindowMonitor>();
             service.AddSingleton<IDeviceVerficationServices, DeviceVerficationServices>();
-
+            service.AddTransient<IOverviewServices, OverviewServices>();
+            
             service.AddSingleton<IMibParser ,MibParser>();
 
             // Sensors Servies 
             service.AddSingleton<ISnmpListener, SnmpListener>();
+
             service.AddTransient<ISensor, PingSensor>();
             service.AddTransient<ISensor<string, bool>, PingSensor>();
             

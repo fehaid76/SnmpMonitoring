@@ -1,9 +1,12 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#pragma warning disable CA1416
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using LiveCharts;
 using LiveCharts.Definitions.Series;
 using LiveCharts.Wpf;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView.Extensions;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Models;
 using snmpMon.Services.AlertServices;
@@ -147,7 +150,7 @@ namespace snmpMon.ViewModel
             GetLabelsY();
             GetLabelsX();
             GetSeriesCollection();
-            
+
 
             InterfaceCommand = new RelayCommand<DeviceInterface>(d =>
             {
@@ -170,7 +173,7 @@ namespace snmpMon.ViewModel
             {
                 for (int i = 0; i < Interfaces.Count; i++)
                 {
-                    if (Interfaces[i].IfIndex == arg1)
+                    if (Interfaces[i].Description == arg1)
                     {
                         
                         Interfaces[i].AdminStatus = arg2; 
@@ -255,12 +258,12 @@ namespace snmpMon.ViewModel
                 Values = new ChartValues<double> { 5, 7, 9, 12, 15, 20},
                 StrokeThickness = 2,
             });
-            SeriesViews.Add(new LineSeries
-            {
-                Title = "CPU Usage",
-                Values = new ChartValues<double> { 9, 17, 22, 112, 155, 210 },
-                StrokeThickness = 1,
-            });
+            //SeriesViews.Add(new LineSeries
+            //{
+            //    Title = "CPU Usage",
+            //    Values = new ChartValues<double> { 9, 17, 22, 112, 155, 210 },
+            //    StrokeThickness = 1,
+            //});
 
         }
 

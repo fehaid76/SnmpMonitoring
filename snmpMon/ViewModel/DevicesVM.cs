@@ -26,7 +26,7 @@ using System.Windows.Input;
 
 namespace snmpMon.ViewModel
 {
-    public class DevicesVM : ObservableObject
+    public class DevicesVM : ObservableObject , IDisposable
     {
         private ObservableCollection<DeviceInfo> _devices = new ObservableCollection<DeviceInfo>();
 
@@ -44,16 +44,17 @@ namespace snmpMon.ViewModel
         public ICommand MonitoringCMD {  get; set; }
         public ICommand DeleteCMD {  get; set; }
         public IAsyncRelayCommand LoadDevicesCommand {  get; set; }
-        private readonly IDeviceWindowService _windowService;
+        private readonly IWindowService _windowService;
         private readonly IDevicesServices _devicesServices;
         private readonly ISnmpListener _snmpListener;
-        public DevicesVM(IDeviceWindowService windowService, IDevicesServices devicesServices, ISnmpListener snmpListener)
+        public DevicesVM(IWindowService windowService, IDevicesServices devicesServices, ISnmpListener snmpListener)
         {
             _snmpListener = snmpListener;
             _windowService = windowService;
             _devicesServices = devicesServices;
-            _windowService.OnDeviceDetails += _windowService_OnDeviceAdded;
-            _snmpListener.OnSnmpTrapRecieved += _snmpListener_OnSnmpTrapRecieved;
+
+            subscribeEvents();
+
             LoadDevicesCommand = new AsyncRelayCommand(GetAllDevices);
             LoadDevicesCommand.Execute(null);
             _snmpListener.StartSnmpListener();
@@ -75,8 +76,24 @@ namespace snmpMon.ViewModel
 
             DeleteCMD = new RelayCommand<DeviceInfo>(async d =>
             {
-                await _deleteDevice(d);
+                if (_windowService.ShowConfirmDialog("Are you sure you want to delete this device?", "Confirm Dialog", MessageBoxIcon.Question))
+                {
+                    await _deleteDevice(d);
+
+                }
             });
+        }
+
+        private void subscribeEvents()
+        {
+            _windowService.OnDeviceDetails += _windowService_OnDeviceAdded;
+            _snmpListener.OnSnmpTrapRecieved += _snmpListener_OnSnmpTrapRecieved;
+        }
+
+        private void UnsubscribeEvents()
+        {
+            _windowService.OnDeviceDetails -= _windowService_OnDeviceAdded;
+            _snmpListener.OnSnmpTrapRecieved -= _snmpListener_OnSnmpTrapRecieved;
         }
 
         private void _snmpListener_OnSnmpTrapRecieved(string arg1, SnmpAlert arg2)
@@ -137,7 +154,7 @@ namespace snmpMon.ViewModel
                     DeviceName = d.Name,
                     IPAddress = d.IPAddress,
                     CommunityString = d.CommunityString,
-                    Vendor = d.Vendor,
+                    Vendor = d.Vendor,      
                 };
 
                 Devices.Add(deviceInfo);
@@ -148,7 +165,9 @@ namespace snmpMon.ViewModel
             }
         }
 
-
-
+        public void Dispose()
+        {
+            UnsubscribeEvents();
+        }
     }
 }

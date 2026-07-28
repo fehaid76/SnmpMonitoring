@@ -14,6 +14,7 @@ using System.Net.Sockets;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices.Model;
 using snmpMon.Data.Repositories;
+using System.Text.RegularExpressions;
 
 namespace snmpMon.Engine.Services.SnmpServices
 {
@@ -137,11 +138,33 @@ namespace snmpMon.Engine.Services.SnmpServices
             if (snmpTrapPacket != null)
             {
                 trapMessage = _snmpTranslator.ProcessIncomingTrap(snmpTrapPacket);
+                CheckForInterfaceStatusChanged(trapMessage.AlertMessage);
             }
 
             return trapMessage;
 
         }
+
+        private void CheckForInterfaceStatusChanged(string trapMessage)
+        {
+            if (string.IsNullOrEmpty(trapMessage))
+                return;
+            string interfaceName = string.Empty;
+            string pattern = @"Interface\s+([A-Za-z0-9/\.]+);?";
+            bool isUp = false;
+            if (trapMessage.Contains("Interface"))
+            {
+                Match match = Regex.Match(trapMessage, pattern, RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    interfaceName = match.Groups[1].Value.TrimEnd(',');
+                    isUp = trapMessage.ToLower().Contains("up");
+                    OnInterfaceStatusChanged?.Invoke(interfaceName, isUp);
+                }
+
+            }   
+        }
+
         public void StopSnmpListener()
         {
             

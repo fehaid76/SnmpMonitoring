@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace snmpMon.Services.SensorServices
 {
@@ -57,8 +58,11 @@ namespace snmpMon.Services.SensorServices
 
             _ipAddress = ipAddress;
             _communityString = communityString;
-
-
+            IPEndPoint ip = new IPEndPoint(IPAddress.Parse(_ipAddress), 161);
+            OctetString community = new OctetString(communityString);
+            ObjectIdentifier freeMemoryOid = new ObjectIdentifier(_oidService.FreeMemoeryOid());
+            ObjectIdentifier usedMemoryOid = new ObjectIdentifier(_oidService.UsedMemoeryOid());
+            ObjectIdentifier cpuUtilizationOid = new ObjectIdentifier(_oidService.CpuUtilization());
 
             Task.Run(async () =>
             {
@@ -73,8 +77,8 @@ namespace snmpMon.Services.SensorServices
                             try
                             {
 
-                                var memoryTask = GetMemeoryUsageAsync();
-                                var cpuTask = GetCPUutilizationAsync();
+                                var memoryTask = GetMemeoryUsageAsync(ip, community, freeMemoryOid, usedMemoryOid);
+                                var cpuTask = GetCPUutilizationAsync(ip, community, cpuUtilizationOid);
                                 await Task.WhenAll(memoryTask, cpuTask);
                             }
                             catch (Exception ex)
@@ -114,7 +118,6 @@ namespace snmpMon.Services.SensorServices
             var upTime = await _snmpService.GetUpTime(_ipAddress, _communityString, _oidService.SysUpTimeOid());
             OnUpTimeReceived?.Invoke(upTime);
 
-
             _upTimeTask = Task.Run(async () =>
             {
                 while (!_cts.IsCancellationRequested)
@@ -139,12 +142,20 @@ namespace snmpMon.Services.SensorServices
 
 
         }
+
         private async Task GetInterfacesAsync()
         {
-            var descTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifDescr").Oid);
-            var speedTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifSpeed").Oid);
-            var adminStatusTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifAdminStatus").Oid);
-            var operStatusTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, _mibParser.GetNode("ifOperStatus").Oid);
+            var descTaskOid = await _mibParser.GetNode("ifDescr");
+            var speedTaskOid = await _mibParser.GetNode("ifSpeed");
+            var adminStatusTaskOid = await _mibParser.GetNode("ifAdminStatus");
+            var operStatusTaskOid = await _mibParser.GetNode("ifOperStatus");
+
+
+
+            var descTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, descTaskOid.Oid);
+            var speedTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, speedTaskOid.Oid);
+            var adminStatusTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, adminStatusTaskOid.Oid);
+            var operStatusTask = _snmpService.GetBulkAsync(_ipAddress, _communityString, operStatusTaskOid.Oid);
 
             await Task.WhenAll(descTask, speedTask, adminStatusTask, operStatusTask);
 
@@ -203,12 +214,12 @@ namespace snmpMon.Services.SensorServices
             int interfaceStatus = arg2 ? 1 : 2;
             OnInterfaceStatusChanged?.Invoke(arg1, interfaceStatus);
         }
-        private async Task GetMemeoryUsageAsync()
+        private async Task GetMemeoryUsageAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier freeMemoryOid, ObjectIdentifier usedMemoryOid)
         {
 
 
-            var usedTask = _snmpService.GetIntAsyn(_ipAddress, _communityString, _oidService.UsedMemoeryOid());
-            var freeTask = _snmpService.GetIntAsyn(_ipAddress, _communityString, _oidService.FreeMemoeryOid());
+            var usedTask = _snmpService.GetIntAsyn(ip, Community, usedMemoryOid);
+            var freeTask = _snmpService.GetIntAsyn(ip, Community, freeMemoryOid);
             await Task.WhenAll(usedTask, freeTask);
 
             double _memoryUsed = await usedTask;
@@ -221,10 +232,10 @@ namespace snmpMon.Services.SensorServices
                 OnMemoryUsageReceived?.Invoke((int)Math.Round(_memoryUsage, 2));
             }
         }    
-        private async Task GetCPUutilizationAsync()
+        private async Task GetCPUutilizationAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier cpuUtilizationOid)
         {
 
-            int _cpuUtilization = await _snmpService.GetIntAsyn(_ipAddress, _communityString, _oidService.CpuUtilization());
+            int _cpuUtilization = await _snmpService.GetIntAsyn(ip, Community, cpuUtilizationOid);
             OnCPUutilizationReceived?.Invoke(_cpuUtilization);
         }
         private string GetOidIndex(string oid)
@@ -249,6 +260,9 @@ namespace snmpMon.Services.SensorServices
 
             return isSuccessed;
         }
+
+
+
         public void Dispose()
         {
             if (!_cts.IsCancellationRequested)

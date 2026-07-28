@@ -22,6 +22,7 @@ namespace snmpMon.Models
         private int _portsCount;
         private bool _isConnected;
 
+
         public int DeviceID
         {
             get => _deviceID;

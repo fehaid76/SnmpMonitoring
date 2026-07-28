@@ -32,6 +32,7 @@
                 <Border Grid.Row="2" Background="#1F1E1E" SnapsToDevicePixels="True"
                         Padding="5" Margin="5">
                         <ListView ItemsSource="{Binding Alerts, UpdateSourceTrigger=PropertyChanged}"
+
                                   Margin="2"
                                   Background="Transparent"
                                   BorderThickness="0"
@@ -51,6 +52,7 @@
                                 <DataTemplate>
                                 <ctrl:SystemMessage
                                         MessageContent="{Binding AlertMessage}"
+                                        ToolTip="{Binding AlertMessage}"
                                         AlertTime="{Binding AlertTime}"
                                         WarningLevelIcon="{Binding WarningLevelIcon}"/>
 
