@@ -10,10 +10,9 @@ namespace snmpMon.Services.SensorServices
     public interface ISensor : IDisposable
     {
         bool isRunning { get; set; }
-        CancellationTokenSource _cts { get; set; }
 
 
-        Task PollAsync(string ipAddress, string communityString);
+        Task PollAsync(string ipAddress, string communityString, CancellationToken cts);
         
 
     }

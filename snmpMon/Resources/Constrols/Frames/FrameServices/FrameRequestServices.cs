@@ -1,4 +1,5 @@
-﻿using System;
+﻿using snmpMon.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,13 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
     {
         private readonly Devices devices = new Devices();
         private readonly Dashboard dashboard = new Dashboard();
+        private readonly SnmpAlerts snmpAlerts = new SnmpAlerts();
+
+
+
         public UserControl GetDevicesFrame()
         {
+
             return devices;
         }
 
@@ -20,5 +26,15 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
         {
             return dashboard;
         }
+
+        public UserControl GetAlertsFrame()
+        {
+            return snmpAlerts;
+        }
+
+
+
+
+
     }
 }

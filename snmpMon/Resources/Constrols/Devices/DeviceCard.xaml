@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Devices"
              xmlns:co="clr-namespace:snmpMon.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="180" d:DesignWidth="300">
+             d:DesignWidth="300">
     <UserControl.Resources>
         <co:DeviceLogoVendorIconConverter x:Key="VendorLogoConverter"/>
     </UserControl.Resources>
@@ -15,7 +15,6 @@
                  BorderThickness="0.5" BorderBrush="#F0F8FF" Margin="10" SnapsToDevicePixels="True">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
@@ -55,48 +54,11 @@
                                FontFamily="{StaticResource Google_Sans}"/>
                 </Grid>
                 <Line X1="240" Stroke="White" Height="0.5" StrokeThickness="0.2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <Grid Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Image Source="/Resources/Imgs/AlertImgs/Success.png" RenderOptions.BitmapScalingMode="HighQuality"
-                           Height="20" Width="20" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
-                        <Image.ToolTip>
-                            <ToolTip Style="{StaticResource ToolTip_Style}" Content="UP"/>
-                        </Image.ToolTip>
-                    </Image>
-                    <TextBlock Grid.Column="1" Text="{Binding SuccessCount, UpdateSourceTrigger=PropertyChanged}"
-                               FontSize="15" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-                    <Image Source="/Resources/Imgs/AlertImgs/Warnning.png" RenderOptions.BitmapScalingMode="HighQuality"
-                           Height="20" Width="20" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
-                        <Image.ToolTip>
-                            <ToolTip Style="{StaticResource ToolTip_Style}" Content="Warnnings"/>
-                        </Image.ToolTip>
-                    </Image>
-                    <TextBlock Grid.Column="3" Text="{Binding WarnningCount, UpdateSourceTrigger=PropertyChanged}"
-                               FontSize="15" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-                    <Image Source="/Resources/Imgs/AlertImgs/Error.png" RenderOptions.BitmapScalingMode="HighQuality"
-                           Height="20" Width="20" Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4">
-                        <Image.ToolTip>
-                            <ToolTip Style="{StaticResource ToolTip_Style}" Content="Errors"/>
-                        </Image.ToolTip>
-                    </Image>
-                    <TextBlock Grid.Column="5" Text="{Binding ErrorsCount, UpdateSourceTrigger=PropertyChanged}"
-                               FontSize="15" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-                </Grid>
-                <Grid Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="90"/>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
@@ -118,7 +80,7 @@
                     <TextBlock Grid.Column="4" FontSize="14" Foreground="White" FontFamily="{StaticResource Google_Sans}"
                                Text="{Binding PortsCount, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
-                <Grid Grid.Row="4">
+                <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>

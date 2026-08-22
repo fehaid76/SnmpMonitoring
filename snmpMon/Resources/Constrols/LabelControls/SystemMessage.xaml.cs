@@ -39,6 +39,51 @@ namespace snmpMon.Resources.Constrols.LabelControls
 
 
 
+        public string SNMPSeverity
+        {
+            get { return (string)GetValue(SNMPSeverityProperty); } 
+            set { SetValue(SNMPSeverityProperty, value); }
+        }
+
+        public static readonly DependencyProperty SNMPSeverityProperty =
+            DependencyProperty.Register("SNMPSeverity", typeof(string), typeof(SystemMessage), new PropertyMetadata(string.Empty));
+
+
+
+
+        public int SeverityLevel
+        {
+            get { return (int)GetValue(SeverityLevelProperty); }
+            set { SetValue(SeverityLevelProperty, value); }
+        }
+
+        public static readonly DependencyProperty SeverityLevelProperty =
+            DependencyProperty.Register("SeverityLevel", typeof(int), typeof(SystemMessage), new PropertyMetadata(default));
+
+
+
+
+
+        public string Device
+        {
+            get { return (string)GetValue(DeviceProperty); }
+            set { SetValue(DeviceProperty, value); }
+        }
+
+        public static readonly DependencyProperty DeviceProperty =
+            DependencyProperty.Register("Device", typeof(string), typeof(SystemMessage), new PropertyMetadata(string.Empty));
+
+
+
+
+        public Visibility DeviceNameVisibility
+        {
+            get { return (Visibility)GetValue(DeviceNameVisibilityProperty); }
+            set { SetValue(DeviceNameVisibilityProperty, value); }
+        }
+
+        public static readonly DependencyProperty DeviceNameVisibilityProperty =
+            DependencyProperty.Register("DeviceNameVisibility", typeof(Visibility), typeof(SystemMessage), new PropertyMetadata(Visibility.Hidden));
 
 
 
@@ -61,7 +106,6 @@ namespace snmpMon.Resources.Constrols.LabelControls
             set { SetValue(AlertTimeProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for AlertTime.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AlertTimeProperty =
             DependencyProperty.Register("AlertTime", typeof(string), typeof(SystemMessage), new PropertyMetadata(string.Empty));
 

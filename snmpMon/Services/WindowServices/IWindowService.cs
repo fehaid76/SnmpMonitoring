@@ -17,6 +17,7 @@ namespace snmpMon.Services.WindowServices
         void ShowAddDeviceWindow();
         void ShowDeviceMonitoringWin(DeviceInfo device);
         bool ShowConfirmDialog(string message, string title, MessageBoxIcon icon);
+        void ShowInterfaceOverview(string ipAddress, string CommunityString, string ifIndex, string ifDesc);
 
 
     }

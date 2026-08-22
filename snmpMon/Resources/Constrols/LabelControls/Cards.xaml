@@ -13,24 +13,24 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
-            
+            <RowDefinition Height="auto"/>
+
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <ctrl:StatusLabel Grid.Row="1"
-                                      Title="Online / Up Devices" Count="{Binding DevicesCount, UpdateSourceTrigger=PropertyChanged}"
+                <ctrl:StatusLabel Grid.Row="1"
+                                      Title="Online / Up Devices" Count="{Binding DevicesCount}"
                                       Image="/Resources/Imgs/Device.png" Width="315" ButtonRefreshVisibility="Visible" RefreshCommand="{Binding RefreshCommand}"/>
-            <ctrl:StatusLabel Grid.Row="1"
-                                      Title="Average Network Latency" Count="{Binding AverageLatency, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:F2}}"
+                <ctrl:StatusLabel Grid.Row="1"
+                                      Title="Average Network Latency" Count="{Binding AverageLatency, StringFormat={}{0:F2}}"
                                       Image="/Resources/Imgs/Network.png" Width="315"/>
-            <ctrl:StatusLabel Grid.Row="1"
-                                      Title="Active Alerts / Traps" Count="9"
+                <ctrl:StatusLabel Grid.Row="1"
+                                      Title="Active Alerts / Traps" Count="{Binding AlertCount}"
                                       Image="/Resources/Imgs/Alert.png" Width="315"/>
 
             </StackPanel>
         </Grid>
-        <UniformGrid Grid.Row="2" Columns="2">
-
+        <UniformGrid Grid.Row="1" Columns="2">
             <charts:LineChart Grid.Column="0"
                               Height="250"
                               SeriesViews="{Binding SeriesViews2, UpdateSourceTrigger=PropertyChanged}"
@@ -49,11 +49,20 @@
                    LegPosition="Top"
                    ClearCommand="{Binding ClearCommand}"/>
 
-            <box:AlertingBox Width="auto"/>
-
-
 
         </UniformGrid>
+
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <box:AlertingBox x:Name="AlertBox" Width="900" Height="300" Grid.Column="0"
+                 RouterIP="{Binding DataContext.Device.IPAddress, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                 IsDeviceNameVisiable="Visible"/>
+            <box:UptimeDownstreamMonitor Grid.Column="1" Height="300" Width="350"/>
+        </Grid>
 
     </Grid>
 </UserControl>

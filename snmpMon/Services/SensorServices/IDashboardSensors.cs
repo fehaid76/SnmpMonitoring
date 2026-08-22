@@ -7,6 +7,8 @@ namespace snmpMon.Services.SensorServices
 {
     public interface IDashboardSensors : IDisposable
     {
+        event Action<string> DeviceStatusChangedToDown;
+        event Action<string, string> DeviceStatusChangedToUp;
         event Action<double> OnMemoryUsageReceived;
         event Action<int> OnCPUutilizationReceived;
         event Action<List<DeviceInterface>> OnDeviceInterfaceReceived;

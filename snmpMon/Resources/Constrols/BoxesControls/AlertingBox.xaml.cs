@@ -26,9 +26,7 @@ namespace snmpMon.Resources.Constrols.BoxesControls
         public AlertingBox()
         {
             InitializeComponent();
-            //this.DataContext = App.serviceProvider.GetRequiredService<AlertViewModel>();
 
-            
         }
 
 
@@ -41,6 +39,30 @@ namespace snmpMon.Resources.Constrols.BoxesControls
 
         public static readonly DependencyProperty RouterIPProperty =
             DependencyProperty.Register("RouterIP", typeof(string), typeof(AlertingBox), new PropertyMetadata(string.Empty, OnRouterIpChanged));
+
+
+
+        public Visibility IsDeviceNameVisiable
+        {
+            get { return (Visibility)GetValue(IsDeviceNameVisiableProperty); }
+            set { SetValue(IsDeviceNameVisiableProperty, value); }
+        }
+
+        public static readonly DependencyProperty IsDeviceNameVisiableProperty =
+            DependencyProperty.Register("IsDeviceNameVisiable", typeof(Visibility), typeof(AlertingBox), new PropertyMetadata(Visibility.Hidden));
+
+
+
+        public string DeviceName
+        {
+            get { return (string)GetValue(DeviceNameProperty); }
+            set { SetValue(DeviceNameProperty, value); }
+        }
+
+        public static readonly DependencyProperty DeviceNameProperty =
+            DependencyProperty.Register("DeviceName", typeof(string), typeof(AlertingBox), new PropertyMetadata(string.Empty));
+
+
 
         private static void OnRouterIpChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

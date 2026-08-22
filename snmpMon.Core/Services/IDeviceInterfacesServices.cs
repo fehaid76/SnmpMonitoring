@@ -5,8 +5,8 @@ namespace snmpMon.Core.Services
     public interface IDeviceInterfacesServices
     {
         
-        Task DeviceInboundSpeedKbps(List<Device> devices, string oid);
-        double CalculatTotalDeviceInboundSpeedKbps();
+        Task DeviceTrafficSpeedKbps(List<Device> devices, string oid);
+        double CalculatTotalDeviceTrafficSpeedKbps();
         string GetTopInboundDevice();
     }
 }

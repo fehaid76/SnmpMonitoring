@@ -8,19 +8,36 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Grid>
-
+                        <!--Height="30" Width="350"-->
                         <Border CornerRadius="5" SnapsToDevicePixels="True"
-                         Background="White" Height="30" Width="350" Padding="7,0,7,0"
+                         Background="White" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}" Padding="7,0,7,0"
                          BorderThickness="0" x:Name="border">
-                            <ScrollViewer x:Name="PART_ContentHost"
+                            <Grid>
+                                <TextBlock x:Name="Placeholder" 
+                                       Text="{TemplateBinding Tag}"
+                                       FontFamily="/Resources/Fonts/#Google Sans"
+                                       Foreground="Black"
+                                       VerticalAlignment="Center"
+                                       FontSize="12"
+                                       Opacity="0.5"
+                                       Visibility="Collapsed"/>
+
+                                <ScrollViewer x:Name="PART_ContentHost"
                                           HorizontalScrollBarVisibility="Hidden"
                                           VerticalScrollBarVisibility="Hidden"
                                           VerticalAlignment="Center"
                                           Padding="17,0,17,0"/>
+                            </Grid>
 
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Placeholder" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
                         <Trigger Property="IsFocused" Value="True">
                             <Setter TargetName="border" Property="BorderThickness" Value="2"/>
                             <Setter TargetName="border" Property="BorderBrush" Value="Silver"/>

@@ -13,7 +13,9 @@ namespace snmpMon.Services
         event Action<Device> OnDeviceAdded;
         Task<bool> AddDeviceAsync(Device device);
         Task<List<Device>> GetAllDevicesAsync();
+        Task<List<DeviceEndpoint>> GetAllEndPointsDetails();
         Task<bool> DeleteDeviceAsync(string ipAddress);
+        Task<List<DeviceAlert>> GetAllMessagesAsync();
 
     }
 }

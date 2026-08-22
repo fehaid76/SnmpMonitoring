@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -31,12 +32,15 @@ namespace snmpMon.ViewModel
         private object _devicesView; 
         public ICommand DevicesCmd { get; set; }
         public ICommand DashboardCmd { get; set; }
+        public ICommand SnmpAlerts {  get; set; }
 
         private readonly IFrameRequestServices _requestServices;
-        public MainViewModel(IFrameRequestServices requestServices)
+        private readonly IFremeTransientRequestServices _fremeTransientRequest;
+        public MainViewModel(IFrameRequestServices requestServices, IFremeTransientRequestServices fremeTransientRequest)
         {
             _requestServices = requestServices;
-
+            _fremeTransientRequest = fremeTransientRequest;
+           
             _dashboardView = _requestServices.GetOverviewFrame();
             CurrentView = _dashboardView;
 
@@ -44,11 +48,17 @@ namespace snmpMon.ViewModel
             {
                 _devicesView = _requestServices.GetDevicesFrame();
                 CurrentView = _devicesView;
+
             });
 
             DashboardCmd = new RelayCommand(() =>
             {
                 CurrentView = _dashboardView;
+            });
+
+            SnmpAlerts = new RelayCommand(() =>
+            {
+                CurrentView = _fremeTransientRequest.GetSNMPAlertsFrame();
             });
 
         }

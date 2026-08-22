@@ -13,6 +13,7 @@ namespace snmpMon.Models
         public string Type {  get; set; }
         public long Speed {  get; set; }
         private int _adminStatus;
+        private int _operationStatus;
         public int AdminStatus
         {
             get => _adminStatus;
@@ -24,7 +25,17 @@ namespace snmpMon.Models
                 }
             }
         }
-        public int OperationStatus { get; set; }
+        public int OperationStatus
+        {
+            get => _operationStatus;
+            set
+            {
+                if(SetProperty(ref _operationStatus, value))
+                {
+                    OnPropertyChanged(nameof(FormattedOperationStatus));
+                }
+            }
+        }
         public string IfIndex {  get; set; }
 
         public string FormattedSpeed

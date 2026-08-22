@@ -1,6 +1,7 @@
 ﻿using Lextm.SharpSnmpLib;
 using snmpMon.Core.Models;
 using snmpMon.Data.Model;
+using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace snmpMon.Core.Services
             
         }
 
-        public double CalculatTotalDeviceInboundSpeedKbps()
+        public double CalculatTotalDeviceTrafficSpeedKbps()
         {
             long currentTotalDevicesBytes = AllInterfacesBytes();
             DateTime now = DateTime.Now;
@@ -67,43 +68,101 @@ namespace snmpMon.Core.Services
             return Math.Round(_lastSmoothedSpeed, 2);
         }
 
-        public async Task DeviceInboundSpeedKbps(List<Device> devices, string oid)
+        public async Task DeviceTrafficSpeedKbps(List<Device> devices, string oid)
         {
-         _deviceActiveInterfaces.Clear();   
+            _deviceActiveInterfaces.Clear();
             foreach (Device device in devices)
             {
-                var _deviceAcInterfaces = new DeviceActiveInterfaces
+                try
                 {
-                    DeviceName = device.Name,
-                    IPAddress = device.IPAddress,
-                    InOctets = await getInOctets(device.IPAddress, device.CommunityString, oid),
-                };
-                _deviceActiveInterfaces.Add(_deviceAcInterfaces);
+                    var _deviceAcInterfaces = new DeviceActiveInterfaces
+                    {
+                        DeviceName = device.Name,
+                        IPAddress = device.IPAddress,
+                        InOctets = await getInOctets(device.IPAddress, device.CommunityString, oid),
+                    };
+                    _deviceActiveInterfaces.Add(_deviceAcInterfaces);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCriticalException(ex, ex.Message);
+                }
+
             }
         }
 
 
+        //public async Task DeviceTrafficSpeedKbps(List<Device> devices, string oid)
+        //{
+        //    _deviceActiveInterfaces.Clear();
+
+        //    var tasks = devices.Select(async device =>
+        //    {
+        //        double octetsValue = 0;
+
+        //        try
+        //        {
+        //            octetsValue = await getInOctets(device.IPAddress, device.CommunityString, oid);
+
+        //        }
+        //        catch (OperationCanceledException)
+        //        {
+        //            octetsValue = 0;
+        //        }
+
+        //        catch (Exception ex)
+        //        {
+        //            Logger.LogCriticalException(ex, ex.Message);
+
+        //            octetsValue = 0;
+        //        }
+
+        //        return new DeviceActiveInterfaces
+        //        {
+        //            DeviceName = device.Name,
+        //            IPAddress = device.IPAddress,
+        //            InOctets = octetsValue
+        //        };
+        //    });
+
+        //    var results = await Task.WhenAll(tasks);
+
+        //    foreach (var result in results)
+        //    {
+        //        _deviceActiveInterfaces.Add(result);
+        //    }
+        //}
+
 
         private async Task<double> getInOctets(string ip, string communityString, string oid)
         {
-            var IfInOctets = await _snmpService.GetWalkAsync(ip, communityString, oid);
-            if(IfInOctets == null) return 0;
-            double InOctetsValue = 0;
-
-            foreach (var ifc in IfInOctets)
+            try
             {
-                if(ifc?.Data == null) continue;
+                var IfInOctets = await _snmpService.GetWalkAsync(ip, communityString, oid);
+                if (IfInOctets == null) return 0;
+                double InOctetsValue = 0;
 
-                string dataString = ifc.Data.ToString();
-                if (double.TryParse(dataString, out double currentValue))
+                foreach (var ifc in IfInOctets)
                 {
-                    if (currentValue > 0)
-                        InOctetsValue += currentValue;
+                    if (ifc?.Data == null) continue;
+
+                    string dataString = ifc.Data.ToString();
+                    if (double.TryParse(dataString, out double currentValue))
+                    {
+                        if (currentValue > 0)
+                            InOctetsValue += currentValue;
+                    }
+
                 }
-                   
+                return InOctetsValue;
             }
+            catch(Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+                return 0;
+            }
+
             
-            return InOctetsValue;
         }
 
         private long AllInterfacesBytes()

@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:snmpMon"
-             StartupUri="View/MainWindow.xaml">
+             StartupUri="View/MainWindow.xaml"
+    xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -20,7 +21,14 @@
                 <ResourceDictionary Source="/Resources/Styles/Delete_Button_Style.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/Confirm_Button.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/Clear_Button.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/DataGrid_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/DataGridHeader_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/DataGridRow_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/DataGrid_CustomeStyle.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/IntTrafficColumnHeader_Style.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="bool2VisibilityConverter"/>
+
             <FontFamily x:Key="Hacen_Font">/Resources/Fonts/#Hacen Liner Screen Bd</FontFamily>
             <FontFamily x:Key="Wafeq_Font">/Resources/Fonts/#Wafeq Medium</FontFamily>
             <FontFamily x:Key="Simple_Font">/Resources/Fonts/#Simple Think</FontFamily>

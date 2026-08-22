@@ -59,13 +59,14 @@ namespace snmpMon.Core.Services
 
         private async Task<bool> PingVerification(int timeout = 4000)
         {
-            
+            var cancellation = new CancellationTokenSource();
+            var token = cancellation.Token;
             bool isSuccess = false;
             try
             {
                 using (Ping ping = new Ping())
                 {
-                    var sendPing = await ping.SendPingAsync(_ipAddress, timeout);
+                    var sendPing = await ping.SendPingAsync(IPAddress.Parse(_ipAddress), TimeSpan.FromMicroseconds(timeout), null, null, token);
                     var result = sendPing.Status == IPStatus.Success;
                     if (result)
                     {
@@ -73,6 +74,15 @@ namespace snmpMon.Core.Services
                         isSuccess = result;
 
 
+                    }
+                    else
+                    {
+                        OnPingSuccess?.Invoke(false);
+                        OnSnmpProtocolSuccess?.Invoke(false);
+                        OnDeviceVendorRecieved?.Invoke(string.Empty);
+                        cancellation.Cancel();
+                        cancellation.Dispose();
+                        return false;
                     }
                 }
             }

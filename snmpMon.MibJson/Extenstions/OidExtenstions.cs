@@ -8,9 +8,22 @@ namespace snmpMon.MibJson.Extenstions
 {
     public static class OidExtenstions
     {
-        public static string ToScalarOid(this string baseOid)
+        public static string ToScalarOid(this string? baseOid)
         {
+
             return $"{baseOid}.0";
         }
+
+        public static string ToFirstIntanceOid(this string baseOid)
+        {
+            return $"{baseOid}.1";
+        }
+
+        public static string GetOidIndex(this string oid)
+        {
+            return oid.Substring(oid.LastIndexOf('.') + 1);
+        }
+
+
     }
 }

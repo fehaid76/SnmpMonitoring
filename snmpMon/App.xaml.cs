@@ -3,7 +3,6 @@ using snmpMon.Core.Services;
 using snmpMon.Data;
 using snmpMon.Data.Repositories;
 using snmpMon.Engine.Services.DI;
-using snmpMon.Engine.Services.OidServices;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.MibJson.Services;
@@ -23,6 +22,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using InterfaceOverview = snmpMon.View.InterfaceOverview;
 
 namespace snmpMon
 {
@@ -41,12 +41,16 @@ namespace snmpMon
 
         private void ConfigurationServices(IServiceCollection service)
         {
+            // Under Test
+            service.AddTransient<IInterfacesSensors, InterfacesSensors>();
+            service.AddTransient<IDeviceAvailabilityChecker, DeviceAvailabilityChecker>();
+            ///////
             service.AddTransient<IDeviceInterfacesServices, DeviceInterfacesServices>();
             service.AddTransient<MainViewModel>();
             service.AddSingleton<IDevicesServices, DevicesServices>();
-
+            service.AddTransient<SnmpAlertsViewModel>();
             service.AddSingleton<CardsViewModel>();
-
+            service.AddTransient<IFremeTransientRequestServices, FremeTransientRequestServices>();
             service.AddTransient<AddDeviceVM>();
             service.AddTransient<AddDevicWin>();
             service.AddTransient<VerificationViewModel>();
@@ -58,6 +62,7 @@ namespace snmpMon
             service.AddTransient<ConfirmDialogVM>();
             // Test
             service.AddTransient<IMonitoringAgentServices,  MonitoringAgentServices>();
+            /////////
             service.AddSingleton<IFrameRequestServices,  FrameRequestServices>();
             // Alert Notify and Devices VM
             service.AddSingleton<IAlertNotify, AlertNotify>();
@@ -67,7 +72,7 @@ namespace snmpMon
             service.AddSingleton<IRouterWindowMonitor, RouterWindowMonitor>();
             service.AddSingleton<IDeviceVerficationServices, DeviceVerficationServices>();
             service.AddTransient<IOverviewServices, OverviewServices>();
-            
+            service.AddTransient<UptimeDowntineStreamVM>();
             service.AddSingleton<IMibParser ,MibParser>();
 
             // Sensors Servies 
@@ -84,11 +89,12 @@ namespace snmpMon
 
             // Data Layer 
             service.AddTransient<ISnmpService, SnmpService>();
-            service.AddTransient<IOidService, OidService>();
             service.AddTransient<ISnmpTranslator, SnmpTranslator>();
 
             // Sub Projects 
             service.AddDatabaseServices();
+            service.AddTransient<InterfaceOverview>();
+            service.AddTransient<InterfaceOverviewViewModel>();
         }
 
 

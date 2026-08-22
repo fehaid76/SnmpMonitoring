@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
+
 namespace snmpMon.Services.WindowServices
 {
     public class DeviceWindowService : IWindowService
@@ -25,6 +26,19 @@ namespace snmpMon.Services.WindowServices
         {
             _routerWindowMonitor = routerWindowMonitor;
         }
+
+        public void ShowInterfaceOverview(string ipAddress, string CommunityString, string ifIndex, string ifDesc)
+        {
+
+            var vm = App.serviceProvider.GetRequiredService<InterfaceOverviewViewModel>();
+            var win = App.serviceProvider.GetRequiredService<InterfaceOverview>();
+
+            vm.Initialize(ipAddress, CommunityString, ifIndex, ifDesc);
+
+            win.InterfaceOverviewFrm.DataContext = vm;
+            win.Show();
+        }
+
 
         public void ShowAddDeviceWindow()
         {

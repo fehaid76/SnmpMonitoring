@@ -39,41 +39,11 @@ namespace snmpMon.Resources.Constrols.Devices
             set { SetValue(DeviceNameProperty, value); }
         }
 
-        public static readonly DependencyProperty WarnningCountPropertyy =
-            DependencyProperty.Register("WarnningCount", typeof(int), typeof(DeviceCard), new PropertyMetadata(default));
+ 
 
-        public int WarnningCount
-        {
-            get => (int)GetValue(WarnningCountPropertyy);
-            set
-            {
-                SetValue(WarnningCountPropertyy, value);
-            }
-        }
 
-        public static readonly DependencyProperty ErrorCountProperty =
-            DependencyProperty.Register("ErrorCount", typeof(int), typeof(DeviceCard), new PropertyMetadata(default));
 
-        public int ErrorCount
-        {
-            get => (int)GetValue(ErrorCountProperty);
-            set
-            {
-                SetValue(ErrorCountProperty, value);
-            }
-        }
 
-        public static readonly DependencyProperty SuccessCountProperty =
-            DependencyProperty.Register("SuccessCount", typeof(int), typeof(DeviceCard), new PropertyMetadata(default));
-
-        public int SuccessCount
-        {
-            get => (int)GetValue(SuccessCountProperty);
-            set
-            {
-                SetValue(SuccessCountProperty, value);
-            }
-        }
 
         public static readonly DependencyProperty IPAddressProperty =
             DependencyProperty.Register("IPAddress", typeof(string), typeof(DeviceCard), new PropertyMetadata(string.Empty));

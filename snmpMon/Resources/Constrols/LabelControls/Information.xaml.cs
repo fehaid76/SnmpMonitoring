@@ -25,6 +25,10 @@ namespace snmpMon.Resources.Constrols.LabelControls
             InitializeComponent();
         }
 
+
+
+
+
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title", typeof(string), typeof(Information), new PropertyMetadata(string.Empty));
 

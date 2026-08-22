@@ -8,6 +8,7 @@ namespace snmpMon.Data.Model
 {
     public class DeviceAlert
     {
+        public string DeviceName {  get; set; }
         public string IPAddress {  get; set; }
         public string Message {  get; set; }
         public int Level {  get; set; }

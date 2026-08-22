@@ -113,13 +113,13 @@ namespace snmpMon.ViewModel
         private async Task StartVerificationProccess(string ipAddress, string communityString)
         {
             IconsToWaitStatus();
-            var node = GetMibNode();
+            var node = await GetMibNode();
             await _deviceVerficationServices.StartVerificationDevice(ipAddress, communityString, node);
         }
 
-        private MibNode GetMibNode()
+        private async Task<MibNode> GetMibNode()
         {
-            return _mibParser.GetNode("sysObjectID");
+            return await _mibParser.GetNode("sysObjectID");
         }
 
         private void IconsToWaitStatus()

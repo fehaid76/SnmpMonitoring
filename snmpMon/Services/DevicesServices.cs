@@ -42,6 +42,10 @@ namespace snmpMon.Services
             return await _deviceRepository.GetAllDevicesAsync();
 
         }
+        public async Task<List<DeviceEndpoint>> GetAllEndPointsDetails()
+        {
+            return await _deviceRepository.GetDeviceEndpointsAsync();
+        }
         public async Task<bool> DeleteDeviceAsync(string ipAddress)
         {
             var isDeleted = await _deviceRepository.DeleteDeviceAsync(ipAddress);
@@ -51,6 +55,10 @@ namespace snmpMon.Services
             }
 
             return isDeleted;
+        }
+        public async Task<List<DeviceAlert>> GetAllMessagesAsync()
+        {
+            return await _deviceRepository.GetAllMessagesAsync("0");
         }
 
     }

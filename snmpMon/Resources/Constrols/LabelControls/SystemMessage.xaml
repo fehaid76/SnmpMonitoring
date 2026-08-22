@@ -5,7 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
              mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="450">
+             xmlns:converter="clr-namespace:snmpMon.Converters"
+             d:DesignHeight="50">
+
+    <UserControl.Resources>
+        <converter:AlertSeverityBorderColorConverter x:Key="AlertColorsConverter"/>
+    </UserControl.Resources>
+    
     <Grid>
         <Border Background="#1F1E1E" BorderBrush="#3B3939" BorderThickness="1" SnapsToDevicePixels="True"
                 Padding="4,2" CornerRadius="5">
@@ -13,24 +19,34 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Image Source="{Binding WarningLevelIcon, RelativeSource={RelativeSource AncestorType=UserControl}}" RenderOptions.BitmapScalingMode="HighQuality" Height="16" Grid.Column="0"
-                        VerticalAlignment="Center" Margin="3,0"/>
+
+                <Border CornerRadius="6" Grid.Column="0" Margin="3" SnapsToDevicePixels="True" Padding="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Background="{Binding SeverityLevel, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource AlertColorsConverter}}"
+                        Opacity="0.8">
+                    <TextBlock Text="{Binding SNMPSeverity, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="{StaticResource Google_Sans}"
+                               Foreground="#222222" FontSize="11" Margin="1.5"/>
+
+                </Border>
+
                 <TextBlock Text="{Binding MessageContent, RelativeSource={RelativeSource AncestorType=UserControl}}" Grid.Column="3"
-                            VerticalAlignment="Center" FontFamily="{StaticResource Google_Sans}" FontSize="12"
-                           TextWrapping="Wrap"
+                            VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="{StaticResource Google_Sans}" FontSize="12"
+                           TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
                            Foreground="White" Margin="5,2"/>
-                <Border Grid.Column="1" CornerRadius="8" Background="#383838"
-                        BorderThickness="0" SnapsToDevicePixels="True" Padding="4,1" Margin="3,0" VerticalAlignment="Center">
+                <Border Grid.Column="1" CornerRadius="8" Background="#383838" Width="65"
+                        BorderThickness="0" SnapsToDevicePixels="True" Padding="3,1" Margin="3,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding AlertTime, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="{StaticResource Wafeq_Font}" FontSize="10" Margin="5,3,5,3"
                                Foreground="#DEDEDE" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
-                <Border x:Name="DeviceName" Grid.Column="2" HorizontalAlignment="Left" CornerRadius="8" Background="White" BorderThickness="0" Padding="4,1" Margin="3,0" VerticalAlignment="Center">
-                    <TextBlock Text="Cisco Device" FontFamily="{StaticResource Google_Sans}" FontSize="12" HorizontalAlignment="Center"
-                               VerticalAlignment="Center" Foreground="Black"/>
+                <Border x:Name="DeviceName" Grid.Column="2" HorizontalAlignment="Left" CornerRadius="8" Background="#023e8a" BorderThickness="0" Padding="4,1"
+                        Margin="5,0,0,0" VerticalAlignment="Center" Opacity="0.8" Visibility="{Binding DeviceNameVisibility, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <TextBlock Text="{Binding Device, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="{StaticResource Google_Sans}" FontSize="11" HorizontalAlignment="Center"
+                               VerticalAlignment="Center" Foreground="#edede9" Margin="2"/>
                 </Border>
+
+
             </Grid>
         </Border>
     </Grid>

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace snmpMon.Core.Models
+namespace snmpMon.Helper.Model
 {
-    public class IPAddressModel
+    public class ActionDisposableAggregation
     {
         public string IPAddress { get; set; }
-        public string Subnetmask { get; set; }
+        public ActionDisposable actionDisposable { get; set; }
     }
 }

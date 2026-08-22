@@ -23,11 +23,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using snmpMon.Helper.Model;
+using snmpMon.Engine.Helper;
+using snmpMon.Engine.Services.SnmpTraslatorServices.Enums;
 
 namespace snmpMon.ViewModel
 {
     public class DevicesVM : ObservableObject , IDisposable
     {
+        private bool _isDevicesLoaded = false;
+        private List<ActionDisposableAggregation> _MonitoredNodes = new List<ActionDisposableAggregation>();
         private ObservableCollection<DeviceInfo> _devices = new ObservableCollection<DeviceInfo>();
 
         public ObservableCollection<DeviceInfo> Devices
@@ -57,8 +62,7 @@ namespace snmpMon.ViewModel
 
             LoadDevicesCommand = new AsyncRelayCommand(GetAllDevices);
             LoadDevicesCommand.Execute(null);
-            _snmpListener.StartSnmpListener();
-
+            //_snmpListener.StartSnmpListener();
 
             AddDev = new RelayCommand(() =>
             {
@@ -69,9 +73,7 @@ namespace snmpMon.ViewModel
             MonitoringCMD = new RelayCommand<DeviceInfo>(d =>
             {
                 _windowService.ShowDeviceMonitoringWin(d);
-                d.ErrorsCount = 0;
-                d.WarnningCount = 0;
-                d.SuccessCount = 0;
+
             });
 
             DeleteCMD = new RelayCommand<DeviceInfo>(async d =>
@@ -86,67 +88,66 @@ namespace snmpMon.ViewModel
 
         private void subscribeEvents()
         {
+
+
             _windowService.OnDeviceDetails += _windowService_OnDeviceAdded;
-            _snmpListener.OnSnmpTrapRecieved += _snmpListener_OnSnmpTrapRecieved;
         }
 
         private void UnsubscribeEvents()
         {
             _windowService.OnDeviceDetails -= _windowService_OnDeviceAdded;
-            _snmpListener.OnSnmpTrapRecieved -= _snmpListener_OnSnmpTrapRecieved;
         }
 
-        private void _snmpListener_OnSnmpTrapRecieved(string arg1, SnmpAlert arg2)
+
+        private void StopMonitoringProcess(string ipAddress)
         {
-            var device = Devices.FirstOrDefault(d => d.IPAddress ==  arg1);
-            if (device != null)
+            foreach (var device in _MonitoredNodes)
             {
-                switch (arg2.AlertLevel)
+                if(device.IPAddress == ipAddress)
                 {
-                    case (int)AlertLevels.Success:
-                        device.SuccessCount++;
-                        break;
-                    case (int)AlertLevels.Error:
-                        device.ErrorsCount++;
-                        break;
-                    case (int)AlertLevels.Warnning:
-                        device.WarnningCount++;
-                        break;
+                    device.actionDisposable.Dispose();
+                    return;
                 }
             }
+            
         }
-
         private async Task _deleteDevice(DeviceInfo device)
         {
             var isDelete = await _devicesServices.DeleteDeviceAsync(device.IPAddress);
             if (isDelete)
             {
+                StopMonitoringProcess(device.IPAddress);
                 Devices.Remove(device); 
             }
         }
         private void _windowService_OnDeviceAdded(Device obj)
         {
             if(obj == null) return;
-            var agentOrch = App.serviceProvider.GetRequiredService<IMonitoringAgentServices>();
-
+            
             DeviceInfo deviceInfo = new DeviceInfo()
             {
-                DeviceName = string.Empty,
+                DeviceName = obj.Name,
                 IPAddress = obj.IPAddress,
                 CommunityString = obj.CommunityString,
+                Vendor = obj.Vendor,
             };
             Devices.Add(deviceInfo);
-            agentOrch.StartMonitoring(obj.IPAddress, obj.CommunityString, deviceInfo);
-            _windowService.OnDeviceDetails -= _windowService_OnDeviceAdded;
+            _= StartDeviceMonitoringAsync(deviceInfo);
+
+
+
         }
+
+
         private async Task GetAllDevices()
         {
-
+            if (_isDevicesLoaded)
+                return;
+            _isDevicesLoaded = true;
             var _devicesList = await _devicesServices.GetAllDevicesAsync();
             Devices.Clear();
             foreach (var d in _devicesList)
             {
-                var agentOrch = App.serviceProvider.GetRequiredService<IMonitoringAgentServices>();
 
                 DeviceInfo deviceInfo = new DeviceInfo()
                 {
@@ -158,13 +159,27 @@ namespace snmpMon.ViewModel
                 };
 
                 Devices.Add(deviceInfo);
-
-                _= agentOrch.StartMonitoring(deviceInfo.IPAddress, d.CommunityString, deviceInfo);
-                
-
+                _ = StartDeviceMonitoringAsync(deviceInfo);
             }
+
         }
 
+        private async Task StartDeviceMonitoringAsync(DeviceInfo deviceInfo)
+        {
+            try
+            {
+
+                var agentOrch = App.serviceProvider.GetRequiredService<IMonitoringAgentServices>();
+                var monitorTask = await agentOrch.StartMonitoring(deviceInfo.IPAddress, deviceInfo.CommunityString, deviceInfo);
+
+                _MonitoredNodes.Add(monitorTask);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+            }
+        }
         public void Dispose()
         {
             UnsubscribeEvents();

@@ -1,4 +1,6 @@
 ﻿using snmpMon.Engine.Helper;
+using snmpMon.Helper;
+using snmpMon.Helper.Model;
 using snmpMon.Models;
 using snmpMon.Services.AlertServices;
 using snmpMon.Services.SensorServices;
@@ -7,103 +9,179 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
+using Logger = snmpMon.Helper.Logger;
 
 namespace snmpMon.Services.Agent
 {
     public class MonitoringAgentServices : IMonitoringAgentServices
     {
-        private readonly IAlertNotify _alertNotify;
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private ActionDisposable ActionDisposable = null;
+        private ActionDisposableAggregation disposableAggregation = new ActionDisposableAggregation();
+
         private DeviceInfo _deviceInfo;
         private readonly IEnumerable<ISensor> _sensors; 
-        public MonitoringAgentServices(IAlertNotify alertNotify, IEnumerable<ISensor> sensors)
+        public MonitoringAgentServices( IEnumerable<ISensor> sensors)
         {
             _sensors = sensors;
-            _alertNotify = alertNotify;
 
             EventSubsecribing();
         }
 
-        public async Task StartMonitoring(string ipAddress, string communityString, DeviceInfo deviceInfo)
+        public async Task<ActionDisposableAggregation> StartMonitoring(string ipAddress, string communityString, DeviceInfo deviceInfo)
         {
-
             _deviceInfo = deviceInfo ?? new DeviceInfo();
             if (string.IsNullOrWhiteSpace(_deviceInfo.DeviceName))
                 _deviceInfo.DeviceName = "Unknown device";
 
-            var tasks = _sensors.Select(async sensor =>
+            var pollTask = _sensors.Select(async sensor =>
             {
                 try
                 {
-
-                    await sensor.PollAsync(ipAddress, communityString);
-
+                    await sensor.PollAsync(ipAddress, communityString, _cts.Token);
                 }
-                catch (Exception ex)
+                catch (OperationCanceledException) { }
+                catch(Exception ex)
                 {
                     Logger.LogCriticalException(ex, ex.Message);
                 }
             });
 
-            await Task.WhenAll(tasks);
-            
+            await Task.WhenAll(pollTask);
+
+            //foreach(var sensor in _sensors)
+            //{
+            //    _ = Task.Run(async () =>
+            //    {
+            //        try
+            //        {
+            //            await sensor.PollAsync(ipAddress, communityString, _cts.Token);
+            //        }
+            //        catch (OperationCanceledException) { }
+            //        catch (Exception ex)
+            //        {
+            //            Logger.LogCriticalException(ex, ex.Message);
+            //        }
+            //    }, _cts.Token);
+            //}
+
+
+            return preparingDisposableAggregation(ipAddress, ActionDisposable);
+
+
+        }
+
+        private ActionDisposableAggregation preparingDisposableAggregation(string ipAddress, ActionDisposable actionDisposable)
+        {
+            disposableAggregation.IPAddress = ipAddress;
+            disposableAggregation.actionDisposable = actionDisposable;
+            return disposableAggregation;
         }
 
         private void EventSubsecribing()
         {
+            Action cleanupAction = null;  
             var pingSensor = _sensors.OfType<ISensor<string, bool>>().FirstOrDefault();
             if (pingSensor != null)
             {
-                pingSensor.OnSensorExecuted += (ip, isSucc) =>
+
+                Action<string, bool> pingHandler = (ip, isSucc) =>
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
 
                         if (isSucc)
                         {
-                            if (_deviceInfo.IsConnected == false)
-                            {
-                                _alertNotify.ShowSuccess($"{_deviceInfo.DeviceName} status is connected");
-                                _deviceInfo.SuccessCount++;
-                            }
+
 
                             _deviceInfo.IsConnected = true;
                         }
                         else
                         {
-                            if(_deviceInfo.IsConnected == true)
-                            {
-                                _deviceInfo.ErrorsCount++;
-                                _alertNotify.ShowErrors($"{_deviceInfo.DeviceName} status is disconnected");
 
-                            }
                             _deviceInfo.IsConnected = false;
 
 
                         }
                     });
                 };
+
+                if (pingSensor != null)
+                {
+                    pingSensor.OnSensorExecuted += pingHandler;
+                    cleanupAction += () =>
+                    {
+                        pingSensor.OnSensorExecuted -= pingHandler;
+
+                        ProcessCancel();
+
+                    };
+                }
+
+
             }
+
+
 
             var portsSensor = _sensors.OfType<ISensor<string, int>>().FirstOrDefault();
             if(portsSensor != null)
             {
-                portsSensor.OnSensorExecuted += (ip, ports) =>
+
+                Action<string, int> portsHandler = (ip, ports) =>
                 {
                     Application.Current.Dispatcher.Invoke(() => _deviceInfo.PortsCount = ports);
                 };
+
+                if(portsSensor != null)
+                {
+                    portsSensor.OnSensorExecuted += portsHandler;
+                    cleanupAction += () =>
+                    {
+                        portsSensor.OnSensorExecuted -= portsHandler;
+                        ProcessCancel();
+                    };
+                    
+                }
             };
 
-            var deviceName = _sensors.OfType<ISensor<string, string>>().FirstOrDefault();
-            if (deviceName != null)
+
+            ActionDisposable = new ActionDisposable(cleanupAction);
+            
+            
+
+            //var deviceName = _sensors.OfType<ISensor<string, string>>().FirstOrDefault();
+            //if (deviceName != null)
+            //{
+            //    deviceName.OnSensorExecuted += (ip, dvName) =>
+            //    {
+            //        Application.Current.Dispatcher.Invoke(() => _deviceInfo.DeviceName = dvName);
+            //    };
+            //};
+        }
+
+        private void ProcessCancel()
+        {
+            if(_cts != null)
             {
-                deviceName.OnSensorExecuted += (ip, dvName) =>
+                var cts = _cts;
+                _cts = null;
+                try
                 {
-                    Application.Current.Dispatcher.Invoke(() => _deviceInfo.DeviceName = dvName);
-                };
-            };
+                    if (!cts.IsCancellationRequested)
+                    {
+                        cts.Cancel();
+                    }
+                }
+                catch (ObjectDisposedException) { }
+                finally
+                {
+                    cts.Dispose();
+                }
+            }
         }
 
 

@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using snmpMon.Data.Repositories;
+using snmpMon.Engine.Services.SnmpServices;
+using snmpMon.Engine.Services.SnmpTraslatorServices;
+using snmpMon.MibJson.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using snmpMon.Data.Repositories;
 
 namespace snmpMon.Engine.Services.DI
 {
@@ -13,6 +16,8 @@ namespace snmpMon.Engine.Services.DI
         public static IServiceCollection AddDatabaseServices(this IServiceCollection services)
         {
             services.AddTransient<IDeviceRepository, DeviceRepository>();
+            services.AddTransient<ISnmpService, SnmpService>();
+            services.AddSingleton<ISnmpSeverityAnalyzer, SnmpSeverityAnalyzer>();
 
             return services;
         }

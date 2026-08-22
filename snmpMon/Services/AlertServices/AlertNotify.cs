@@ -1,4 +1,5 @@
-﻿using System;
+﻿using snmpMon.Data.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace snmpMon.Services.AlertServices
 {
     public class AlertNotify : IAlertNotify
     {
-
+        public event Action<string, string> OnAlertSent;
         private readonly Notifier _notifier;
         public AlertNotify()
         {
@@ -33,17 +34,23 @@ namespace snmpMon.Services.AlertServices
 
         public void ShowSuccess(string message)
         {
-            //_notifier.ShowSuccess(message);
+            _notifier.ShowSuccess(message);
+            OnAlertSent?.Invoke(DateTime.Now.ToString("HH:mm:ss"), message);
+            
         }
 
         public void ShowWrannings(string message)
         {
-           // _notifier.ShowWarning(message);
+            _notifier.ShowWarning(message);
+            OnAlertSent?.Invoke(DateTime.Now.ToString("HH:mm:ss"), message);
+
         }
 
         public void ShowErrors(string message)
         {
-           // _notifier.ShowError(message);
+            _notifier.ShowError(message);
+            OnAlertSent?.Invoke(DateTime.Now.ToString("HH:mm:ss"), message);
+
         }
 
 

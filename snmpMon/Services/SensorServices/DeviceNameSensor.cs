@@ -19,7 +19,7 @@ namespace snmpMon.Services.SensorServices
     public class DeviceNameSensor : ISensor<string, string>
     {
         public bool isRunning { get; set; }
-        public CancellationTokenSource _cts { get; set; }
+        private CancellationTokenSource _cts;
 
         public event Action<string, string> OnSensorExecuted;
 
@@ -31,30 +31,34 @@ namespace snmpMon.Services.SensorServices
             _mibParser = mibParser;
             isRunning = false;
             _cts = new CancellationTokenSource();
+
+
         }
 
-        public async Task PollAsync(string ipAddress, string communityString)
+        public async Task PollAsync(string ipAddress, string communityString, CancellationToken cts)
         {
             if (isRunning) return;
             isRunning = true;
+            
 
                 try
                 {
                     var ip = new IPEndPoint(IPAddress.Parse(ipAddress), 161);
                     var comString = new OctetString(communityString);
-                    var oid = _mibParser.GetNode("sysName").Oid.ToScalarOid();
-                    var objectID = new ObjectIdentifier(oid);
+                    var oid = await _mibParser.GetNode("sysName");
+                    var objectID = new ObjectIdentifier(oid.Oid.ToScalarOid());
 
-                    
-                    while (!_cts.IsCancellationRequested)
+                    using var timer = new PeriodicTimer(TimeSpan.FromSeconds(20));
+
+                    while (!cts.IsCancellationRequested || !this._cts.IsCancellationRequested)
                     {
                         
                         try
                         {
                             var _deviceNameResult = await _snmpService.GetStringAsync(ip, comString, objectID);
                             OnSensorExecuted?.Invoke(ipAddress, _deviceNameResult);
-                            await Task.Delay(TimeSpan.FromSeconds(10), _cts.Token);
-                        }
+                            await Task.Delay(TimeSpan.FromSeconds(10));
+                    }
                         catch (TaskCanceledException)
                         {
                             break;
@@ -83,12 +87,9 @@ namespace snmpMon.Services.SensorServices
             
         }
 
-
-
         public void Dispose()
         {
-            _cts.Cancel();
-            _cts.Dispose();
+            _cts?.Cancel();
         }
     }
 }

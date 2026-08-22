@@ -7,7 +7,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors" Margin="5"
              xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="400">
+             d:DesignHeight="450" Width="650">
 
     <Grid>
         <Border Background="#1B1B1B" CornerRadius="10" Padding="5"
@@ -24,40 +24,46 @@
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
                     <Image Source="/Resources/Imgs/alert_icon.png" RenderOptions.BitmapScalingMode="HighQuality"
-                           Height="25" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                           Height="25" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,5,0"/>
                     <TextBlock Text="System alerts" FontFamily="{StaticResource Exo_2}" FontSize="15" Foreground="White"
                                HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5" Grid.Column="1"/>
                 </Grid>
-                <Line Grid.Row="1" Stroke="White" Opacity="0.5" Stretch="Fill" X1="200" Height="1" Margin="5"/>
+                <Border Grid.Row="1" Background="White" Opacity="0.5" HorizontalAlignment="Stretch" Margin="5" Height="1"/>
                 <Border Grid.Row="2" Background="#1F1E1E" SnapsToDevicePixels="True"
                         Padding="5" Margin="5">
-                        <ListView ItemsSource="{Binding Alerts, UpdateSourceTrigger=PropertyChanged}"
+                    <ListView ItemsSource="{Binding Alerts, UpdateSourceTrigger=PropertyChanged}"
 
                                   Margin="2"
                                   Background="Transparent"
                                   BorderThickness="0"
                                   VirtualizingPanel.IsVirtualizing="True"
+                                  ScrollViewer.HorizontalScrollBarVisibility="auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="auto"
                                   VirtualizingPanel.VirtualizationMode="Recycling">
                         <ListView.Resources>
                             <Style TargetType="ScrollViewer" BasedOn="{StaticResource SrollViewer_Style}">
                                 <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                                <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
                             </Style>
                         </ListView.Resources>
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel/>
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
                                 <ctrl:SystemMessage
                                         MessageContent="{Binding AlertMessage}"
                                         ToolTip="{Binding AlertMessage}"
                                         AlertTime="{Binding AlertTime}"
-                                        WarningLevelIcon="{Binding WarningLevelIcon}"/>
+                                        SNMPSeverity="{Binding AlertSeverity}"
+                                        SeverityLevel="{Binding AlertLevel}"
+                                        DeviceNameVisibility="{Binding IsDeviceNameVisiable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Device="{Binding DeviceName}"/>
 
                             </DataTemplate>
-                            </ListView.ItemTemplate>
+                        </ListView.ItemTemplate>
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="Focusable" Value="False"/>
@@ -71,8 +77,9 @@
                                 </Setter>
                             </Style>
                         </ListView.ItemContainerStyle>
-                        </ListView>
-                      
+                    </ListView>
+
+
                 </Border>
             </Grid>  
         </Border>

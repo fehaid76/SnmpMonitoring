@@ -27,6 +27,9 @@ namespace snmpMon.Resources.Constrols.LabelControls
         {
             InitializeComponent();
             this.DataContext = App.serviceProvider.GetRequiredService<CardsViewModel>();
+            var AlertVM = App.serviceProvider.GetRequiredService<AlertViewModel>();
+            AlertVM.IsGeneric = true;
+            AlertBox.DataContext = AlertVM;
         }
 
         

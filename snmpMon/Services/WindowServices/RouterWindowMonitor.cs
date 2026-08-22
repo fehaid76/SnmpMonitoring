@@ -6,6 +6,7 @@ using snmpMon.View;
 using snmpMon.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,8 +31,10 @@ namespace snmpMon.Services.WindowServices
                 {
                     MainGenericViewModel = App.serviceProvider.GetRequiredService<DeviceMonitoringVM>(),
                     SubGenericViewModel = App.serviceProvider.GetRequiredService<AlertViewModel>()
+                                
 
                 };
+                
                 _monitoringWindows[ipAddress] = deviceSession;
                 
 
@@ -48,6 +51,7 @@ namespace snmpMon.Services.WindowServices
                 devMon.AlertBox.DataContext = deviceSession.SubGenericViewModel;
 
             }
+
 
             window.Show();
         }

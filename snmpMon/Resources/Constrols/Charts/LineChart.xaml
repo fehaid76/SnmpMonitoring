@@ -56,9 +56,6 @@
                                     LegendPosition="{Binding LegPosition, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     LegendTextSize="13"
                                     ZoomMode="Both"
-                                    AnimationsSpeed="00:00:00"
-                                    EasingFunction="{x:Null}"
-                                    TooltipPosition="Hidden"
                                     />
             </Grid>
 

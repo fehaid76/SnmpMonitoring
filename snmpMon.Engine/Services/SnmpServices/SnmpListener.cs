@@ -35,22 +35,29 @@ namespace snmpMon.Engine.Services.SnmpServices
             _deviceRepository = deviceRepository;
         }
 
-        public void StartSnmpListener()
+        private void StartListenerProcess()
         {
-
-            try
+            if(_listener != null)
             {
-                _listener = new Listener();
-                var store = new ObjectStore();
-                var factory = new SnmpApplicationFactory(store, null, null);
-                var group = new EngineGroup();
-
-                _engine = new SnmpEngine(factory, _listener, group);
                 _listener.AddBinding(new IPEndPoint(IPAddress.Any, 162));
+            }
+        }
+
+        private (ObjectStore Store, SnmpApplicationFactory Factory, EngineGroup Group) ConfigureSnmpEnvironment()
+        {
+            var store = new ObjectStore();
+            var factory = new SnmpApplicationFactory(store, null, null);
+            var group = new EngineGroup();
+
+            return (store, factory, group);
+        }
 
 
 
-
+        private void HandleIncomingTrap()
+        {
+            if(_listener != null)
+            {
                 _listener.MessageReceived += (sender, e) =>
                 {
 
@@ -60,9 +67,12 @@ namespace snmpMon.Engine.Services.SnmpServices
                         string routerIP = e.Sender.Address.ToString();
 
                         var trapMessage = trapsAnalys(e);
+                        if (!string.IsNullOrWhiteSpace(trapMessage.AlertMessage))
+                        {
+                            OnSnmpTrapRecieved?.Invoke(routerIP, trapMessage);
+                            _ = uploadMessagesToDatabase(routerIP, trapMessage);
+                        }
 
-                        OnSnmpTrapRecieved?.Invoke(routerIP, trapMessage);
-                        _= uploadMessagesToDatabase(routerIP, trapMessage);
                     }
                     catch (System.Net.Sockets.SocketException ex)
                     {
@@ -75,19 +85,33 @@ namespace snmpMon.Engine.Services.SnmpServices
 
                 };
 
-                Task.Run(() =>
+            }
+        }
+        private void StartEngineProcess()
+        {
+            Task.Run(() =>
+            {
+                try
                 {
-                    try
-                    {
-                        _engine.Start();
+                    _engine.Start();
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogCriticalException(ex, ex.Message);
+                }
+            });
+        }
+        public void StartSnmpListener()
+        {
 
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogCriticalException(ex, ex.Message);
-                    }
-                });
+            try
+            {
+                _listener = new Listener();
 
+                var snmpEngineFactory = ConfigureSnmpEnvironment();
+                _engine = new SnmpEngine(snmpEngineFactory.Factory, _listener, snmpEngineFactory.Group);
+
+                StartListenerProcess(); HandleIncomingTrap(); StartEngineProcess();
 
             }
             catch (Exception ex)

@@ -32,13 +32,13 @@
                              LabelsY="{Binding LabelsX, UpdateSourceTrigger=PropertyChanged}"/>
             <ctrl:Gauge Width="220" Height="250"
                         Title="CPU Utilization"
-                        Value="{Binding CpuUtilization,UpdateSourceTrigger=PropertyChanged}"
+                        Value="{Binding CpuUtilization,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         FromValue="0"
                         ToValue="95"/>
 
             <ctrl:Gauge Width="220" Height="250"
                         Title="Memory Usage"
-                        Value="{Binding MemoryUsage,UpdateSourceTrigger=PropertyChanged}"
+                        Value="{Binding MemoryUsage,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                         FromValue="0"
                         ToValue="100"/>
 
@@ -86,7 +86,7 @@
                             </Grid>
                         </Border>
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" Style="{StaticResource SrollViewer_Style}" Margin="5">
-                            <ItemsControl ItemsSource="{Binding Interfaces, UpdateSourceTrigger=PropertyChanged}">
+                            <ItemsControl ItemsSource="{Binding Interfaces, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel/>
@@ -113,7 +113,7 @@
                                                Location="{Binding SysInformation.Location, UpdateSourceTrigger=PropertyChanged}"
                                                Status="{Binding SysInformation.IsConnected, UpdateSourceTrigger=PropertyChanged}"
                                                UpTime="{Binding SysInformation.UpTime, UpdateSourceTrigger=PropertyChanged}"/>
-                    <ctrl_alert:AlertingBox Height="335" x:Name="AlertBox" Width="450"
+                    <ctrl_alert:AlertingBox Height="335" x:Name="AlertBox" Width="450" IsDeviceNameVisiable="Collapsed"
                                             RouterIP="{Binding DataContext.Device.IPAddress, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                 </StackPanel>
             </Grid>

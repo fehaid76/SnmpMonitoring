@@ -21,13 +21,16 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
 using LiveChartsCore.Painting;
+using snmpMon.Engine.Services.SnmpServices;
+using snmpMon.Models;
+using System.Diagnostics;
 
 
 namespace snmpMon.ViewModel
 {
     public class CardsViewModel :ObservableObject , IDisposable
     {
-
+        private ObservableCollection<SnmpAlertDetails> _alertDetails = new ObservableCollection<SnmpAlertDetails>();
         private ObservableCollection<Axis> _xAxesList = new ObservableCollection<Axis>();
         public ObservableCollection<Axis> XAxesList
         {
@@ -38,6 +41,7 @@ namespace snmpMon.ViewModel
                 OnPropertyChanged(nameof(XAxesList));
             }
         }
+        private int co = 0;
 
         private  ObservableCollection<ObservablePoint> _latencyValues = new ObservableCollection<ObservablePoint>();
         public ObservableCollection<ObservablePoint> LatencyValues
@@ -123,7 +127,17 @@ namespace snmpMon.ViewModel
         private string _topConsumerDevice;
         private double _averageLatency;
         private int _devicesCount;
+        private int _alertsCount;
 
+        public int AlertCount
+        {
+            get => _alertsCount;
+            set
+            {
+                _alertsCount = value;
+                OnPropertyChanged(nameof(AlertCount));
+            }
+        }
         public string TopConsumerDevice
         {
             get => _topConsumerDevice;
@@ -159,17 +173,19 @@ namespace snmpMon.ViewModel
         private readonly IDevicesServices _devicesServices;
         private readonly IOverviewServices _overviewServices;
         private readonly IWindowService _windowService;
-        public CardsViewModel(IDevicesServices devicesServices, IOverviewServices overviewServices, IWindowService windowService)
+        private readonly ISnmpListener _snmpListener;
+        public CardsViewModel(IDevicesServices devicesServices, IOverviewServices overviewServices, IWindowService windowService, ISnmpListener snmpListener)
         {
 
             
             _devicesServices = devicesServices;
             _overviewServices = overviewServices;
             _windowService = windowService;
+            _snmpListener = snmpListener;
 
             eventSubsecrib();
-            _= _startInterfacesTrafficProcess();
-
+            _startInterfacesTrafficProcess();
+            
             SeriesViews2 = new ObservableCollection<ISeries>
             {
                 new LineSeries<ObservablePoint>
@@ -237,15 +253,19 @@ namespace snmpMon.ViewModel
 
         }
 
-
-        private async Task _startInterfacesTrafficProcess()
+        
+        private void _startInterfacesTrafficProcess()
         {
-            await _overviewServices.StartInboundTraffic();
-            await _overviewServices.StartOutboundTraffic();
+            _overviewServices.StartTrafficMonitoring();
+
         }
+
+
 
         private void eventSubsecrib()
         {
+            
+            _snmpListener.OnSnmpTrapRecieved += _snmpListener_OnSnmpTrapRecieved;
             _overviewServices.OnAverageNetworkLatency += _overviewServices_OnAverageNetworkLatency;
             _overviewServices.OnUpDevices += _overviewServices_OnUpDevices;
             _devicesServices.OnDeviceDeleted += _devicesServices_OnDeviceDeleted;
@@ -255,8 +275,27 @@ namespace snmpMon.ViewModel
             _overviewServices.OnOutboundKbps += _overviewServices_OnOutboundKbps;
         }
 
+        private void _snmpListener_OnSnmpTrapRecieved(string arg1, Engine.Services.SnmpTraslatorServices.Model.SnmpAlert arg2)
+        {
+            if (!string.IsNullOrWhiteSpace(arg1) && arg2 != null)
+            {
+                AlertCount++;
+            }
+        }
+
+        private string getDeviceName(string ipAddress)
+        {
+            var devicesDictionary = Devices.ToDictionary(i => i.IPAddress, n => n.Name);
+            if(devicesDictionary != null && devicesDictionary.TryGetValue(ipAddress, out var deviceName))
+            {
+                return deviceName;
+            }
+            return string.Empty;
+        }
+
         private void eventUnsubsecrib()
         {
+            _snmpListener.OnSnmpTrapRecieved -= _snmpListener_OnSnmpTrapRecieved;
             _overviewServices.OnAverageNetworkLatency -= _overviewServices_OnAverageNetworkLatency;
             _overviewServices.OnUpDevices -= _overviewServices_OnUpDevices;
             _devicesServices.OnDeviceDeleted -= _devicesServices_OnDeviceDeleted;
@@ -266,14 +305,32 @@ namespace snmpMon.ViewModel
             _overviewServices.OnOutboundKbps -= _overviewServices_OnOutboundKbps;
         }
 
+
         private void _overviewServices_OnOutboundKbps(double obj)
         {
+            if (DevicesCount == 0)
+                return;
+
             Application.Current.Dispatcher?.Invoke(() =>
             {
+
+
                 double secondsToday = DateTime.Now.TimeOfDay.TotalSeconds;
-                OutTrafficValues.Add(new ObservablePoint(secondsToday, obj));
                 if(OutTrafficValues.Count >= 30)
+                {
+                    var existingPoint = OutTrafficValues[0];
+                    existingPoint.X = secondsToday;
+                    existingPoint.Y = obj;
+
                     OutTrafficValues.RemoveAt(0);
+                    OutTrafficValues.Add(existingPoint);
+
+                }
+                else
+                {
+                    OutTrafficValues.Add(new ObservablePoint(secondsToday, obj));
+                }
+
             });
         }
 
@@ -284,12 +341,28 @@ namespace snmpMon.ViewModel
 
         private void _overviewServices_OnInboundKbps(double obj)
         {
+
+
             Application.Current.Dispatcher?.Invoke(() =>
             {
-                double secondsToday = DateTime.Now.TimeOfDay.TotalSeconds;
-                InTrafficValues.Add(new ObservablePoint(secondsToday, obj));
-                if (InTrafficValues.Count >= 30)
+                if (DevicesCount == 0)
+                    return;
+
+                    double secondsToday = DateTime.Now.TimeOfDay.TotalSeconds;
+                if(InTrafficValues.Count >= 30)
+                {
+                    var existingPoint = InTrafficValues[0];
+                    existingPoint.X = secondsToday;
+                    existingPoint.Y = obj;
+
                     InTrafficValues.RemoveAt(0);
+                    InTrafficValues.Add(existingPoint);
+                    
+                }
+                else
+                {
+                    InTrafficValues.Add(new ObservablePoint(secondsToday, obj));
+                }
 
             });
 
@@ -327,10 +400,13 @@ namespace snmpMon.ViewModel
 
         private void _overviewServices_OnAverageNetworkLatency(double obj)
         {
+            if (DevicesCount == 0)
+                return;
             System.Windows.Application.Current?.Dispatcher.Invoke(() =>
             {
                 AverageLatency = obj;
                 updateSeries(obj);
+
 
             });
 
@@ -339,9 +415,20 @@ namespace snmpMon.ViewModel
         private void updateSeries(double value)
         {
             double secondsToday = DateTime.Now.TimeOfDay.TotalSeconds;
-            LatencyValues.Add(new ObservablePoint(secondsToday, value));
-            if (LatencyValues.Count >= 30)
+ 
+            if(LatencyValues.Count >= 30)
+            {
+                var existingPoint = LatencyValues[0];
+                existingPoint.X = secondsToday;
+                existingPoint.Y = value;
+
                 LatencyValues.RemoveAt(0);
+                LatencyValues.Add(existingPoint);
+            }
+            else
+            {
+                LatencyValues.Add(new ObservablePoint(secondsToday, value));
+            }
 
             
         }

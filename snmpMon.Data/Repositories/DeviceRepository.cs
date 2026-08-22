@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using snmpMon.Data.Servicces;
 using System.Diagnostics;
+using snmpMon.Data.Extensions;
 
 namespace snmpMon.Data.Repositories
 {
@@ -75,7 +76,7 @@ namespace snmpMon.Data.Repositories
                         cmd.Parameters.AddWithValue("$IPAddress", IPAddress);
                         cmd.Parameters.AddWithValue("$AlertMessage", AlertMessage);
                         cmd.Parameters.AddWithValue("$AlertLevel", AlertLevel);
-                        cmd.Parameters.AddWithValue("$AlertTime", AlertTime);
+                        cmd.Parameters.AddWithValue("$AlertTime", DateTime.Now.ToString("HH:mm:ss yyy:MM:dd"));
 
                         rowsAf = await cmd.ExecuteNonQueryAsync();
                     }
@@ -142,8 +143,17 @@ namespace snmpMon.Data.Repositories
         public async Task<List<DeviceAlert>> GetAllMessagesAsync(string IPAddress)
         {
             List<DeviceAlert> _deviceAlerts = new List<DeviceAlert>();
-            string query = @"SELECT * FROM SnmpMessagesView
+            string query = string.Empty;
+            if (IPAddress == "0")
+            {
+                query = @"SELECT * FROM SnmpMessagesView";
+            }
+            else
+            {
+                query = @"SELECT * FROM SnmpMessagesView
                               WHERE IPAddress = $IPAddress;";
+            }
+             
 
             using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
             {
@@ -159,10 +169,11 @@ namespace snmpMon.Data.Repositories
                             {
                                 DeviceAlert d = new DeviceAlert
                                 {
-                                    IPAddress = reader["IPAddress"].ToString() ?? "N/A",
-                                    Message = reader["AlertMessage"].ToString() ?? "N/A",
+                                    DeviceName = reader["DeviceName"].ToString().SafeIntern() ?? "N/A",
+                                    IPAddress = reader["IPAddress"].ToString().SafeIntern() ?? "N/A",
+                                    Message = reader["AlertMessage"].ToString().SafeIntern() ?? "N/A",
                                     Level = Convert.ToInt32(reader["AlertLevel"]),
-                                    MessageTime = reader["AlertTime"].ToString() ?? "N/A",
+                                    MessageTime = reader["AlertTime"].ToString()?.Replace(" ", " - ") ?? "N/A",
                                 };
 
                                 _deviceAlerts.Add(d);
@@ -208,6 +219,50 @@ namespace snmpMon.Data.Repositories
             }
 
             return rowsAf > 0;
+        }
+        public async Task<List<DeviceEndpoint>> GetDeviceEndpointsAsync()
+        {
+            List<DeviceEndpoint> _endPoints = new List<DeviceEndpoint>();
+            string sqlQuery = @"SELECT ID, Name, IPAddress FROM Devices;";
+
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+
+                    using (var cmd = new SqliteCommand(sqlQuery, con))
+                    {
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    DeviceEndpoint endpoint = new DeviceEndpoint
+                                    {
+                                        ID = Convert.ToInt32(reader["ID"]),
+                                        DeviceName = reader["Name"].ToString() ?? "N/A",
+                                        IPAddress = reader["IPAddress"].ToString() ?? "N/A",
+                                    };
+
+                                    _endPoints.Add(endpoint);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (SqliteException ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
+                return _endPoints;
+            }
         }
     }
 }

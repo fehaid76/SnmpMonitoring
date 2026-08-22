@@ -14,8 +14,7 @@ namespace snmpMon.Services.Agent
         event Action<string> OnTopInboundDevice;
 
         Task StartNetworkAverageLatencyCalculateAsync(List<Device> devicesIPs);
-        Task StartInboundTraffic();
-        Task StartOutboundTraffic();
+        void StartTrafficMonitoring();
         void MemoryCleaner();
     }
 }

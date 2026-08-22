@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
+using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.MibJson.Services;
 using snmpMon.Services.SensorServices;
 using snmpMon.ViewModel;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,6 +32,7 @@ namespace snmpMon
     public partial class MainWindow : Window
     {
         private readonly ISnmpListener snmpListener;
+        private readonly ISnmpSeverityAnalyzer snmpSeverityAnalyzer;
         private readonly IMibParser mibParser;
         public MainWindow()
         {
@@ -38,10 +41,10 @@ namespace snmpMon
             this.Closed += MainWindow_Closed;
             snmpListener = App.serviceProvider.GetRequiredService<ISnmpListener>();
             mibParser = App.serviceProvider.GetRequiredService<IMibParser>();
-
+            snmpSeverityAnalyzer = App.serviceProvider.GetRequiredService<ISnmpSeverityAnalyzer>();
             this.Loaded += MainWindow_Loaded;
-            //mibParser.ParseMibJson();
-            
+
+
 
 
             try
@@ -54,18 +57,51 @@ namespace snmpMon
                 Logger.LogCriticalException(ex, ex.Message);
             }
 
+            
+
         }
 
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private async Task<bool> CheckForConnection()
         {
+            bool isSuccess = false;
             try
             {
-                await mibParser.ParseMibJson();
+                Ping ping = new Ping();
+                var isPingSuccess = await ping.SendPingAsync("8.8.8.8", 1000);
+                isSuccess = isPingSuccess.Status == IPStatus.Success;
+            }
+            catch (TimeoutException ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
             }
             catch (Exception ex)
             {
                 Logger.LogCriticalException(ex, ex.Message);
             }
+
+            return isSuccess;
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!await CheckForConnection())
+            {
+                MessageBox.Show("Please check your internet connection and try again.");
+
+                this.Close();
+            }
+            try
+            {
+                
+                await mibParser.ParseMibJson();
+               // await snmpSeverityAnalyzer.StartSeverityLevelsMapping();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+            }
+
+            
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -78,7 +114,7 @@ namespace snmpMon
                 {
                     sensor.Dispose();
                 }
-                
+
             }
 
             snmpListener.StopSnmpListener();

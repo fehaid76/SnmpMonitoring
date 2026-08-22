@@ -7,11 +7,19 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\Imgs\AlertImgs\Alert.png" />
+    <None Remove="Resources\Imgs\AlertImgs\Critical.png" />
+    <None Remove="Resources\Imgs\AlertImgs\Debug.png" />
+    <None Remove="Resources\Imgs\AlertImgs\Emergency.png" />
+    <None Remove="Resources\Imgs\AlertImgs\Notice.png" />
+    <None Remove="Resources\Imgs\AlertImgs\Warnning.png" />
     <None Remove="Resources\Imgs\Check.png" />
     <None Remove="Resources\Imgs\CiscoLogo.png" />
     <None Remove="Resources\Imgs\Clear.png" />
     <None Remove="Resources\Imgs\Delete.png" />
     <None Remove="Resources\Imgs\Delete_Red.png" />
+    <None Remove="Resources\Imgs\DeviceState.png" />
+    <None Remove="Resources\Imgs\Filter.png" />
     <None Remove="Resources\Imgs\Hashtag.png" />
     <None Remove="Resources\Imgs\inf.png" />
     <None Remove="Resources\Imgs\JuniperLogo.png" />
@@ -19,6 +27,7 @@
     <None Remove="Resources\Imgs\MessageBoxIcons\Information.png" />
     <None Remove="Resources\Imgs\MessageBoxIcons\Question.png" />
     <None Remove="Resources\Imgs\MessageBoxIcons\Warning.png" />
+    <None Remove="Resources\Imgs\Messages.png" />
     <None Remove="Resources\Imgs\Overview.png" />
     <None Remove="Resources\Imgs\protect.png" />
     <None Remove="Resources\Imgs\Refresh.png" />
@@ -64,6 +73,12 @@
     <Resource Include="Resources\Fonts\Simple Think.otf" />
     <Resource Include="Resources\Fonts\Wafeq Medium.otf" />
     <Resource Include="Resources\Fonts\Hacen Liner Screen Bd.ttf" />
+    <Resource Include="Resources\Imgs\AlertImgs\Alert.png" />
+    <Resource Include="Resources\Imgs\AlertImgs\Critical.png" />
+    <Resource Include="Resources\Imgs\AlertImgs\Debug.png" />
+    <Resource Include="Resources\Imgs\AlertImgs\Emergency.png" />
+    <Resource Include="Resources\Imgs\AlertImgs\Notice.png" />
+    <Resource Include="Resources\Imgs\AlertImgs\Warnning.png" />
     <Resource Include="Resources\Imgs\Check.png" />
     <Resource Include="Resources\Imgs\CiscoLogo.png" />
     <Resource Include="Resources\Imgs\Clear.png" />
@@ -75,12 +90,15 @@
     <Resource Include="Resources\Imgs\dashboard.png" />
     <Resource Include="Resources\Imgs\Delete.png" />
     <Resource Include="Resources\Imgs\Delete_Red.png" />
+    <Resource Include="Resources\Imgs\DeviceState.png" />
+    <Resource Include="Resources\Imgs\Filter.png" />
     <Resource Include="Resources\Imgs\Hashtag.png" />
     <Resource Include="Resources\Imgs\JuniperLogo.png" />
     <Resource Include="Resources\Imgs\MessageBoxIcons\Error.png" />
     <Resource Include="Resources\Imgs\MessageBoxIcons\Information.png" />
     <Resource Include="Resources\Imgs\MessageBoxIcons\Question.png" />
     <Resource Include="Resources\Imgs\MessageBoxIcons\Warning.png" />
+    <Resource Include="Resources\Imgs\Messages.png" />
     <Resource Include="Resources\Imgs\Overview.png" />
     <Resource Include="Resources\Imgs\protect.png" />
     <Resource Include="Resources\Imgs\Refresh.png" />
@@ -125,7 +143,6 @@
   <ItemGroup>
     <Resource Include="Resources\Imgs\AlertImgs\Error.png" />
     <Resource Include="Resources\Imgs\AlertImgs\Success.png" />
-    <Resource Include="Resources\Imgs\AlertImgs\Warnning.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Imgs\Router.png" />

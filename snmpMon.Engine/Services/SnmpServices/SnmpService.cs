@@ -4,8 +4,10 @@ using Lextm.SharpSnmpLib.Security;
 using snmpMon.Engine.Helper;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -16,34 +18,74 @@ namespace snmpMon.Engine.Services.SnmpServices
 {
     public class SnmpService : ISnmpService
     {
-        
-        public async Task<int> GetIntAsyn(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
+        public async Task<long> GetLongAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
-            int snmpValue = 0; 
+            var vcl = new[] { new Variable(oid) };
 
-            List<Variable> vcl = new List<Variable>(1) { new Variable(oid) };
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
             try
             {
+
                 var result = await Messenger.GetAsync(VersionCode.V2,
                     ip, communityString,
-                    vcl, cts.Token);
+                    vcl);
 
                 if (result != null && result.Count > 0)
                 {
                     if (result[0].Data is Gauge32 snmpGauge)
                     {
-                        snmpValue = (int)snmpGauge.ToUInt32();
+                        return (int)snmpGauge.ToUInt32();
+                    }
+                    else if (result[0].Data is Counter32 counter32)
+                    {
+                        return counter32.ToUInt32();
+                    }
+
+                }
+            }
+            catch (System.Net.Sockets.SocketException socketEx)
+            {
+                Logger.LogCriticalException(socketEx, socketEx.Message);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+            }
+
+            return 0;
+
+
+        }
+
+        public async Task<long> GetLongAsync(string ip, string communityString, string oid, int port = 161)
+        {
+            return await GetLongAsync(new IPEndPoint(IPAddress.Parse(ip), port), new OctetString(communityString), new ObjectIdentifier(oid));
+        }
+
+
+        public async Task<int> GetIntAsyn(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
+        {
+
+            var vcl = new[] { new Variable(oid) };
+
+            try
+            {
+
+                var result = await Messenger.GetAsync(VersionCode.V2,
+                    ip, communityString,
+                    vcl);
+
+                if (result != null && result.Count > 0)
+                {
+                    if (result[0].Data is Gauge32 snmpGauge)
+                    {
+                        return (int)snmpGauge.ToUInt32();
                     }
                     else if (result[0].Data is Integer32 intValue)
                     {
-                        snmpValue = intValue.ToInt32();
+                        return intValue.ToInt32();
                     }
+                    
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                return 0;
             }
             catch(System.Net.Sockets.SocketException socketEx)
             {
@@ -54,7 +96,7 @@ namespace snmpMon.Engine.Services.SnmpServices
                 Logger.LogCriticalException(ex, ex.Message);
             }
 
-            return snmpValue;
+            return 0;
         }
         public async Task<int> GetIntAsync(string ip, string communityString, string oid, int port = 161)
         {
@@ -63,7 +105,7 @@ namespace snmpMon.Engine.Services.SnmpServices
         public async Task<string> GetStringAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
 
-            List<Variable> vcl = new List<Variable>(1) { new Variable(oid) };
+            var vcl = new [] { new Variable(oid) };
 
             try
             {
@@ -129,14 +171,15 @@ namespace snmpMon.Engine.Services.SnmpServices
         public async Task<List<Variable>> GetWalkAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
             var internalList = new List<Variable>();
-
+            int timeoutMilliseconds = 2000; 
             try
             {
-
+                using var cts = new CancellationTokenSource(timeoutMilliseconds);
                 await Messenger.WalkAsync(VersionCode.V2,
                 ip,
                 communityString, oid,
-                internalList, WalkMode.WithinSubtree);
+                internalList,
+                WalkMode.WithinSubtree, cts.Token).WaitAsync(cts.Token);
                 return internalList;
             }
             catch (System.Net.Sockets.SocketException socketEx)
@@ -159,7 +202,10 @@ namespace snmpMon.Engine.Services.SnmpServices
 
             return await GetWalkAsync(new IPEndPoint(IPAddress.Parse(ip), port), new OctetString(communityString), new ObjectIdentifier(oid));
         }
-        public async Task<List<SnmpVariable>> GetBulkAsync(string ip, string communityString, string oid, int maxRepetation = 10)
+
+        
+
+        public async Task<List<SnmpVariable>> GetBulkAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid, int maxRepetation = 10)
         {
             var internalList = new List<Variable>();
             var _snmpVariables = new List<SnmpVariable>();
@@ -167,10 +213,10 @@ namespace snmpMon.Engine.Services.SnmpServices
             try
             {
                   await Messenger.BulkWalkAsync(VersionCode.V2,
-                    new IPEndPoint(IPAddress.Parse(ip), 161),
-                    new OctetString(communityString),
+                    ip,
+                    communityString,
                     OctetString.Empty,
-                    new ObjectIdentifier(oid),
+                    oid,
                     internalList,
                     maxRepetation,
                     WalkMode.WithinSubtree,
@@ -202,6 +248,10 @@ namespace snmpMon.Engine.Services.SnmpServices
             }
 
             return new List<SnmpVariable>();
+        }
+        public async Task<List<SnmpVariable>> GetBulkAsync(string ip, string communityString, string oid, int maxRepetation = 10)
+        {
+            return await GetBulkAsync(new IPEndPoint(IPAddress.Parse(ip), 161), new OctetString(communityString), new ObjectIdentifier(oid));
         }
     }
 }

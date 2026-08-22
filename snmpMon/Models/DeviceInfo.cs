@@ -16,9 +16,7 @@ namespace snmpMon.Models
         private int _deviceID;
         private string _deviceName;
         private string _vendor;
-        private int _seccessCount;
-        private int _errorsCount;
-        private int _warnningCount;
+
         private int _portsCount;
         private bool _isConnected;
 
@@ -61,33 +59,6 @@ namespace snmpMon.Models
             }
         }
 
-        public int SuccessCount
-        {
-            get => _seccessCount;
-            set
-            {
-                _seccessCount = value;
-                OnPropertyChanged(nameof(SuccessCount));
-            }
-        }
-        public int WarnningCount
-        {
-            get => _warnningCount;
-            set
-            {
-                _warnningCount = value;
-                OnPropertyChanged(nameof(WarnningCount));
-            }
-        }
-        public int ErrorsCount
-        {
-            get => _errorsCount;
-            set
-            {
-                _errorsCount = value;
-                OnPropertyChanged(nameof(ErrorsCount));
-            }
-        }
         public bool IsConnected
         {
             get => _isConnected;

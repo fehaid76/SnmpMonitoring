@@ -12,6 +12,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace snmpMon.Services.Agent
@@ -32,85 +33,104 @@ namespace snmpMon.Services.Agent
         CancellationTokenSource _cancellation;
         IDeviceInterfacesServices _deviceInterfacesServices;
         IMibParser _mibParser;
+    
         public OverviewServices(IDeviceInterfacesServices deviceInterfacesServices, IMibParser mibParser)
         {
             _deviceInterfacesServices = deviceInterfacesServices;
             _mibParser = mibParser;
             
             
+            
         }
         public async Task StartNetworkAverageLatencyCalculateAsync(List<Device> devicesIPs)
         {
-            devices = devicesIPs;  
-            _cancellation?.Cancel();
-            _cancellation?.Dispose();
+            devices = devicesIPs;
+
             _cancellation = new CancellationTokenSource();
             var token = _cancellation.Token;
             double ave = 0;
-            try
+            while (!token.IsCancellationRequested)
             {
-                while (!token.IsCancellationRequested)
+                try
                 {
                     ave = await pingToGetAverageLatencyAsync(devicesIPs);
                     OnAverageNetworkLatency?.Invoke(ave);
                     await Task.Delay(TimeSpan.FromMilliseconds(3000), token);
                 }
+                catch (OperationCanceledException) when (token.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (OperationCanceledException ex)
+                {
+                    Logger.LogCriticalException(ex, ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCriticalException(ex, ex.Message);
+                }
+
             }
-            catch (OperationCanceledException) { }
+
 
         }
 
-
-        public async Task StartInboundTraffic()
+        public void StartTrafficMonitoring()
         {
-            var interfacesServices = App.serviceProvider.GetRequiredService<IDeviceInterfacesServices>();
-            //await Task.Delay(3000);
-            var Innode = await _mibParser.GetNode("ifInOctets");
-            
+            var _cancellation = new CancellationTokenSource();
+            _ = StartInboundTraffic(_cancellation);
 
-            double inTraaffic = 0;
-            _inboundTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(4)
-            };
-
-            _inboundTimer.Tick += async (s, e) =>
-            {
-                await interfacesServices.DeviceInboundSpeedKbps(devices, Innode.Oid);
-                inTraaffic = interfacesServices.CalculatTotalDeviceInboundSpeedKbps();
-
-                OnInboundKbps?.Invoke(inTraaffic);
-                getTopTrafficConsumerDevice(interfacesServices);
-
-
-            };
-
-            _inboundTimer.Start();
         }
-        public async Task StartOutboundTraffic()
+        private async Task StartInboundTraffic(CancellationTokenSource cancellationToken)
         {
-            var interfacesServices = App.serviceProvider.GetRequiredService<IDeviceInterfacesServices>();
 
-            await Task.Delay(3000);
+            _cancellation = cancellationToken;
+            var token = _cancellation.Token;
+
+            var interfacesServices = App.serviceProvider.GetRequiredService<IDeviceInterfacesServices>();
+            var InNode = await _mibParser.GetNode("ifInOctets");
             var outboundNode = await _mibParser.GetNode("ifOutOctets");
 
-            double outboundTraffic = 0;
 
-            _outboundTimer = new DispatcherTimer
+            using var periodicTime = new PeriodicTimer(TimeSpan.FromSeconds(5));
+
+            while (await periodicTime.WaitForNextTickAsync(token))
             {
-                Interval = TimeSpan.FromSeconds(5)
-            };
+                try
+                {
+                    await interfacesServices.DeviceTrafficSpeedKbps(devices, InNode.Oid);
+                    double inTraaffic = interfacesServices.CalculatTotalDeviceTrafficSpeedKbps();
+                    await interfacesServices.DeviceTrafficSpeedKbps(devices, outboundNode.Oid);
+                    double outboundTraffic = interfacesServices.CalculatTotalDeviceTrafficSpeedKbps();
 
-            _outboundTimer.Tick += async (s, e) =>
-            {
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        OnInboundKbps?.Invoke(inTraaffic);
+                        OnOutboundKbps?.Invoke(outboundTraffic);
+                        getTopTrafficConsumerDevice(interfacesServices);
+                    });
+                }
+                catch (OperationCanceledException) when (token.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (OperationCanceledException ex)
+                {
 
-                await interfacesServices.DeviceInboundSpeedKbps(devices, outboundNode.Oid);
-                double outboundTraffic = interfacesServices.CalculatTotalDeviceInboundSpeedKbps();
-                OnOutboundKbps?.Invoke(outboundTraffic);
+                    Logger.LogCriticalException(ex, ex.Message);
+                }
 
-            };
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
 
-            _outboundTimer.Start();
+                    Logger.LogCriticalException(ex, ex.Message);
+
+                }
+            }
+
+
+
+
         }
 
         private void getTopTrafficConsumerDevice(IDeviceInterfacesServices interfacesServices)
@@ -192,5 +212,6 @@ namespace snmpMon.Services.Agent
 
             return null;
         }
+
     }
 }

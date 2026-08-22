@@ -9,8 +9,10 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView.Extensions;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Models;
+using snmpMon.Resources.Constrols.Frames.FrameServices;
 using snmpMon.Services.AlertServices;
 using snmpMon.Services.SensorServices;
+using snmpMon.Services.WindowServices;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -50,18 +52,18 @@ namespace snmpMon.ViewModel
         private DeviceInfo _device = new DeviceInfo();
         private SystemInformation _sysInforamtion = new SystemInformation();
         private double _memoryUsage;
-        private int _cpuUtilization; 
+        private int _cpuUtilization;
 
         public SystemInformation SysInformation
         {
             get => _sysInforamtion;
             set
             {
-                
+
                 SetProperty(ref _sysInforamtion, value);
             }
         }
-        
+
         public TimeSpan UpTime
         {
             get => _sysInforamtion.UpTime;
@@ -89,7 +91,7 @@ namespace snmpMon.ViewModel
                 OnPropertyChanged(nameof(MemoryUsage));
             }
         }
-        
+
 
 
         public DeviceInfo Device
@@ -97,12 +99,12 @@ namespace snmpMon.ViewModel
             get => _device;
             set
             {
-                
-                if(SetProperty(ref _device, value))
+
+                if (SetProperty(ref _device, value))
                 {
                     Task.Run(() =>
                     {
-                        
+
                         _startMonitoring();
                     });
                 }
@@ -132,19 +134,24 @@ namespace snmpMon.ViewModel
             }
         }
 
-        public ICommand InterfaceCommand {  get; set; }
+        public ICommand InterfaceCommand { get; set; }
 
         private readonly IDashboardSensors _dashboardSensors;
-        
-        public DeviceMonitoringVM(IDashboardSensors dashboardSensors)
+        private readonly IAlertNotify _alertNotify;
+        private readonly IWindowService _windowService;
+        public DeviceMonitoringVM(IDashboardSensors dashboardSensors, IAlertNotify alertNotify, IWindowService windowService)
         {
-            
+
             _dashboardSensors = dashboardSensors;
-            _dashboardSensors.OnDeviceInterfaceReceived += _dashboardSensors_OnDeviceInterfaceRecieved;
-            _dashboardSensors.OnMemoryUsageReceived += _dashboardSensors_OnMemoryUsageRecieved;
-            _dashboardSensors.OnCPUutilizationReceived += _dashboardSensors_OnCPUutilizationRecieved;
-            _dashboardSensors.OnInterfaceStatusChanged += _dashboardSensors_OnInterfaceStatusChanged;
-            _dashboardSensors.OnUpTimeReceived += _dashboardSensors_OnUpTimeReceived;
+            _windowService = windowService;
+            _alertNotify = alertNotify;
+            EventSubscribe();
+
+
+
+            _dashboardSensors.DeviceStatusChangedToDown += _dashboardSensors_DeviceStatusChangedToDown;
+            _dashboardSensors.DeviceStatusChangedToUp += _dashboardSensors_DeviceStatusChangedToUp;
+
             SysInformation.SystemName = Device.DeviceName;
 
             GetLabelsY();
@@ -154,32 +161,88 @@ namespace snmpMon.ViewModel
 
             InterfaceCommand = new RelayCommand<DeviceInterface>(d =>
             {
-                MessageBox.Show(d.IfIndex);
-                
+                if (d.AdminStatus == 2 || d.OperationStatus == 2)
+                    return;
+                _windowService.ShowInterfaceOverview(Device.IPAddress, Device.CommunityString, d.IfIndex, d.Description);
+
             });
+        }
+
+        private void EventSubscribe()
+        {
+            _dashboardSensors.OnDeviceInterfaceReceived += _dashboardSensors_OnDeviceInterfaceRecieved;
+            _dashboardSensors.OnMemoryUsageReceived += _dashboardSensors_OnMemoryUsageRecieved;
+            _dashboardSensors.OnCPUutilizationReceived += _dashboardSensors_OnCPUutilizationRecieved;
+            _dashboardSensors.OnInterfaceStatusChanged += _dashboardSensors_OnInterfaceStatusChanged;
+            _dashboardSensors.OnUpTimeReceived += _dashboardSensors_OnUpTimeReceived;
+        }
+
+        private void EventUnsubscribe()
+        {
+            _dashboardSensors.OnDeviceInterfaceReceived -= _dashboardSensors_OnDeviceInterfaceRecieved;
+            _dashboardSensors.OnMemoryUsageReceived -= _dashboardSensors_OnMemoryUsageRecieved;
+            _dashboardSensors.OnCPUutilizationReceived -= _dashboardSensors_OnCPUutilizationRecieved;
+            _dashboardSensors.OnInterfaceStatusChanged -= _dashboardSensors_OnInterfaceStatusChanged;
+            _dashboardSensors.OnUpTimeReceived -= _dashboardSensors_OnUpTimeReceived;
+        }
+
+        private void _dashboardSensors_DeviceStatusChangedToUp(string arg1, string arg2)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _alertNotify.ShowSuccess($"{Device.DeviceName} status changed to up");
+                _startMonitoring();
+            });
+            EventSubscribe();
+            
         }
 
 
 
+
+
+        private void _dashboardSensors_DeviceStatusChangedToDown(string obj)
+        {
+            EventUnsubscribe();
+            
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _alertNotify.ShowErrors($"{Device.DeviceName} Status changed to down");
+                SysInformation.UpTime = new TimeSpan();
+                CpuUtilization = 0;
+                MemoryUsage = 0;
+                _interfaces.Clear();
+            });
+            
+        }
+
         private void _dashboardSensors_OnUpTimeReceived(TimeSpan obj)
         {
-            SysInformation.UpTime = obj;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                SysInformation.UpTime = obj;
+            });
 
         }
 
         private void _dashboardSensors_OnInterfaceStatusChanged(string arg1, int arg2)
         {
-            if(Interfaces.Count > 0)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                for (int i = 0; i < Interfaces.Count; i++)
+                if (Interfaces.Count > 0)
                 {
-                    if (Interfaces[i].Description == arg1)
+                    for (int i = 0; i < Interfaces.Count; i++)
                     {
-                        
-                        Interfaces[i].AdminStatus = arg2; 
+                        if (Interfaces[i].Description == arg1)
+                        {
+
+                            Interfaces[i].AdminStatus = arg2;
+                            Interfaces[i].OperationStatus = arg2;
+                        }
                     }
                 }
-            }
+            });
+
         }
 
         private void _dashboardSensors_OnDeviceInterfaceRecieved(List<DeviceInterface> obj)
@@ -187,7 +250,7 @@ namespace snmpMon.ViewModel
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if(Interfaces.Count == 0)
+                if (Interfaces.Count == 0)
                 {
                     foreach (var i in obj)
                     {
@@ -199,33 +262,55 @@ namespace snmpMon.ViewModel
                 var updatedDic = obj.ToDictionary(x => x.IfIndex);
                 foreach (var existingInterface in Interfaces)
                 {
-                    if (updatedDic.TryGetValue(existingInterface.IfIndex, out var updatedItem))
-                    {
-                        if (existingInterface.AdminStatus != updatedItem.AdminStatus)
-                        {
-                            existingInterface.AdminStatus = updatedItem.AdminStatus;
-                        }
-
-                        if (existingInterface.OperationStatus != updatedItem.OperationStatus)
-                        {
-                            existingInterface.OperationStatus = updatedItem.OperationStatus;
-                        }
-                    }
+                    ApplyInterfaceStatusUpdates(obj);
                 }
 
             });
 
         }
 
+        private void ApplyInterfaceStatusUpdates(List<DeviceInterface> groupOfIntrefaces)
+        {
+            var updatedDic = ConvertListToDictionaryBasedOnIfIndex(groupOfIntrefaces);
+            foreach (var existingInterface in Interfaces)
+            {
+                if (updatedDic.TryGetValue(existingInterface.IfIndex, out var updatedItem))
+                {
+                    if (existingInterface.AdminStatus != updatedItem.AdminStatus)
+                    {
+                        existingInterface.AdminStatus = updatedItem.AdminStatus;
+                    }
+
+                    if (existingInterface.OperationStatus != updatedItem.OperationStatus)
+                    {
+                        existingInterface.OperationStatus = updatedItem.OperationStatus;
+                    }
+                }
+            }
+        }
+
+        private Dictionary<string, DeviceInterface> ConvertListToDictionaryBasedOnIfIndex(List<DeviceInterface> groupOfIntrefaces)
+        {
+            return groupOfIntrefaces.ToDictionary(x => x.IfIndex);
+        }
+
         private void _dashboardSensors_OnCPUutilizationRecieved(int obj)
         {
-             CpuUtilization = obj;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                CpuUtilization = obj;
+            });
+            
 
         }
 
         private void _dashboardSensors_OnMemoryUsageRecieved(double obj)
         {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
                 MemoryUsage = obj;
+            });
+            
 
         }
 
@@ -255,7 +340,7 @@ namespace snmpMon.ViewModel
             SeriesViews.Add(new LineSeries
             {
                 Title = "CPU Usage",
-                Values = new ChartValues<double> { 5, 7, 9, 12, 15, 20},
+                Values = new ChartValues<double> { 5, 7, 9, 12, 15, 20 },
                 StrokeThickness = 2,
             });
             //SeriesViews.Add(new LineSeries
@@ -272,6 +357,8 @@ namespace snmpMon.ViewModel
         {
             _dashboardSensors.StartMonitoring(Device.IPAddress, Device.CommunityString);
         }
+
+
         public void Dispose()
         {
             //_dashboardSensors.Dispose();

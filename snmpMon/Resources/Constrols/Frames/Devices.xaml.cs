@@ -27,5 +27,7 @@ namespace snmpMon.Resources.Constrols.Frames
             InitializeComponent();
             this.DataContext = App.serviceProvider.GetRequiredService<DevicesVM>();
         }
+
+
     }
 }
