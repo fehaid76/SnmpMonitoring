@@ -1,4 +1,5 @@
-﻿using snmpMon.Engine.Helper;
+﻿using ScottPlot.Colormaps;
+using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Extensions;
 using snmpMon.Helper.EventHandle;
@@ -19,6 +20,13 @@ namespace snmpMon.Services.SensorServices
         private string _ipAddress { get; set; }
         private string _communityString { get; set; }
         private string _ifIndex { get; set; }
+        private bool _isPortSpeedRecieved {  get; set; }
+        #region PreviousValues
+        private long _previousTrafficIn;
+        private long _previousTrafficOut;
+        private DateTime _lastFetchTime = DateTime.MinValue;
+        #endregion
+
         private DateTime _lastTrafficOutVolumeTime { get; set; }
 
         private readonly IMibParser _mibParser;
@@ -85,38 +93,148 @@ namespace snmpMon.Services.SensorServices
 
         }
 
+        private double HandleTimePoll(DateTime currentTime)
+        {
+            double elapsedTime = 30.0;
+
+            if (_lastFetchTime != DateTime.MinValue)
+            {
+                elapsedTime = (currentTime - _lastFetchTime).TotalSeconds;
+                if (elapsedTime <= 0) elapsedTime = 1.0;
+            }
+            _lastFetchTime = currentTime;
+            return elapsedTime;
+        }
+
+        private async Task<int> GetPortSpeed()
+        {
+            
+            var mibNode = await _mibParser.GetNode("ifSpeed");
+            if (mibNode != null && !_isPortSpeedRecieved)
+            {
+                _isPortSpeedRecieved = true;
+                return await _snmpService.GetIntAsync(_ipAddress, _communityString, mibNode.Oid.ToString().AddDigit(_ifIndex));
+
+            }
+            return 1000000;
+        }
         private async Task fetchAndRaiseTrafficDataAsync(string trafficInOid, string trafficOutOid)
         {
-            var trafficInTask = GetTrafficVolumeAsync(trafficInOid);
-            var trafficOutTask = GetTrafficVolumeAsync(trafficOutOid);
+            var currentTime = DateTime.Now;
+            var elapsedTime = HandleTimePoll(currentTime);
+
+            var trafficValues = await GetTrafficValuesAsync(trafficInOid, trafficOutOid);
+            if (trafficValues.TrafficInValue < 0 || trafficValues.TrafficOutValue < 0)
+            {
+                return;
+            }
+            var differenceValues = GetTrafficValuesDifferenceInBytes(trafficValues.TrafficInValue, trafficValues.TrafficOutValue);
+            var speedsValues = GetSpeedsInKilobitsPerSecond(differenceValues.TrafficIn, differenceValues.TrafficOut, elapsedTime);
+            var trafficVolumes = GetTrafficVolumesInKilobytes(differenceValues.TrafficIn, differenceValues.TrafficOut);
+            if (CheckForCachePreviousTrafficValues())
+            {
+                TrafficDataReady?.Invoke(this, new TrafficEventArgs
+                {
+                    TrafficInVolume = trafficVolumes.VolumeIn,
+                    TrafficOutVolume = trafficVolumes.VolumeOut,
+                    TrafficInSpeed = speedsValues.TrafficInSpeed,
+                    TrafficOutSpeed = speedsValues.TrafficOutSpeed,
+                    InterfaceSpeed = await GetPortSpeed(),
+                    Timestamp = DateTime.Now.ToString("yyyy/MM/dd - HH:mm:ss"),
+                });
+            }
+
+            CachePreviousTrafficValues(trafficValues.TrafficInValue, trafficValues.TrafficOutValue);
+
+        }
+
+        private (double VolumeIn, double VolumeOut) GetTrafficVolumesInKilobytes(long volumeIn, long volumeOut)
+        {
+            double trafficVolIn = (double)ConvertBytesToKilobytes(volumeIn);
+            double trafficVolOut = (double)ConvertBytesToKilobytes(volumeOut);
+            return (trafficVolIn, trafficVolOut);
+
+        }
+
+        private bool CheckForCachePreviousTrafficValues()
+        {
+            return (_previousTrafficIn != 0 && _previousTrafficOut != 0);
+        }
+
+        private void CachePreviousTrafficValues(long trafficIn, long trafficOut)
+        {
+            _previousTrafficIn = trafficIn;
+            _previousTrafficOut = trafficOut;
+        }
+
+        private async Task<(long TrafficInValue, long TrafficOutValue)> GetTrafficValuesAsync(string trafficInOid, string trafficOutOid)
+        {
+            var trafficInTask = GetTrafficValueAsync(trafficInOid);
+            var trafficOutTask = GetTrafficValueAsync(trafficOutOid);
 
             await Task.WhenAll(trafficInTask, trafficOutTask);
 
             long trafficIn = await trafficInTask;
             long trafficOut = await trafficOutTask;
-
-            TrafficDataReady?.Invoke(this, new TrafficEventArgs
-            {
-                TrafficIn = trafficIn,
-                TrafficOut = trafficOut,
-            });
+            return (trafficIn, trafficOut);
         }
 
-        private async Task<long> GetTrafficVolumeAsync(string oid)
+        private (long TrafficIn, long TrafficOut) GetTrafficValuesDifferenceInBytes(long trafficIn, long trafficOut)
+        {
+            trafficIn = CalculateByteDifference(trafficIn, _previousTrafficIn);
+            trafficOut = CalculateByteDifference(trafficOut, _previousTrafficOut);
+            return (trafficIn, trafficOut);
+        }
+
+        private (double TrafficInSpeed, double TrafficOutSpeed) GetSpeedsInKilobitsPerSecond(long byteDifferenceIn , long byteDifferenceOut, double elapsedTime)
+        {
+            var trafficIn = CalculateSpeedInKilobitsPerSecond(byteDifferenceIn, elapsedTime);
+            var trafficOut = CalculateSpeedInKilobitsPerSecond(byteDifferenceOut, elapsedTime);
+            return (trafficIn, trafficOut);
+
+        }
+
+        private double CalculateSpeedInKilobitsPerSecond(long byteDifference, double elapsedTime)
+        {
+            if (byteDifference <= 0)
+                return 0;
+
+            return Math.Round((byteDifference / elapsedTime * 8) / 1024, 3);
+        }
+
+        private long CalculateByteDifference(long currentValue, long previousValue)
+        {
+            if (currentValue >= previousValue)
+            {
+                return (currentValue - previousValue);
+
+            }
+            else
+            {
+                return (4294967296L - previousValue) + currentValue;
+            }
+
+        }
+
+        private double ConvertBytesToKilobytes(long bytes)
+        {
+
+            var val = (double)bytes / 1024;
+            return Math.Round(val, 3);
+        }
+
+        private async Task<long> GetTrafficValueAsync(string oid)
         {
             try
             {
-                var trafficOut = await _snmpService.GetLongAsync(_ipAddress, _communityString, oid.AddDigit(_ifIndex));
-                return trafficOut;
+                var snmpValue = await _snmpService.GetLongAsync(_ipAddress, _communityString, oid.AddDigit(_ifIndex));
+                return snmpValue;
             }
             catch (Exception ex)
             {
                 Logger.LogCriticalException(ex, ex.Message);
+                return -1;
             }
-
-            return 0;
-
-
         }
 
 

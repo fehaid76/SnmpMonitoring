@@ -98,9 +98,25 @@
                                 </DataGridTextColumn>
                                 <DataGridTextColumn Header="Traffic Total (Speed)" Width="*" Binding="{Binding TrafficTotalSpeed, StringFormat='{}{0} kbit/s'}"/>
                                 <DataGridTextColumn Header="Traffic In (Volume)" Width="*" Binding="{Binding TrafficInVolume, StringFormat='{}{0} KByte'}"/>
-                                <DataGridTextColumn Header="Traffic In (Speed)" Width="*" Binding="{Binding TrafficInSpeed, StringFormat='{}{0} kbit/s'}"/>
+                            <DataGridTextColumn Header="Traffic In (Speed)" Width="*" Binding="{Binding TrafficInSpeed, StringFormat='{}{0} kbit/s'}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="{Binding TrafficSpeedInColor}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                                 <DataGridTextColumn Header="Traffic Out (Volume)" Width="*" Binding="{Binding TrafficOutVolume, StringFormat='{}{0} KByte'}"/>
-                                <DataGridTextColumn Header="Traffic Out (Speed)" Width="*" Binding="{Binding TrafficOutSpeed, StringFormat='{}{0} kbit/s'}"/>
+                            <DataGridTextColumn Header="Traffic Out (Speed)" Width="*" Binding="{Binding TrafficOutSpeed, StringFormat='{}{0} kbit/s'}">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="{Binding TrafficSpeedOutColor}"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
                             </DataGrid.Columns>
 
 

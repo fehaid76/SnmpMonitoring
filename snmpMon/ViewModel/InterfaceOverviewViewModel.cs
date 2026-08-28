@@ -7,101 +7,48 @@ using LiveChartsCore.Painting;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
+using snmpMon.Extensions;
 using snmpMon.Models;
 using snmpMon.Services.SensorServices;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace snmpMon.ViewModel
 {
-    public class InterfaceOverviewViewModel : ObservableObject
+    public partial class InterfaceOverviewViewModel : ObservableObject
     {
-        private ObservableCollection<InterfaceDetails> _interfaceDetails = new ObservableCollection<InterfaceDetails>();
-        private ObservableCollection<ObservablePoint> _trafficInSpeed = new ObservableCollection<ObservablePoint>();
-        private ObservableCollection<ObservablePoint> _trafficOutSpeed = new ObservableCollection<ObservablePoint>();
-        private ObservableCollection<ObservablePoint> _trafficTotalSpeeds = new ObservableCollection<ObservablePoint>();
-        private ObservableCollection<ISeries> _trafficInVolumeViews = new ObservableCollection<ISeries>();
-        private ObservableCollection<Axis> _xAxesList = new ObservableCollection<Axis>();
+        [ObservableProperty]
+        private ObservableCollection<InterfaceDetails> _interfaceDetails = new();
+        [ObservableProperty]
+        private ObservableCollection<ObservablePoint> _trafficInSpeed = new();
+        [ObservableProperty]
+        private ObservableCollection<ObservablePoint> _trafficOutSpeed = new();
+        [ObservableProperty]
+        private ObservableCollection<ObservablePoint> _trafficTotalSpeeds = new();
+        [ObservableProperty]
+        private ObservableCollection<ISeries> _trafficSpeedsViews = new();
+        [ObservableProperty]
+        private ObservableCollection<Axis> _xAxesList = new();
+
+     
+
         public Paint LegendTextPaint { get; set; } = new SolidColorPaint
         {
             Color = SKColor.Parse("#E8E3E4"),
             SKTypeface = SKTypeface.FromFamilyName("/Resources/Fonts/#Google Sans"),
         };
-        public ObservableCollection<Axis> XAxesList
-        {
-            get => _xAxesList;
-            set
-            {
-                _xAxesList = value;
-                OnPropertyChanged(nameof(XAxesList));
-            }
-        }
-        public ObservableCollection<ISeries> TrafficSpeedsViews
-        {
-            get => _trafficInVolumeViews;
-            set
-            {
-                _trafficInVolumeViews = value;
-                OnPropertyChanged(nameof(TrafficSpeedsViews));
-            }
-        }
-        public ObservableCollection<ObservablePoint> TrafficInSpeed
-        {
-            get => _trafficInSpeed;
-            set
-            {
-                _trafficInSpeed = value;
-                OnPropertyChanged(nameof(TrafficInSpeed));
-            }
-        }
 
-        public ObservableCollection<ObservablePoint> TrafficOutSpeed
-        {
-            get => _trafficOutSpeed;
-            set
-            {
-                _trafficInSpeed = value;
-                OnPropertyChanged(nameof(TrafficOutSpeed));
-            }
-        }
-
-        public ObservableCollection<ObservablePoint> TrafficTotalSpeeds
-        {
-            get => _trafficTotalSpeeds;
-            set
-            {
-                _trafficInSpeed = value;
-                OnPropertyChanged(nameof(TrafficTotalSpeeds));
-            }
-        }
-
-        public ObservableCollection<InterfaceDetails> InterfaceDetails
-        {
-            get => _interfaceDetails;
-            set
-            {
-                _interfaceDetails = value;
-                OnPropertyChanged(nameof(InterfaceDetails));
-            }
-        }
-
+        [ObservableProperty]
         private string _ifDesc;
+
         public string IpAddress {  get; set; }
         public string CommunityString {  get; set; }
         public string IfIndex {  get; set; }
-        public string IfDesc
-        {
-            get => _ifDesc;
-            set
-            {
-                _ifDesc = value;
-                OnPropertyChanged(nameof(IfDesc));
-            }
-        }
-        private long _previousTrafficIn;
-        private long _previousTrafficOut;
+
+
         public ICommand ClearCommand {  get; set; }
         private readonly IInterfacesSensors _interfacesSensors;
 
@@ -153,11 +100,16 @@ namespace snmpMon.ViewModel
                 {
                     Name = "Traffic Total Speeds",
                     Values = TrafficTotalSpeeds,
-                    Fill = new SolidColorPaint(SKColor.Parse("#E9E9E9").WithAlpha(10)),
+                    Fill = new LinearGradientPaint(
+                         new SKColor[] { SKColor.Parse("#E9E9E9").WithAlpha(90), SKColor.Parse("#E9E9E9").WithAlpha(0) },
+                         new SKPoint(0.5f, 0f),
+                         new SKPoint(0.5f, 1f)
+    ),
                     GeometrySize = 0,
-                    LineSmoothness = 0.4,
+                    LineSmoothness = 5.4,
                     Stroke = new SolidColorPaint(SKColor.Parse("#AAAAAE")){StrokeThickness = 3},
                 },
+
 
             };
 
@@ -180,55 +132,14 @@ namespace snmpMon.ViewModel
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if (_previousTrafficIn == 0 && _previousTrafficOut == 0)
-                {
-                    _previousTrafficIn = e.TrafficIn;
-                    _previousTrafficOut = e.TrafficOut;
-                    return;
-                }
-                long diffIn = CalculateByteDifference(e.TrafficIn, _previousTrafficIn);
-                long diffOut = CalculateByteDifference(e.TrafficOut, _previousTrafficOut);
-
-                double trafficInVolume = ConvertBytesToKilobytes(diffIn);
-                double trafficOutVolume = ConvertBytesToKilobytes(diffOut);
-
-                double trafficInSpeed = CalculateSpeedInKilobitsPerSecond(diffIn);
-                double trafficOutSpeed = CalculateSpeedInKilobitsPerSecond(diffOut);
-
-                AddTrafficRecordToList(trafficInVolume, trafficOutVolume, trafficInSpeed, trafficOutSpeed);
-                AddValuesToLineChart(trafficInSpeed, trafficOutSpeed, Math.Round(trafficInSpeed + trafficOutSpeed));
-                CachePreviousTrafficValues(e.TrafficIn, e.TrafficOut);
+                AddTrafficRecordToList(e.TrafficInVolume, e.TrafficOutVolume, e.TrafficInSpeed, e.TrafficOutSpeed, e.InterfaceSpeed);
+                AddValuesToLineChart(e.TrafficInSpeed, e.TrafficOutSpeed, Math.Round((double)e.TrafficInSpeed + (double)e.TrafficOutSpeed));
             });
-        }
-
-
-
-        private void CachePreviousTrafficValues(long trafficIn, long trafficOut)
-        {
-            _previousTrafficIn = trafficIn;
-            _previousTrafficOut = trafficOut;
-        }
-        private long CalculateByteDifference(long currentValue, long previousValue)
-        {
-            if (currentValue >= previousValue)
-            {
-                return (currentValue - previousValue);
-
-            }
-
-            return currentValue;
-
-        }
-        private double ConvertBytesToKilobytes(long bytes)
-        {
-
-            var val = (double)bytes / 1024;
-            return Math.Round(val, 3);
         }
 
         public void Initialize(string ipAddress, string communityString, string ifIndex, string ifDesc)
         {
-
+            
             IpAddress = ipAddress;
             CommunityString = communityString;
             IfIndex = ifIndex;
@@ -237,57 +148,87 @@ namespace snmpMon.ViewModel
 
         }
 
-        private double CalculateSpeedInKilobitsPerSecond(long byteDifference)
+
+        private (ObservablePoint TrafficIn, ObservablePoint TrafficOut, ObservablePoint TrafficTotal) CreateTrafficPointsTuple(double trafficInSpeed, double trafficOutSpeed, double trafficTotalSpeeds)
         {
-            if (byteDifference <= 0)
-                return 0;
+            double secondsToday = DateTime.Now.TimeOfDay.TotalSeconds;
 
-            double elapsedTime = 30.0;
+            var trafficIn = new ObservablePoint(secondsToday, trafficInSpeed);
+            var trafficOut = new ObservablePoint(secondsToday, trafficOutSpeed);
+            var trafficTotal = new ObservablePoint(secondsToday, trafficTotalSpeeds);
 
-            return Math.Round((byteDifference / elapsedTime * 8) / 1024, 3);
+            return (trafficIn, trafficOut, trafficTotal);
         }
-
         private void AddValuesToLineChart(double trafficInSpeed, double trafficOutSpeed, double trafficTotalSpeeds)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 if (trafficInSpeed > 0)
                 {
-                    double secondsToday = DateTime.Now.TimeOfDay.TotalSeconds;
-                    var traficIn = new ObservablePoint(secondsToday, trafficInSpeed);
-                    var trafficOut = new ObservablePoint(secondsToday, trafficOutSpeed);
-                    var trafficTotal = new ObservablePoint(secondsToday, trafficTotalSpeeds);
-                    TrafficInSpeed.Add(traficIn);
-                    TrafficOutSpeed.Add(trafficOut);
-                    TrafficTotalSpeeds.Add(trafficTotal);
-                    if(TrafficInSpeed.Count > 60)
-                    {
-                        TrafficInSpeed.RemoveAt(0);
-                        TrafficOutSpeed.RemoveAt(0);
-                        TrafficTotalSpeeds.RemoveAt(0);
-                    }
+                    var tuplePoints = CreateTrafficPointsTuple(trafficInSpeed, trafficOutSpeed, trafficTotalSpeeds);
+                    TrafficInSpeed.Add(tuplePoints.TrafficIn);
+                    TrafficOutSpeed.Add(tuplePoints.TrafficOut);
+                    TrafficTotalSpeeds.Add(tuplePoints.TrafficTotal);
+                    TrimChartExcessPoints();
                 }
             });
         }
 
-        private void AddTrafficRecordToList(double trafficInVolume, double trafficOutVolume, double trafficInSpeed, double trafficOutSpeed)
-        {
-            InterfaceDetails intDeatils = new InterfaceDetails();
-            intDeatils.InterfaceName = "Test";
-            intDeatils.Ifindex = 1;
-            intDeatils.DateTime = DateTime.Now.ToString("yyyy/MM/dd - HH:mm:ss");
-            intDeatils.TrafficTotalVolume = Math.Round(trafficInVolume + trafficOutVolume, 3);
-            intDeatils.TrafficInVolume = trafficInVolume;
-            intDeatils.TrafficInSpeed = trafficInSpeed;
-            intDeatils.TrafficOutSpeed = trafficOutSpeed;
-            intDeatils.TrafficTotalSpeed = Math.Round(intDeatils.TrafficInSpeed + intDeatils.TrafficOutSpeed, 3);
-            intDeatils.TrafficOutVolume = trafficOutVolume;
 
-            InterfaceDetails.Insert(0, intDeatils);
-            if(InterfaceDetails.Count > 60)
+
+        private void TrimChartExcessPoints()
+        {
+            if (TrafficInSpeed.Count > 60)
             {
-                InterfaceDetails.RemoveAt(InterfaceDetails.Count - 1);
+                TrafficInSpeed.RemoveAt(0);
+                TrafficOutSpeed.RemoveAt(0);
+                TrafficTotalSpeeds.RemoveAt(0);
             }
+            
+        }
+
+        private void TrimRecord<T>( ObservableCollection<T> record)
+        {
+            if (record.Count > 60)
+                record.RemoveAt(record.Count - 1);
+        }
+
+        private InterfaceDetails CreateInterfaceRecord(double trafficInVolume, double trafficOutVolume, double trafficInSpeed, double trafficOutSpeed, int interfaceSpeed)
+        {
+            InterfaceDetails interfaceDetails = new InterfaceDetails();
+            interfaceDetails.Ifindex = Convert.ToInt16(IfIndex);
+            interfaceDetails.DateTime = DateTime.Now.ToString("yyyy/MM/dd - HH:mm:ss");
+            interfaceDetails.TrafficTotalVolume = Math.Round(trafficInVolume + trafficOutVolume, 3);
+            interfaceDetails.TrafficInVolume = trafficInVolume;
+            interfaceDetails.TrafficInSpeed = trafficInSpeed;
+            interfaceDetails.TrafficOutSpeed = trafficOutSpeed;
+            interfaceDetails.TrafficTotalSpeed = Math.Round(interfaceDetails.TrafficInSpeed + interfaceDetails.TrafficOutSpeed, 3);
+            interfaceDetails.TrafficOutVolume = trafficOutVolume;
+            interfaceDetails.InterfaceSpeed = interfaceSpeed;
+            interfaceDetails.TrafficSpeedInColor = DetermineWarningColor(interfaceDetails.TrafficInSpeed, interfaceDetails.InterfaceSpeed);
+            interfaceDetails.TrafficSpeedOutColor = DetermineWarningColor(interfaceDetails.TrafficOutSpeed, interfaceDetails.InterfaceSpeed);
+            return interfaceDetails;
+        }
+
+
+        private SolidColorBrush DetermineWarningColor(double speed, int maxSpeed)
+        {
+            double mediumThreshold = maxSpeed * 0.50;
+            double highThreshold = maxSpeed * 0.80;
+
+            if (speed.IsBetween(mediumThreshold, highThreshold))
+                return Brushes.Orange;
+            else if (speed.IsLargest(highThreshold))
+                return Brushes.Red;
+            return Brushes.WhiteSmoke;
+        }
+
+        private void AddTrafficRecordToList(double trafficInVolume, double trafficOutVolume, double trafficInSpeed, double trafficOutSpeed, int interfaceSpeed)
+        {
+            InterfaceDetails interfaceDetails = CreateInterfaceRecord(trafficInVolume, trafficOutVolume, trafficInSpeed, trafficOutSpeed, interfaceSpeed);
+            
+            InterfaceDetails.Insert(0, interfaceDetails);
+            TrimRecord<InterfaceDetails>(InterfaceDetails);
         }
         
     }

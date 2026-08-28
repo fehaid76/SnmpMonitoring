@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace snmpMon.Models
 {
@@ -10,6 +11,7 @@ namespace snmpMon.Models
     {
         #region InterfaceInformation
         public string InterfaceName { get; set; }
+        public int InterfaceSpeed {  get; set; }
         public int Ifindex { get; set; }
         #endregion
 
@@ -32,7 +34,10 @@ namespace snmpMon.Models
         public string DateTime { get; set; }
         #endregion
 
-
+        #region SeverityColor
+        public SolidColorBrush TrafficSpeedInColor {  get; set; }
+        public SolidColorBrush TrafficSpeedOutColor { get; set; }
+        #endregion
 
 
     }
