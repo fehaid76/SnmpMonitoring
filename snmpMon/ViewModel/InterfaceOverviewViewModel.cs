@@ -103,7 +103,7 @@ namespace snmpMon.ViewModel
                     Fill = new LinearGradientPaint(
                          new SKColor[] { SKColor.Parse("#E9E9E9").WithAlpha(90), SKColor.Parse("#E9E9E9").WithAlpha(0) },
                          new SKPoint(0.5f, 0f),
-                         new SKPoint(0.5f, 1f)
+                         new SKPoint(0.5f, 5f)
     ),
                     GeometrySize = 0,
                     LineSmoothness = 5.4,

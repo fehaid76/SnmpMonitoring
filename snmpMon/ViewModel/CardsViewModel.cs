@@ -28,82 +28,23 @@ using System.Diagnostics;
 
 namespace snmpMon.ViewModel
 {
-    public class CardsViewModel :ObservableObject , IDisposable
+    public partial class CardsViewModel :ObservableObject , IDisposable
     {
+        [ObservableProperty]
         private ObservableCollection<SnmpAlertDetails> _alertDetails = new ObservableCollection<SnmpAlertDetails>();
+        [ObservableProperty]
         private ObservableCollection<Axis> _xAxesList = new ObservableCollection<Axis>();
-        public ObservableCollection<Axis> XAxesList
-        {
-            get => _xAxesList;
-            set
-            {
-                _xAxesList = value;
-                OnPropertyChanged(nameof(XAxesList));
-            }
-        }
-        private int co = 0;
-
+        [ObservableProperty]
         private  ObservableCollection<ObservablePoint> _latencyValues = new ObservableCollection<ObservablePoint>();
-        public ObservableCollection<ObservablePoint> LatencyValues
-        {
-            get => _latencyValues;
-            set
-            {
-                _latencyValues = value;
-                OnPropertyChanged(nameof(LatencyValues));
-            }
-        }
-
-
+        [ObservableProperty]
         private ObservableCollection<ObservablePoint> _inTrafficValues = new ObservableCollection<ObservablePoint>();
-        public ObservableCollection<ObservablePoint> InTrafficValues
-        {
-            get => _inTrafficValues;
-            set
-            {
-                _inTrafficValues = value;
-                OnPropertyChanged(nameof(InTrafficValues));
-            }
-        }
-
+        [ObservableProperty]
         private ObservableCollection<ObservablePoint> _outTrafficValues = new ObservableCollection<ObservablePoint>();
-        public ObservableCollection<ObservablePoint> OutTrafficValues
-        {
-            get => _outTrafficValues;
-            set
-            {
-                _outTrafficValues = value;
-                OnPropertyChanged(nameof(OutTrafficValues));
-            }
-        }
-
-        public ObservableCollection<ISeries> _seriesViews2 = new ObservableCollection<ISeries>();
-
-        public ObservableCollection<ISeries> SeriesViews2
-        {
-            get => _seriesViews2;
-            set
-            {
-                _seriesViews2 = value;
-                OnPropertyChanged(nameof(SeriesViews2));
-            }
-        }
-
-
+        [ObservableProperty]
+        public ObservableCollection<ISeries> _seriesViews = new ObservableCollection<ISeries>();
+        [ObservableProperty]
         public ObservableCollection<ISeries> _inTrafficViews = new ObservableCollection<ISeries>();
-
-        public ObservableCollection<ISeries> InTrafficViews
-        {
-            get => _inTrafficViews;
-            set
-            {
-                _inTrafficViews = value;
-                OnPropertyChanged(nameof(InTrafficViews));
-            }
-        }
-
-
-
+        [ObservableProperty]
         private List<Device> _devices = new List<Device>();
 
         public Paint LegendTextPaint { get; set; } = new SolidColorPaint
@@ -113,58 +54,18 @@ namespace snmpMon.ViewModel
         };
 
 
-        public List<Device> Devices
-        {
-            get => _devices;
-            set
-            {
-                _devices = value;
-                OnPropertyChanged(nameof(Devices));
-            }
-        }
 
         private bool _isRefereshClicked = false;
+        [ObservableProperty]
         private string _topConsumerDevice;
+        [ObservableProperty]
         private double _averageLatency;
+        [ObservableProperty]
         private int _devicesCount;
+        [ObservableProperty]
         private int _alertsCount;
 
-        public int AlertCount
-        {
-            get => _alertsCount;
-            set
-            {
-                _alertsCount = value;
-                OnPropertyChanged(nameof(AlertCount));
-            }
-        }
-        public string TopConsumerDevice
-        {
-            get => _topConsumerDevice;
-            set
-            {
-                _topConsumerDevice = value;
-                OnPropertyChanged(nameof(TopConsumerDevice));
-            }
-        }
-        public double AverageLatency
-        {
-            get => _averageLatency;
-            set
-            {
-                _averageLatency = value;
-                OnPropertyChanged(nameof(AverageLatency));
-            }
-        }
-        public int DevicesCount
-        {
-            get => _devicesCount;
-            set
-            {
-                _devicesCount = value;
-                OnPropertyChanged(nameof(DevicesCount));
-            }
-        }
+
 
 
         public ICommand ClearCommand { get; set; }
@@ -186,7 +87,7 @@ namespace snmpMon.ViewModel
             eventSubsecrib();
             _startInterfacesTrafficProcess();
             
-            SeriesViews2 = new ObservableCollection<ISeries>
+            SeriesViews = new ObservableCollection<ISeries>
             {
                 new LineSeries<ObservablePoint>
                 {
@@ -265,21 +166,21 @@ namespace snmpMon.ViewModel
         private void eventSubsecrib()
         {
             
-            _snmpListener.OnSnmpTrapRecieved += _snmpListener_OnSnmpTrapRecieved;
-            _overviewServices.OnAverageNetworkLatency += _overviewServices_OnAverageNetworkLatency;
-            _overviewServices.OnUpDevices += _overviewServices_OnUpDevices;
-            _devicesServices.OnDeviceDeleted += _devicesServices_OnDeviceDeleted;
-            _devicesServices.OnDeviceAdded += _devicesServices_OnDeviceAdded;
-            _overviewServices.OnInboundKbps += _overviewServices_OnInboundKbps;
-            _overviewServices.OnTopInboundDevice += _overviewServices_OnTopInboundDevice;
-            _overviewServices.OnOutboundKbps += _overviewServices_OnOutboundKbps;
+            _snmpListener.OnSnmpTrapRecieved += HandleSnmpTraps;
+            _overviewServices.OnAverageNetworkLatency += HandleAverageNetworkLatency;
+            _overviewServices.OnUpDevices += HandleUpDevices;
+            _devicesServices.OnDeviceDeleted += OnDeviceDeleted;
+            _devicesServices.OnDeviceAdded += OnDeviceAdded;
+            _overviewServices.OnInboundKbps += HandleInboundKbps;
+            _overviewServices.OnTopInboundDevice += HandleTopInboundDevice;
+            _overviewServices.OnOutboundKbps += HandleOutboundKbps;
         }
 
-        private void _snmpListener_OnSnmpTrapRecieved(string arg1, Engine.Services.SnmpTraslatorServices.Model.SnmpAlert arg2)
+        private void HandleSnmpTraps(string arg1, Engine.Services.SnmpTraslatorServices.Model.SnmpAlert arg2)
         {
             if (!string.IsNullOrWhiteSpace(arg1) && arg2 != null)
             {
-                AlertCount++;
+                AlertsCount++;
             }
         }
 
@@ -295,18 +196,18 @@ namespace snmpMon.ViewModel
 
         private void eventUnsubsecrib()
         {
-            _snmpListener.OnSnmpTrapRecieved -= _snmpListener_OnSnmpTrapRecieved;
-            _overviewServices.OnAverageNetworkLatency -= _overviewServices_OnAverageNetworkLatency;
-            _overviewServices.OnUpDevices -= _overviewServices_OnUpDevices;
-            _devicesServices.OnDeviceDeleted -= _devicesServices_OnDeviceDeleted;
-            _devicesServices.OnDeviceAdded -= _devicesServices_OnDeviceAdded;
-            _overviewServices.OnInboundKbps -= _overviewServices_OnInboundKbps;
-            _overviewServices.OnTopInboundDevice -= _overviewServices_OnTopInboundDevice;
-            _overviewServices.OnOutboundKbps -= _overviewServices_OnOutboundKbps;
+            _snmpListener.OnSnmpTrapRecieved -= HandleSnmpTraps;
+            _overviewServices.OnAverageNetworkLatency -= HandleAverageNetworkLatency;
+            _overviewServices.OnUpDevices -= HandleUpDevices;
+            _devicesServices.OnDeviceDeleted -= OnDeviceDeleted;
+            _devicesServices.OnDeviceAdded -= OnDeviceAdded;
+            _overviewServices.OnInboundKbps -= HandleInboundKbps;
+            _overviewServices.OnTopInboundDevice -= HandleTopInboundDevice;
+            _overviewServices.OnOutboundKbps -= HandleOutboundKbps;
         }
 
 
-        private void _overviewServices_OnOutboundKbps(double obj)
+        private void HandleOutboundKbps(double obj)
         {
             if (DevicesCount == 0)
                 return;
@@ -334,12 +235,12 @@ namespace snmpMon.ViewModel
             });
         }
 
-        private void _overviewServices_OnTopInboundDevice(string obj)
+        private void HandleTopInboundDevice(string obj)
         {
             TopConsumerDevice = obj;
         }
 
-        private void _overviewServices_OnInboundKbps(double obj)
+        private void HandleInboundKbps(double obj)
         {
 
 
@@ -368,7 +269,7 @@ namespace snmpMon.ViewModel
 
         }
 
-        private void _devicesServices_OnDeviceAdded(Device obj)
+        private void OnDeviceAdded(Device obj)
         {
             if(obj != null)
                 Devices.Add(obj);
@@ -381,7 +282,7 @@ namespace snmpMon.ViewModel
 
 
         
-        private void _devicesServices_OnDeviceDeleted(string obj)
+        private void OnDeviceDeleted(string obj)
         {
             if (!string.IsNullOrEmpty(obj))
             {
@@ -393,12 +294,12 @@ namespace snmpMon.ViewModel
             }
         }
 
-        private void _overviewServices_OnUpDevices(int obj)
+        private void HandleUpDevices(int obj)
         {
             DevicesCount = obj;
         }
 
-        private void _overviewServices_OnAverageNetworkLatency(double obj)
+        private void HandleAverageNetworkLatency(double obj)
         {
             if (DevicesCount == 0)
                 return;

@@ -62,7 +62,7 @@ namespace snmpMon.ViewModel
 
             LoadDevicesCommand = new AsyncRelayCommand(GetAllDevices);
             LoadDevicesCommand.Execute(null);
-            //_snmpListener.StartSnmpListener();
+
 
             AddDev = new RelayCommand(() =>
             {

@@ -6,11 +6,8 @@
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Frames"
              xmlns:chart="clr-namespace:snmpMon.Resources.Constrols.Charts"
              mc:Ignorable="d" 
-             xmlns:converter ="clr-namespace:snmpMon.Converters"
              d:DesignHeight="760" d:DesignWidth="950" Background="#242124">
-    <UserControl.Resources>
-        <converter:InterfaceOverviewConverter x:Key="TextConverter"/>
-    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -87,16 +84,10 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                                <DataGridTextColumn Header="Traffic Total (Volume)" Width="*" Binding="{Binding TrafficTotalVolume, StringFormat='{}{0} KByte'}">
-                                    <DataGridTextColumn.ElementStyle>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                                            <Setter Property="VerticalAlignment" Value="Center"/>
-                                            <Setter Property="Foreground" Value="{Binding TrafficTotalVolume, Converter={StaticResource TextConverter}}"/>
-                                        </Style>
-                                    </DataGridTextColumn.ElementStyle>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Traffic Total (Speed)" Width="*" Binding="{Binding TrafficTotalSpeed, StringFormat='{}{0} kbit/s'}"/>
+                            <DataGridTextColumn Header="Traffic Total (Volume)" Width="*" Binding="{Binding TrafficTotalVolume, StringFormat='{}{0} KByte'}"/>
+
+
+                            <DataGridTextColumn Header="Traffic Total (Speed)" Width="*" Binding="{Binding TrafficTotalSpeed, StringFormat='{}{0} kbit/s'}"/>
                                 <DataGridTextColumn Header="Traffic In (Volume)" Width="*" Binding="{Binding TrafficInVolume, StringFormat='{}{0} KByte'}"/>
                             <DataGridTextColumn Header="Traffic In (Speed)" Width="*" Binding="{Binding TrafficInSpeed, StringFormat='{}{0} kbit/s'}">
                                 <DataGridTextColumn.ElementStyle>
