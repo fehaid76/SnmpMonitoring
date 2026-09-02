@@ -14,7 +14,7 @@ using snmpMon.Services.AlertServices;
 using snmpMon.Services.SensorServices;
 using snmpMon.Services.WindowServices;
 using snmpMon.View;
-using snmpMon.ViewModel;
+using snmpMon.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

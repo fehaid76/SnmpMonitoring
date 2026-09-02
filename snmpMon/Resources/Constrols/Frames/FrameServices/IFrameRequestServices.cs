@@ -1,4 +1,4 @@
-﻿using snmpMon.ViewModel;
+﻿using snmpMon.ViewModels;
 using System.Windows.Controls;
 
 namespace snmpMon.Resources.Constrols.Frames.FrameServices

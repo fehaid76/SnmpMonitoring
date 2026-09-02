@@ -4,6 +4,7 @@ using snmpMon.Core.Services;
 using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Helper;
+using snmpMon.Helper.EventHandle;
 using snmpMon.MibJson.Extenstions;
 using snmpMon.MibJson.Services;
 using snmpMon.MibParse.Models;
@@ -25,15 +26,15 @@ namespace snmpMon.Services.SensorServices
 {
     public class DashboardSensors : IDisposable, IDashboardSensors
     {
-        public event Action<string> DeviceStatusChangedToDown;
-        public event Action<string, string> DeviceStatusChangedToUp;
-        public event Action<double> OnMemoryUsageReceived;
-        public event Action<int> OnCPUutilizationReceived;
+
+        public event EventHandler<DeviceStatusEventArgs> OnDeviceStatusChanged;
+        public event EventHandler<ResourceUsageEventArgs> OnResourceDeviceUsage;
+
         public event Action<List<DeviceInterface>> OnDeviceInterfaceReceived;
         public event Action<string, int> OnInterfaceStatusChanged;
         public event Action<TimeSpan> OnUpTimeReceived;
         public event Action<SystemInformation> OnSystemInformationReceived;
-        private List<DeviceInterface> _interfaces = new List<DeviceInterface>();
+        private List<DeviceInterface> _interfaces = new();
         private string _ipAddress;
         private string _communityString;
         private CancellationTokenSource _cts;
@@ -63,7 +64,7 @@ namespace snmpMon.Services.SensorServices
                 if (_cts.IsCancellationRequested)
                     _cts = new CancellationTokenSource();
 
-                DeviceStatusChangedToUp?.Invoke(arg1, arg2);
+                OnDeviceStatusChanged?.Invoke(this, new DeviceStatusEventArgs(arg1, arg2, Enums.DeviceStatus.Up));
                 _isMonitoring = true;
             });
 
@@ -101,6 +102,8 @@ namespace snmpMon.Services.SensorServices
             {
                 var utilizationNodes = await FetchUtilizationNodes();
                 var nodeChecker = await _mibParser.GetNode("sysDescr");
+                var sysNode = await _mibParser.GetNode("system");
+                
                 try
                 {
                     _ = GetUpTime();
@@ -113,10 +116,10 @@ namespace snmpMon.Services.SensorServices
                             failRepetation = 0;
                             try
                             {
+                                var systemNameTask = GetSystemName(ip, community, new ObjectIdentifier(sysNode.Oid.ToString()));
+                                var resourceUsageTask = GetResourceUsage(ip, community, utilizationNodes.freeMemory, utilizationNodes.usedMemory, utilizationNodes.cpuTotal1Min);
+                                await Task.WhenAll(systemNameTask, resourceUsageTask);
 
-                                var memoryTask = GetMemeoryUsageAsync(ip, community, utilizationNodes.freeMemory, utilizationNodes.usedMemory);
-                                var cpuTask = GetCPUtilizationAsync(ip, community, utilizationNodes.cpuTotal1Min);
-                                await Task.WhenAll(memoryTask, cpuTask);
                             }
                             catch (Exception ex)
                             {
@@ -133,8 +136,7 @@ namespace snmpMon.Services.SensorServices
                                 _cts?.Cancel();
 
                                 _ = _deviceAvailability.StartDeviceChecker(_ipAddress, communityString, nodeChecker);
-                                DeviceStatusChangedToDown?.Invoke(_ipAddress);
-
+                                OnDeviceStatusChanged?.Invoke(this, new DeviceStatusEventArgs(_ipAddress, "", Enums.DeviceStatus.Down));
                                 break;
                             }
                         }
@@ -280,7 +282,7 @@ namespace snmpMon.Services.SensorServices
 
             return (usedMemoryTask.Result, freeMemoryTask.Result);
         }
-        private async Task GetMemeoryUsageAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier freeMemoryOid, ObjectIdentifier usedMemoryOid)
+        private async Task<double> GetMemeoryUsageAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier freeMemoryOid, ObjectIdentifier usedMemoryOid)
         {
 
 
@@ -289,17 +291,43 @@ namespace snmpMon.Services.SensorServices
             if ((memoryUsageDetails.memoryUsed + memoryUsageDetails.memoryFree) > 0)
             {
                 var _memoryUsage = (memoryUsageDetails.memoryUsed / (memoryUsageDetails.memoryUsed + memoryUsageDetails.memoryFree) * 100);
-               
-                OnMemoryUsageReceived?.Invoke(Math.Round(_memoryUsage, 2));
+                return Math.Round(_memoryUsage, 2);
             }
+
+            return 0;
         }    
 
-        private async Task GetCPUtilizationAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier cpuUtilizationOid)
+        private async Task<int> GetCPUtilizationAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier cpuUtilizationOid)
         {
 
             int cpuUtilization = await _snmpService.GetIntAsyn(ip, Community, cpuUtilizationOid);
-            OnCPUutilizationReceived?.Invoke(cpuUtilization);
+            return cpuUtilization;
         }
+
+        private async Task GetResourceUsage(IPEndPoint ip, OctetString communityString, ObjectIdentifier freeMemoryOid, ObjectIdentifier usedMemoryOid, ObjectIdentifier cpuUtilizationOid)
+        {
+            var memoryUsageTask = GetMemeoryUsageAsync(ip, communityString, freeMemoryOid, usedMemoryOid);
+            var cpuUtilization = GetCPUtilizationAsync(ip, communityString, cpuUtilizationOid);
+
+            await Task.WhenAll(memoryUsageTask, cpuUtilization);
+
+            OnResourceDeviceUsage?.Invoke(this, new ResourceUsageEventArgs(memoryUsageTask.Result, cpuUtilization.Result));
+        }
+
+
+
+        private async Task GetSystemName(IPEndPoint ip, OctetString Community, ObjectIdentifier sysOid)
+        {
+            var systemInformation = await _snmpService.GetBulkAsync(ip, Community, sysOid);
+
+            if(systemInformation != null)
+            {
+                    Debug.WriteLine($"## {systemInformation.Count} ##");
+            }
+                
+        }
+
+        
 
         private async Task<bool> pingAsync()
         {

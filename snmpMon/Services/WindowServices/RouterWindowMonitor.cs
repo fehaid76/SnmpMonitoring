@@ -3,7 +3,7 @@ using snmpMon.Models;
 using snmpMon.Models.WindowAgregation;
 using snmpMon.Resources.Constrols.Frames;
 using snmpMon.View;
-using snmpMon.ViewModel;
+using snmpMon.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

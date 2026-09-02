@@ -25,7 +25,7 @@
                                       Title="Average Network Latency" Count="{Binding AverageLatency, StringFormat={}{0:F2}}"
                                       Image="/Resources/Imgs/Network.png" Width="315"/>
                 <ctrl:StatusLabel Grid.Row="1"
-                                      Title="Active Alerts / Traps" Count="{Binding AlertCount}"
+                                      Title="Active Alerts / Traps" Count="{Binding AlertsCount}"
                                       Image="/Resources/Imgs/Alert.png" Width="315"/>
 
             </StackPanel>
@@ -33,7 +33,7 @@
         <UniformGrid Grid.Row="1" Columns="2">
             <charts:LineChart Grid.Column="0"
                               Height="250"
-                              SeriesViews="{Binding SeriesViews2, UpdateSourceTrigger=PropertyChanged}"
+                              SeriesViews="{Binding AverageLatencyViews, UpdateSourceTrigger=PropertyChanged}"
                               XAxes="{Binding XAxesList, UpdateSourceTrigger=PropertyChanged}"
                               Title="Average Network Latency"
                               ClearCommand="{Binding ClearCommand}"/>

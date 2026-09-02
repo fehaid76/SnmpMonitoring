@@ -1,4 +1,5 @@
-﻿using snmpMon.Models;
+﻿using snmpMon.Helper.EventHandle;
+using snmpMon.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,14 +8,13 @@ namespace snmpMon.Services.SensorServices
 {
     public interface IDashboardSensors : IDisposable
     {
-        event Action<string> DeviceStatusChangedToDown;
-        event Action<string, string> DeviceStatusChangedToUp;
-        event Action<double> OnMemoryUsageReceived;
-        event Action<int> OnCPUutilizationReceived;
         event Action<List<DeviceInterface>> OnDeviceInterfaceReceived;
         event Action<string, int> OnInterfaceStatusChanged;
         event Action<SystemInformation> OnSystemInformationReceived;
         event Action<TimeSpan> OnUpTimeReceived;
+
+        event EventHandler<ResourceUsageEventArgs> OnResourceDeviceUsage;
+        event EventHandler<DeviceStatusEventArgs> OnDeviceStatusChanged;
         void StartMonitoring(string ipAddress, string communityString);
         Task GetUpTime();
     }

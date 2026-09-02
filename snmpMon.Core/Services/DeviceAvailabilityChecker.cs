@@ -38,8 +38,7 @@ namespace snmpMon.Core.Services
         public async Task StartDeviceChecker(string ipAddress, string communityString, MibNode CheckNode)
         {
             _iPAddress = ipAddress; _communityString = communityString; _sysDescNode = CheckNode;
-           // int failreCount = 0;
-
+          
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
             try
             {

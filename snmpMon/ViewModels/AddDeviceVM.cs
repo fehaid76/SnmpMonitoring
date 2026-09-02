@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace snmpMon.ViewModel
+namespace snmpMon.ViewModels
 {
     public class AddDeviceVM : ObservableObject
     {

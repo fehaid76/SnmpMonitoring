@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using snmpMon.ViewModel;
+using snmpMon.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -109,10 +109,10 @@
                 </Border>
                 <StackPanel Grid.Column="1">
                     <ctrl_lb:SystemInformation Grid.Column="1" Height="auto" Width="450"
-                                               SystemName="{Binding SysInformation.SystemName, UpdateSourceTrigger=PropertyChanged}"
-                                               Location="{Binding SysInformation.Location, UpdateSourceTrigger=PropertyChanged}"
-                                               Status="{Binding SysInformation.IsConnected, UpdateSourceTrigger=PropertyChanged}"
-                                               UpTime="{Binding SysInformation.UpTime, UpdateSourceTrigger=PropertyChanged}"/>
+                                               SystemName="{Binding SystemInforamtion.SystemName, UpdateSourceTrigger=PropertyChanged}"
+                                               Location="{Binding SystemInforamtion.Location, UpdateSourceTrigger=PropertyChanged}"
+                                               Status="{Binding SystemInforamtion.IsConnected, UpdateSourceTrigger=PropertyChanged}"
+                                               UpTime="{Binding SystemInforamtion.UpTime, UpdateSourceTrigger=PropertyChanged}"/>
                     <ctrl_alert:AlertingBox Height="335" x:Name="AlertBox" Width="450" IsDeviceNameVisiable="Collapsed"
                                             RouterIP="{Binding DataContext.Device.IPAddress, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                 </StackPanel>

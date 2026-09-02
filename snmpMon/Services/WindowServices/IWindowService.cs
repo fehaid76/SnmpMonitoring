@@ -1,6 +1,6 @@
 ﻿using snmpMon.Data.Model;
 using snmpMon.Models;
-using snmpMon.ViewModel;
+using snmpMon.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -5,7 +5,7 @@ using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.MibJson.Services;
 using snmpMon.Services.SensorServices;
-using snmpMon.ViewModel;
+using snmpMon.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

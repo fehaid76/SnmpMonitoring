@@ -6,7 +6,7 @@ using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames;
 using snmpMon.Services.SensorServices;
 using snmpMon.View;
-using snmpMon.ViewModel;
+using snmpMon.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

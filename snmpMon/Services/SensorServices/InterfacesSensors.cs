@@ -7,6 +7,7 @@ using snmpMon.MibJson.Services;
 using snmpMon.MibParse.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -81,11 +82,23 @@ namespace snmpMon.Services.SensorServices
             {
                 try
                 {
+                    Debug.WriteLine("#####################################");
+                    Debug.WriteLine("####[ before fetchAndRaiseTrafficDataAsync, outside Exception]####");
+                    Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
+                    Debug.WriteLine("#####################################");
                     await fetchAndRaiseTrafficDataAsync(trafficInOid, trafficOutOid);
-
+                    Debug.WriteLine("#####################################");
+                    Debug.WriteLine("####[ after fetchAndRaiseTrafficDataAsync, outside Exception]####");
+                    Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
+                    Debug.WriteLine("#####################################");
                 }
                 catch (Exception ex)
                 {
+                    Debug.WriteLine("#####################################");
+                    Debug.WriteLine("####[ startFetchDataProccessAsync, Inside Exception]####");
+                    Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
+                    Debug.WriteLine("#####################################");
+
                     Logger.LogCriticalException(ex, ex.Message);
                 }
 
@@ -120,32 +133,47 @@ namespace snmpMon.Services.SensorServices
         }
         private async Task fetchAndRaiseTrafficDataAsync(string trafficInOid, string trafficOutOid)
         {
-            var currentTime = DateTime.Now;
-            var elapsedTime = HandleTimePoll(currentTime);
+            try
+            {
+                Debug.WriteLine("#####################################");
+                Debug.WriteLine("####[ Inside fetchAndRaiseTrafficDataAsync, outside Exception]####");
+                Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
+                Debug.WriteLine("#####################################");
+                var currentTime = DateTime.Now;
+                var elapsedTime = HandleTimePoll(currentTime);
 
-            var trafficValues = await GetTrafficValuesAsync(trafficInOid, trafficOutOid);
-            if (trafficValues.TrafficInValue < 0 || trafficValues.TrafficOutValue < 0)
-            {
-                return;
-            }
-            var differenceValues = GetTrafficValuesDifferenceInBytes(trafficValues.TrafficInValue, trafficValues.TrafficOutValue);
-            var speedsValues = GetSpeedsInKilobitsPerSecond(differenceValues.TrafficIn, differenceValues.TrafficOut, elapsedTime);
-            var trafficVolumes = GetTrafficVolumesInKilobytes(differenceValues.TrafficIn, differenceValues.TrafficOut);
-            if (CheckForCachePreviousTrafficValues())
-            {
-                TrafficDataReady?.Invoke(this, new TrafficEventArgs
+                var trafficValues = await GetTrafficValuesAsync(trafficInOid, trafficOutOid);
+                if (trafficValues.TrafficInValue < 0 || trafficValues.TrafficOutValue < 0)
                 {
-                    TrafficInVolume = trafficVolumes.VolumeIn,
-                    TrafficOutVolume = trafficVolumes.VolumeOut,
-                    TrafficInSpeed = speedsValues.TrafficInSpeed,
-                    TrafficOutSpeed = speedsValues.TrafficOutSpeed,
-                    InterfaceSpeed = await GetPortSpeed(),
-                    Timestamp = DateTime.Now.ToString("yyyy/MM/dd - HH:mm:ss"),
-                });
+                    return;
+                }
+                var differenceValues = GetTrafficValuesDifferenceInBytes(trafficValues.TrafficInValue, trafficValues.TrafficOutValue);
+                var speedsValues = GetSpeedsInKilobitsPerSecond(differenceValues.TrafficIn, differenceValues.TrafficOut, elapsedTime);
+                var trafficVolumes = GetTrafficVolumesInKilobytes(differenceValues.TrafficIn, differenceValues.TrafficOut);
+                if (CheckForCachePreviousTrafficValues())
+                {
+                    TrafficDataReady?.Invoke(this, new TrafficEventArgs
+                    {
+                        TrafficInVolume = trafficVolumes.VolumeIn,
+                        TrafficOutVolume = trafficVolumes.VolumeOut,
+                        TrafficInSpeed = speedsValues.TrafficInSpeed,
+                        TrafficOutSpeed = speedsValues.TrafficOutSpeed,
+                        InterfaceSpeed = await GetPortSpeed(),
+                        Timestamp = DateTime.Now.ToString("yyyy/MM/dd - HH:mm:ss"),
+                    });
+                }
+
+                CachePreviousTrafficValues(trafficValues.TrafficInValue, trafficValues.TrafficOutValue);
+
             }
-
-            CachePreviousTrafficValues(trafficValues.TrafficInValue, trafficValues.TrafficOutValue);
-
+            catch (Exception ex)
+            {
+                Debug.WriteLine("#####################################");
+                Debug.WriteLine("####[ Inside fetchAndRaiseTrafficDataAsync, Inside Exception]####");
+                Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
+                Debug.WriteLine("#####################################");
+                Logger.LogCriticalException(ex, ex.Message);
+            }
         }
 
         private (double VolumeIn, double VolumeOut) GetTrafficVolumesInKilobytes(long volumeIn, long volumeOut)

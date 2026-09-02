@@ -10,6 +10,7 @@ using LiveChartsCore.SkiaSharpView.Extensions;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames.FrameServices;
+using snmpMon.Resources.Constrols.LabelControls;
 using snmpMon.Services.AlertServices;
 using snmpMon.Services.SensorServices;
 using snmpMon.Services.WindowServices;
@@ -22,15 +23,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using SystemInformation = snmpMon.Models.SystemInformation;
 
 
-namespace snmpMon.ViewModel
+
+namespace snmpMon.ViewModels
 {
-    public class DeviceMonitoringVM : ObservableObject
+    public partial class DeviceMonitoringVM : ObservableObject
     {
-
-        private ObservableCollection<DeviceInterface> _interfaces = new ObservableCollection<DeviceInterface>();
+  
+        private ObservableCollection<DeviceInterface> _interfaces = new();
         private SeriesCollection _seriesViews = new SeriesCollection();
+        private ChartValues<double> _cpuUsageChartValues = new();
+        private ChartValues<double> _memoryUsageChartValues = new();
         public SeriesCollection SeriesViews
         {
             get => _seriesViews;
@@ -49,24 +55,19 @@ namespace snmpMon.ViewModel
                 OnPropertyChanged(nameof(Interfaces));
             }
         }
-        private DeviceInfo _device = new DeviceInfo();
-        private SystemInformation _sysInforamtion = new SystemInformation();
+
+        private DeviceInfo _device = new();
+
+        [ObservableProperty]
+        private SystemInformation _systemInforamtion = new();
+
         private double _memoryUsage;
+
         private int _cpuUtilization;
-
-        public SystemInformation SysInformation
-        {
-            get => _sysInforamtion;
-            set
-            {
-
-                SetProperty(ref _sysInforamtion, value);
-            }
-        }
 
         public TimeSpan UpTime
         {
-            get => _sysInforamtion.UpTime;
+            get => _systemInforamtion.UpTime;
             set
             {
                 OnPropertyChanged(nameof(UpTime));
@@ -111,8 +112,10 @@ namespace snmpMon.ViewModel
             }
         }
 
-        private List<string> _labelsY = new List<string>();
-        private List<string> _labelsX = new List<string>();
+
+        private List<string> _labelsY = new();
+
+        private List<string> _labelsX = new();
 
         public List<string> LabelsY
         {
@@ -149,13 +152,10 @@ namespace snmpMon.ViewModel
 
 
 
-            _dashboardSensors.DeviceStatusChangedToDown += _dashboardSensors_DeviceStatusChangedToDown;
-            _dashboardSensors.DeviceStatusChangedToUp += _dashboardSensors_DeviceStatusChangedToUp;
 
-            SysInformation.SystemName = Device.DeviceName;
+            _dashboardSensors.OnDeviceStatusChanged += _dashboardSensors_OnDeviceStatusChanged;
+            _dashboardSensors.OnResourceDeviceUsage += OnResourceDeviceUsage;
 
-            GetLabelsY();
-            GetLabelsX();
             GetSeriesCollection();
 
 
@@ -168,31 +168,51 @@ namespace snmpMon.ViewModel
             });
         }
 
+        private void _dashboardSensors_OnDeviceStatusChanged(object sender, Helper.EventHandle.DeviceStatusEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (e.DeviceStatus == Enums.DeviceStatus.Up)
+                {
+                    OnDeviceStatusChangedToUp(e.IPAddress, e.CommunityString);
+                }
+                else if (e.DeviceStatus == Enums.DeviceStatus.Down)
+                {
+                    OnDeviceStatusChangedToDown(e.IPAddress);
+                }
+            });
+        }
+
+        private void OnResourceDeviceUsage(object sender, Helper.EventHandle.ResourceUsageEventArgs e)
+        {
+            if(e != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MemoryUsageLogger(e.MemoryUsage);
+                    CpuUtilizationLogger(e.CPUutilization);
+                });
+            }
+        }
+
         private void EventSubscribe()
         {
-            _dashboardSensors.OnDeviceInterfaceReceived += _dashboardSensors_OnDeviceInterfaceRecieved;
-            _dashboardSensors.OnMemoryUsageReceived += _dashboardSensors_OnMemoryUsageRecieved;
-            _dashboardSensors.OnCPUutilizationReceived += _dashboardSensors_OnCPUutilizationRecieved;
-            _dashboardSensors.OnInterfaceStatusChanged += _dashboardSensors_OnInterfaceStatusChanged;
-            _dashboardSensors.OnUpTimeReceived += _dashboardSensors_OnUpTimeReceived;
+            _dashboardSensors.OnDeviceInterfaceReceived += OnDeviceInterfaceRecieved;
+            _dashboardSensors.OnInterfaceStatusChanged += OnInterfaceStatusChanged;
+            _dashboardSensors.OnUpTimeReceived += OnUpTimeReceived;
         }
 
         private void EventUnsubscribe()
         {
-            _dashboardSensors.OnDeviceInterfaceReceived -= _dashboardSensors_OnDeviceInterfaceRecieved;
-            _dashboardSensors.OnMemoryUsageReceived -= _dashboardSensors_OnMemoryUsageRecieved;
-            _dashboardSensors.OnCPUutilizationReceived -= _dashboardSensors_OnCPUutilizationRecieved;
-            _dashboardSensors.OnInterfaceStatusChanged -= _dashboardSensors_OnInterfaceStatusChanged;
-            _dashboardSensors.OnUpTimeReceived -= _dashboardSensors_OnUpTimeReceived;
+            _dashboardSensors.OnDeviceInterfaceReceived -= OnDeviceInterfaceRecieved;
+            _dashboardSensors.OnInterfaceStatusChanged -= OnInterfaceStatusChanged;
+            _dashboardSensors.OnUpTimeReceived -= OnUpTimeReceived;
         }
 
-        private void _dashboardSensors_DeviceStatusChangedToUp(string arg1, string arg2)
+        private void OnDeviceStatusChangedToUp(string IPAddress, string CommunityString)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _alertNotify.ShowSuccess($"{Device.DeviceName} status changed to up");
-                _startMonitoring();
-            });
+            _alertNotify.ShowSuccess($"{Device.DeviceName} status changed to up");
+            _startMonitoring();
             EventSubscribe();
             
         }
@@ -201,31 +221,28 @@ namespace snmpMon.ViewModel
 
 
 
-        private void _dashboardSensors_DeviceStatusChangedToDown(string obj)
+        private void OnDeviceStatusChangedToDown(string IPAddress)
         {
             EventUnsubscribe();
-            
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _alertNotify.ShowErrors($"{Device.DeviceName} Status changed to down");
-                SysInformation.UpTime = new TimeSpan();
-                CpuUtilization = 0;
-                MemoryUsage = 0;
-                _interfaces.Clear();
-            });
-            
+
+            _alertNotify.ShowErrors($"{Device.DeviceName} Status changed to down");
+            SystemInforamtion.UpTime = new TimeSpan();
+            CpuUtilization = 0;
+            MemoryUsage = 0;
+            _interfaces.Clear();
+
         }
 
-        private void _dashboardSensors_OnUpTimeReceived(TimeSpan obj)
+        private void OnUpTimeReceived(TimeSpan obj)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                SysInformation.UpTime = obj;
+                SystemInforamtion.UpTime = obj;
             });
 
         }
 
-        private void _dashboardSensors_OnInterfaceStatusChanged(string arg1, int arg2)
+        private void OnInterfaceStatusChanged(string arg1, int arg2)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -245,7 +262,7 @@ namespace snmpMon.ViewModel
 
         }
 
-        private void _dashboardSensors_OnDeviceInterfaceRecieved(List<DeviceInterface> obj)
+        private void OnDeviceInterfaceRecieved(List<DeviceInterface> obj)
         {
 
             Application.Current.Dispatcher.Invoke(() =>
@@ -294,61 +311,56 @@ namespace snmpMon.ViewModel
             return groupOfIntrefaces.ToDictionary(x => x.IfIndex);
         }
 
-        private void _dashboardSensors_OnCPUutilizationRecieved(int obj)
+
+
+        private void MemoryUsageLogger(double value)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                CpuUtilization = obj;
-            });
-            
+            MemoryUsage = value;
+            AddMemoryLineChartValue(value);
+        }
+
+        private void CpuUtilizationLogger(int value)
+        {
+            CpuUtilization = value;
+            AddCpuUtilzationLineChartValue((double)value);
+        }
+
+        private void ChecKForChartValuesCount()
+        {
+            if (_memoryUsageChartValues.Count >= 50)
+                _memoryUsageChartValues.RemoveAt(0);
+            else if(_cpuUsageChartValues.Count >= 50)
+                _cpuUsageChartValues.RemoveAt(0);
+        }
+
+        private void AddMemoryLineChartValue(double value)
+        {
+            _memoryUsageChartValues.Add(value);
+            ChecKForChartValuesCount();
+        }
+
+        private void AddCpuUtilzationLineChartValue(double cpuUsage)
+        {
+            _cpuUsageChartValues.Add(cpuUsage);
+            ChecKForChartValuesCount();
 
         }
 
-        private void _dashboardSensors_OnMemoryUsageRecieved(double obj)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                MemoryUsage = obj;
-            });
-            
 
-        }
-
-        private void GetLabelsY()
-        {
-            LabelsY.Add("10");
-            LabelsY.Add("20");
-
-            LabelsY.Add("30");
-            LabelsY.Add("40");
-            LabelsY.Add("50");
-
-        }
-
-        private void GetLabelsX()
-        {
-            LabelsY.Add("1");
-            LabelsY.Add("2");
-
-            LabelsY.Add("3");
-            LabelsY.Add("4");
-            LabelsY.Add("5");
-
-        }
         private void GetSeriesCollection()
         {
             SeriesViews.Add(new LineSeries
             {
-                Title = "CPU Usage",
-                Values = new ChartValues<double> { 5, 7, 9, 12, 15, 20 },
+                Title = "CPU Utilization",
+                Values = _cpuUsageChartValues,
                 StrokeThickness = 2,
             });
-            //SeriesViews.Add(new LineSeries
-            //{
-            //    Title = "CPU Usage",
-            //    Values = new ChartValues<double> { 9, 17, 22, 112, 155, 210 },
-            //    StrokeThickness = 1,
-            //});
+            SeriesViews.Add(new LineSeries
+            {
+                Title = "Memeory Usage",
+                Values = _memoryUsageChartValues,
+                StrokeThickness = 1,
+            });
 
         }
 

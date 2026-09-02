@@ -18,7 +18,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace snmpMon.ViewModel
+namespace snmpMon.ViewModels
 {
     public class SnmpAlertsViewModel : ObservableObject
     {

@@ -13,7 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace snmpMon.ViewModel
+namespace snmpMon.ViewModels
 {
     public  class MainViewModel : ObservableObject
     {

@@ -16,7 +16,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace snmpMon.ViewModel
+namespace snmpMon.ViewModels
 {
     public partial class InterfaceOverviewViewModel : ObservableObject
     {

@@ -17,7 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Interop;
 
-namespace snmpMon.ViewModel
+namespace snmpMon.ViewModels
 {
     public class AlertViewModel : ObservableObject
     {

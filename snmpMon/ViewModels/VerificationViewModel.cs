@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Xml.Linq;
 
-namespace snmpMon.ViewModel
+namespace snmpMon.ViewModels
 {
     public class VerificationViewModel : ObservableObject
     {

@@ -27,7 +27,7 @@ using snmpMon.Helper.Model;
 using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpTraslatorServices.Enums;
 
-namespace snmpMon.ViewModel
+namespace snmpMon.ViewModels
 {
     public class DevicesVM : ObservableObject , IDisposable
     {
