@@ -1,6 +1,7 @@
 ﻿using LiveCharts.Wpf;
 using Microsoft.Extensions.DependencyInjection;
 using snmpMon.ViewModels;
+using snmpMon.ViewModels.CardViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

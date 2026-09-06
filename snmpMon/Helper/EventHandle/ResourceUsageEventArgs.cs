@@ -18,6 +18,6 @@ namespace snmpMon.Helper.EventHandle
             this.CPUutilization = CPUutilization;
         }
 
-
+        
     }
 }

@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="snmpMon.Resources.Constrols.Frames.DeviceTemplates"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:infoCtrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+             xmlns:local="clr-namespace:snmpMon.Resources.Constrols.Frames"
+             xmlns:Inputs="clr-namespace:snmpMon.Resources.Constrols.InputControls.ConfigurationInputs"
+             mc:Ignorable="d" 
+             d:DesignHeight="850" d:DesignWidth="980" Background="#242124">
+    <Grid>
+        <Border CornerRadius="7" SnapsToDevicePixels="True" Background="#1F1D1D" Padding="5" Margin="15" BorderThickness="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Device Templates" FontSize="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,7,0,3" Foreground="White"
+                   FontFamily="{StaticResource Google_Sans}"/>
+                <Border Background="Transparent" Height="10.8" BorderBrush="#edede9" BorderThickness="0,0.5,0,0" Margin="5" Grid.Row="1"/>
+                <infoCtrl:Information Grid.Row="2" Height="60" Margin="10,5,10,10"
+                                      Image="/Resources/Imgs/Information.png"
+                                      Title="This section add custome template devices to monitor it."/>
+                <TabControl Grid.Row="4" Style="{StaticResource TabControl_Style}" Background="Transparent" BorderThickness="0" SelectedIndex="2">
+                    <TabItem Header="Templates" Grid.Column="0" Style="{StaticResource TabItem_Style}"/>
+                    <TabItem Header="New Template" Grid.Column="0" Style="{StaticResource TabItem_Style}">
+                        <Inputs:TemplateInformation x:Name="TemplateInputs" TemplateName="{Binding JsonNode.Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    Vendor="{Binding JsonNode.Vendor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    MemoryUsed="{Binding ResourcesOIDs.MemoryUsed, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    MemoryFree="{Binding ResourcesOIDs.MemoryFree, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    CPUUsage="{Binding ResourcesOIDs.CpuUsage, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    DeviceTemperature="{Binding ResourcesOIDs.DeviceTemperature, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    ConfirmCommand="{Binding ConfirmCommand}"/>
+                    </TabItem>
+
+                </TabControl>
+                <Border CornerRadius="7" Grid.Row="5" Background="#242124" SnapsToDevicePixels="True" Margin="5,0,5,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" Margin="10,5,0,5" Style="{StaticResource NavigationButton_Style}" Tag="/Resources/Imgs/PrevBtn.png" Background="Green"/>
+                        <Button Grid.Column="2" Margin="0,5,10,5" Style="{StaticResource NavigationButton_Style}" Tag="/Resources/Imgs/RightBtn.png" Background="Green"/>
+
+                    </Grid>
+                </Border>
+
+                
+
+            </Grid> 
+        </Border>
+    </Grid>
+</UserControl>

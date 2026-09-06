@@ -52,30 +52,12 @@ namespace snmpMon.Services.Agent
             });
 
             await Task.WhenAll(pollTask);
-
-            //foreach(var sensor in _sensors)
-            //{
-            //    _ = Task.Run(async () =>
-            //    {
-            //        try
-            //        {
-            //            await sensor.PollAsync(ipAddress, communityString, _cts.Token);
-            //        }
-            //        catch (OperationCanceledException) { }
-            //        catch (Exception ex)
-            //        {
-            //            Logger.LogCriticalException(ex, ex.Message);
-            //        }
-            //    }, _cts.Token);
-            //}
-
-
-            return preparingDisposableAggregation(ipAddress, ActionDisposable);
+            return preparedDisposableAggregation(ipAddress, ActionDisposable);
 
 
         }
 
-        private ActionDisposableAggregation preparingDisposableAggregation(string ipAddress, ActionDisposable actionDisposable)
+        private ActionDisposableAggregation preparedDisposableAggregation(string ipAddress, ActionDisposable actionDisposable)
         {
             disposableAggregation.IPAddress = ipAddress;
             disposableAggregation.actionDisposable = actionDisposable;

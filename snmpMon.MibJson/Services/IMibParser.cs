@@ -1,4 +1,5 @@
-﻿using snmpMon.MibParse.Models;
+﻿using snmpMon.MibJson.Models;
+using snmpMon.MibParse.Models;
 using System.Threading.Tasks;
 
 namespace snmpMon.MibJson.Services
@@ -8,6 +9,7 @@ namespace snmpMon.MibJson.Services
         Task<MibNode> GetNode(string nodeName);
         Task<MibNode> GetMemoryNode(string nodeName);
         Task<MibNode> GetProccessMibNode(string nodeName);
-        Task ParseMibJson();
+        Task ParseMibJson(List<string> paths);
+        JsonNode GetDeviceNode(string key);
     }
 }

@@ -4,6 +4,7 @@ using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.MibJson.Services;
+using snmpMon.Services;
 using snmpMon.Services.SensorServices;
 using snmpMon.ViewModels;
 using System;
@@ -34,6 +35,7 @@ namespace snmpMon
         private readonly ISnmpListener snmpListener;
         private readonly ISnmpSeverityAnalyzer snmpSeverityAnalyzer;
         private readonly IMibParser mibParser;
+        private readonly IDevicesServices devicesServices;
         public MainWindow()
         {
             InitializeComponent();
@@ -42,6 +44,7 @@ namespace snmpMon
             snmpListener = App.serviceProvider.GetRequiredService<ISnmpListener>();
             mibParser = App.serviceProvider.GetRequiredService<IMibParser>();
             snmpSeverityAnalyzer = App.serviceProvider.GetRequiredService<ISnmpSeverityAnalyzer>();
+            devicesServices = App.serviceProvider.GetRequiredService<IDevicesServices>();
             this.Loaded += MainWindow_Loaded;
 
 
@@ -92,8 +95,8 @@ namespace snmpMon
             }
             try
             {
-                
-                await mibParser.ParseMibJson();
+                var paths = await devicesServices.GetAllTemplatePathsAsync();
+                await mibParser.ParseMibJson(paths);
                // await snmpSeverityAnalyzer.StartSeverityLevelsMapping();
             }
             catch (Exception ex)

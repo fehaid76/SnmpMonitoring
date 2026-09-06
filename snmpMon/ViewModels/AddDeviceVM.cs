@@ -6,6 +6,7 @@ using snmpMon.Models;
 using snmpMon.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,12 +19,42 @@ namespace snmpMon.ViewModels
     {
         public event Action RequestCloseEvent; 
         public Device Device;
-
+        private ObservableCollection<Category> _categories = new();
         private bool _canAddDevice;
         private string _deviceName;
         private string _ipAddress;
         private string _comString;
         private string _deviceVendor;
+        private Category _selectedCategoty;
+        private int _categoryID;
+        public int CategoryID
+        {
+            get => _categoryID;
+            set
+            {
+                _categoryID = value;
+                OnPropertyChanged(nameof(CategoryID));
+            }
+        }
+        public ObservableCollection<Category> Categories
+        {
+            get => _categories;
+            set
+            {
+                _categories = value;
+                OnPropertyChanged(nameof(Categories));
+            }
+        }
+
+        public Category SelectedCategory
+        {
+            get => _selectedCategoty;
+            set
+            {
+                _selectedCategoty = value;
+                OnPropertyChanged(nameof(SelectedCategory));
+            }
+        }
 
         public string DeviceName
         {
@@ -77,9 +108,14 @@ namespace snmpMon.ViewModels
         public ICommand CloseCMD {  get; set; }
 
         private readonly IDeviceVerficationServices _verficationServices;
-        public AddDeviceVM(IDeviceVerficationServices verficationServices)
+        private readonly IDevicesServices _devicesServices;
+        public AddDeviceVM(IDeviceVerficationServices verficationServices, IDevicesServices devicesServices)
         {
             _verficationServices = verficationServices;
+            _devicesServices = devicesServices;
+
+            _ = GetCategories();
+
             _verficationServices.OnDeviceVendorRecieved += _verficationServices_OnDeviceVendorRecieved;
             _verficationServices.OnSnmpEnabled += OnSnmpEnabled;
             CanAddDevice = false;
@@ -96,6 +132,7 @@ namespace snmpMon.ViewModels
                     IPAddress = this.IpAddress,
                     CommunityString = this.ComString,
                     Vendor = this.DeviceVendor,
+                    CategoryID = this.CategoryID,
                 };
                 Device = device;
                 
@@ -103,6 +140,22 @@ namespace snmpMon.ViewModels
 
 
 
+        }
+
+        private async Task GetCategories()
+        {
+            var categoriesList = await _devicesServices.GetAllCategoriesAsync();
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                
+                if (categoriesList.Count > 0)
+                {
+                    foreach (var category in categoriesList)
+                    {
+                        Categories.Add(category);
+                    }
+                }
+            });
         }
 
         private void OnSnmpEnabled(bool obj)

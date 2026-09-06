@@ -10,10 +10,10 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
 {
     public class FrameRequestServices : IFrameRequestServices
     {
-        private readonly Devices devices = new Devices();
-        private readonly Dashboard dashboard = new Dashboard();
-        private readonly SnmpAlerts snmpAlerts = new SnmpAlerts();
-
+        private readonly Devices devices = new();
+        private readonly Dashboard dashboard = new();
+        private readonly SnmpAlerts snmpAlerts = new();
+        private readonly DeviceTemplates deviceTemplates = new();
 
 
         public UserControl GetDevicesFrame()
@@ -30,6 +30,11 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
         public UserControl GetAlertsFrame()
         {
             return snmpAlerts;
+        }
+
+        public UserControl GetDeviceTemplatesFrame()
+        {
+            return deviceTemplates;
         }
 
 

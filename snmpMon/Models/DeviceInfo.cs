@@ -16,11 +16,19 @@ namespace snmpMon.Models
         private int _deviceID;
         private string _deviceName;
         private string _vendor;
-
+        private string _category;
         private int _portsCount;
         private bool _isConnected;
 
-
+        public string Category
+        {
+            get => _category;
+            set
+            {
+                _category = value;
+                OnPropertyChanged(nameof(Category));
+            }
+        }
         public int DeviceID
         {
             get => _deviceID;

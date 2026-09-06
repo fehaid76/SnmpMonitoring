@@ -25,7 +25,6 @@ namespace snmpMon.Resources.Constrols.Frames
         public DeviceMonitoring()
         {
             InitializeComponent();
-            //this.DataContext = App.serviceProvider.GetRequiredService<DeviceMonitoringVM>();
             this.Unloaded += DeviceMonitoring_Unloaded;
         }
 

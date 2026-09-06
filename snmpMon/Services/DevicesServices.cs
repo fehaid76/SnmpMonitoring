@@ -60,6 +60,23 @@ namespace snmpMon.Services
         {
             return await _deviceRepository.GetAllMessagesAsync("0");
         }
+        public async Task<bool> AddCategoryAsync(string categroyName, string path)
+        {
+            var templateID = await _deviceRepository.AddTemplatePathAsync(path);
+            if(templateID > 0)
+            {
+                return await _deviceRepository.AddCategoryAsync(categroyName, templateID);
+            }
+            return false;
+        }
+        public async Task<List<Category>> GetAllCategoriesAsync()
+        {
+            return await _deviceRepository.GetAllCategoriesAsync();
+        }
+        public async Task<List<string>> GetAllTemplatePathsAsync()
+        {
+            return await _deviceRepository.GetTemplatePathsAsync();
+        }
 
     }
 }

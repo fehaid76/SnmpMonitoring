@@ -13,15 +13,18 @@ namespace snmpMon.Data.Model
         public string Vendor {  get; set; }
         public string IPAddress {  get; set; }
         public string CommunityString {  get; set; }
+        public int CategoryID {  get; set; }
+        public string Category {  get; set; }
 
-
-        public Device(int iD, string name, string vendor, string iPAddress, string communityString)
+        public Device(int iD, string name, string vendor, string iPAddress, string communityString, int categoryID)
         {
             ID = iD;
             Name = name;
             Vendor = vendor;
             IPAddress = iPAddress;
             CommunityString = communityString;
+            CategoryID = categoryID;
+
         }
 
         public Device(string iPAddress, string communityString)
@@ -31,13 +34,14 @@ namespace snmpMon.Data.Model
             CommunityString = communityString;
         }
 
-        public Device(string iPAddress, string communityString, string vendor, string name)
+        public Device(string iPAddress, string communityString, string vendor, string name, int categoryID)
         {
 
             IPAddress = iPAddress;
             CommunityString = communityString;
             Vendor = vendor;
             Name = name;
+            CategoryID = categoryID;
         }
 
         public Device() { }

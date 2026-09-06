@@ -32,110 +32,37 @@ namespace snmpMon.ViewModels
 {
     public partial class DeviceMonitoringVM : ObservableObject
     {
-  
-        private ObservableCollection<DeviceInterface> _interfaces = new();
-        private SeriesCollection _seriesViews = new SeriesCollection();
-        private ChartValues<double> _cpuUsageChartValues = new();
-        private ChartValues<double> _memoryUsageChartValues = new();
-        public SeriesCollection SeriesViews
-        {
-            get => _seriesViews;
-            set
-            {
-                _seriesViews = value;
-                OnPropertyChanged(nameof(SeriesViews));
-            }
-        }
-        public ObservableCollection<DeviceInterface> Interfaces
-        {
-            get => _interfaces;
-            set
-            {
-                _interfaces = value;
-                OnPropertyChanged(nameof(Interfaces));
-            }
-        }
-
-        private DeviceInfo _device = new();
 
         [ObservableProperty]
-        private SystemInformation _systemInforamtion = new();
+        private ObservableCollection<DeviceInterface> _interfaces = new();
+        [ObservableProperty]
+        private SeriesCollection _seriesViews = new();
+        private ChartValues<double> _cpuUsageChartValues = new();
+        private ChartValues<double> _memoryUsageChartValues = new();
 
-        private double _memoryUsage;
-
-        private int _cpuUtilization;
-
-        public TimeSpan UpTime
-        {
-            get => _systemInforamtion.UpTime;
-            set
-            {
-                OnPropertyChanged(nameof(UpTime));
-            }
-        }
-
-        public int CpuUtilization
-        {
-            get => _cpuUtilization;
-            set
-            {
-                SetProperty(ref _cpuUtilization, value);
-            }
-        }
-
-        public double MemoryUsage
-        {
-            get => _memoryUsage;
-            set
-            {
-                _memoryUsage = value;
-                OnPropertyChanged(nameof(MemoryUsage));
-            }
-        }
-
-
-
+        private DeviceInfo _device = new();
         public DeviceInfo Device
         {
             get => _device;
             set
             {
-
-                if (SetProperty(ref _device, value))
+                if(SetProperty(ref _device, value))
                 {
-                    Task.Run(() =>
-                    {
-
-                        _startMonitoring();
-                    });
+                    _startMonitoring();
                 }
             }
         }
-
-
+        [ObservableProperty]
+        private SystemInformation _systemInforamtion = new();
+        [ObservableProperty]
+        private double _memoryUsage;
+        [ObservableProperty]
+        private int _cpuUtilization;
+        [ObservableProperty]
         private List<string> _labelsY = new();
-
+        [ObservableProperty]
         private List<string> _labelsX = new();
 
-        public List<string> LabelsY
-        {
-            get => _labelsY;
-            set
-            {
-                _labelsY = value;
-                OnPropertyChanged(nameof(LabelsY));
-            }
-        }
-
-        public List<string> LabelsX
-        {
-            get => _labelsX;
-            set
-            {
-                _labelsY = value;
-                OnPropertyChanged(nameof(LabelsX));
-            }
-        }
 
         public ICommand InterfaceCommand { get; set; }
 
@@ -152,10 +79,6 @@ namespace snmpMon.ViewModels
 
 
 
-
-            _dashboardSensors.OnDeviceStatusChanged += _dashboardSensors_OnDeviceStatusChanged;
-            _dashboardSensors.OnResourceDeviceUsage += OnResourceDeviceUsage;
-
             GetSeriesCollection();
 
 
@@ -168,7 +91,7 @@ namespace snmpMon.ViewModels
             });
         }
 
-        private void _dashboardSensors_OnDeviceStatusChanged(object sender, Helper.EventHandle.DeviceStatusEventArgs e)
+        private void OnDeviceStatusChanged(object sender, Helper.EventHandle.DeviceStatusEventArgs e)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -197,6 +120,8 @@ namespace snmpMon.ViewModels
 
         private void EventSubscribe()
         {
+            _dashboardSensors.OnDeviceStatusChanged += OnDeviceStatusChanged;
+            _dashboardSensors.OnResourceDeviceUsage += OnResourceDeviceUsage;
             _dashboardSensors.OnDeviceInterfaceReceived += OnDeviceInterfaceRecieved;
             _dashboardSensors.OnInterfaceStatusChanged += OnInterfaceStatusChanged;
             _dashboardSensors.OnUpTimeReceived += OnUpTimeReceived;
@@ -229,7 +154,7 @@ namespace snmpMon.ViewModels
             SystemInforamtion.UpTime = new TimeSpan();
             CpuUtilization = 0;
             MemoryUsage = 0;
-            _interfaces.Clear();
+            Interfaces.Clear();
 
         }
 
@@ -367,7 +292,7 @@ namespace snmpMon.ViewModels
 
         private void _startMonitoring()
         {
-            _dashboardSensors.StartMonitoring(Device.IPAddress, Device.CommunityString);
+            _dashboardSensors.StartMonitoring(Device.IPAddress, Device.CommunityString, Device.Category);
         }
 
 

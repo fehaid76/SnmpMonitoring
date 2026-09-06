@@ -26,6 +26,10 @@
                 <ResourceDictionary Source="/Resources/Styles/DataGridRow_Style.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/DataGrid_CustomeStyle.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/IntTrafficColumnHeader_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/TabItem_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/TabControl_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/ComboBox_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/NavigationButton_Style.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="bool2VisibilityConverter"/>
 

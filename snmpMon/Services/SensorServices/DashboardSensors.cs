@@ -37,6 +37,7 @@ namespace snmpMon.Services.SensorServices
         private List<DeviceInterface> _interfaces = new();
         private string _ipAddress;
         private string _communityString;
+        private string _deviceCategory;
         private CancellationTokenSource _cts;
         private bool _isMonitoring = false;
         private Task _upTimeTask;
@@ -72,35 +73,35 @@ namespace snmpMon.Services.SensorServices
 
 
 
-        private async Task<(ObjectIdentifier freeMemory, ObjectIdentifier usedMemory, ObjectIdentifier cpuTotal1Min)> FetchUtilizationNodes()
+        private (ObjectIdentifier freeMemory, ObjectIdentifier usedMemory, ObjectIdentifier cpuTotal1Min) FetchUtilizationNodes()
         {
-            var freeMemoryTask = _mibParser.GetMemoryNode("ciscoMemoryPoolFree");
-            var usedMemoryTask =  _mibParser.GetMemoryNode("ciscoMemoryPoolUsed");
-            var cpuTotal1MinTask =  _mibParser.GetProccessMibNode("cpmCPUTotal1min");
+            var freeMemoryTask = _mibParser.GetDeviceNode(_deviceCategory);
+            var usedMemoryTask = _mibParser.GetDeviceNode(_deviceCategory);
+            var cpuTotal1MinTask = _mibParser.GetDeviceNode(_deviceCategory);
 
-            await Task.WhenAll(freeMemoryTask, usedMemoryTask, cpuTotal1MinTask);
 
-            return (new ObjectIdentifier(freeMemoryTask.Result.Oid.ToFirstIntanceOid()),
-                new ObjectIdentifier(usedMemoryTask.Result.Oid.ToFirstIntanceOid()),
-                new ObjectIdentifier(cpuTotal1MinTask.Result.Oid.ToFirstIntanceOid()));
+            return (new ObjectIdentifier(freeMemoryTask.Resources.MemoryFree.ToFirstIntanceOid()),
+                new ObjectIdentifier(usedMemoryTask.Resources.MemoryUsed.ToFirstIntanceOid()),
+                new ObjectIdentifier(cpuTotal1MinTask.Resources.CpuUsage.ToFirstIntanceOid()));
 
 
         }
 
-        public void StartMonitoring(string ipAddress, string communityString)
+        public void StartMonitoring(string ipAddress, string communityString, string deviceCategory)
         {
             if (_isMonitoring) return;
             _isMonitoring = true;
 
             _ipAddress = ipAddress;
             _communityString = communityString;
+            _deviceCategory = deviceCategory;
             int failRepetation = 0;
             IPEndPoint ip = new IPEndPoint(IPAddress.Parse(_ipAddress), 161);
             OctetString community = new OctetString(communityString);
             
             Task.Run(async () =>
             {
-                var utilizationNodes = await FetchUtilizationNodes();
+                var utilizationNodes = FetchUtilizationNodes();
                 var nodeChecker = await _mibParser.GetNode("sysDescr");
                 var sysNode = await _mibParser.GetNode("system");
                 

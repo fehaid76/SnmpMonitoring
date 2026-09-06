@@ -25,7 +25,7 @@ namespace snmpMon.Resources.Constrols.InputControls
             InitializeComponent();
         }
 
-
+        
 
         public string Text
         {

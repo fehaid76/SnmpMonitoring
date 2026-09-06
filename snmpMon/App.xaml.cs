@@ -44,12 +44,15 @@ namespace snmpMon
             // Under Test
             service.AddTransient<IInterfacesSensors, InterfacesSensors>();
             service.AddTransient<IDeviceAvailabilityChecker, DeviceAvailabilityChecker>();
+            service.AddTransient<ITemplateSevices, TemplateSevices>();
+            service.AddTransient<IManageTemplateServices, ManageTemplateServices>();
             ///////
             service.AddTransient<IDeviceInterfacesServices, DeviceInterfacesServices>();
+            service.AddTransient<NewTemplateViewModel>();
             service.AddTransient<MainViewModel>();
             service.AddSingleton<IDevicesServices, DevicesServices>();
             service.AddTransient<SnmpAlertsViewModel>();
-            service.AddSingleton<CardsViewModel>();
+            service.AddSingleton<ViewModels.CardViewModels.CardsViewModel>();
             service.AddTransient<IFremeTransientRequestServices, FremeTransientRequestServices>();
             service.AddTransient<AddDeviceVM>();
             service.AddTransient<AddDevicWin>();

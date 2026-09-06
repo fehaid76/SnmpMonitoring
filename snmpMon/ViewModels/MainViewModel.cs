@@ -33,7 +33,7 @@ namespace snmpMon.ViewModels
         public ICommand DevicesCmd { get; set; }
         public ICommand DashboardCmd { get; set; }
         public ICommand SnmpAlerts {  get; set; }
-
+        public ICommand DeviceTemplates {  get; set; }
         private readonly IFrameRequestServices _requestServices;
         private readonly IFremeTransientRequestServices _fremeTransientRequest;
         public MainViewModel(IFrameRequestServices requestServices, IFremeTransientRequestServices fremeTransientRequest)
@@ -59,6 +59,11 @@ namespace snmpMon.ViewModels
             SnmpAlerts = new RelayCommand(() =>
             {
                 CurrentView = _fremeTransientRequest.GetSNMPAlertsFrame();
+            });
+
+            DeviceTemplates = new RelayCommand(() =>
+            {
+                CurrentView = _requestServices.GetDeviceTemplatesFrame();
             });
 
         }

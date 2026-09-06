@@ -9,6 +9,7 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
         UserControl GetDevicesFrame();
         UserControl GetOverviewFrame();
         UserControl GetAlertsFrame();
+        UserControl GetDeviceTemplatesFrame();
 
     }
 }

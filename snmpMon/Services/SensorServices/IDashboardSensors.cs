@@ -15,7 +15,7 @@ namespace snmpMon.Services.SensorServices
 
         event EventHandler<ResourceUsageEventArgs> OnResourceDeviceUsage;
         event EventHandler<DeviceStatusEventArgs> OnDeviceStatusChanged;
-        void StartMonitoring(string ipAddress, string communityString);
+        void StartMonitoring(string ipAddress, string communityString, string deviceCategory);
         Task GetUpTime();
     }
 }

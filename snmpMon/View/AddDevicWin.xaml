@@ -59,6 +59,9 @@
                 IsReadOnly="True"
                 TextInputColor="White"
                 FoucableTextInput="False"/>
+            
+            <ComboBox Style="{StaticResource ComboBox_Style}" ItemsSource="{Binding Categories}" DisplayMemberPath="Name"
+                      FontFamily="{StaticResource Google_Sans}" SelectedValue="{Binding CategoryID, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="ID"/>
 
 
 

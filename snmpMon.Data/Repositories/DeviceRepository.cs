@@ -16,8 +16,8 @@ namespace snmpMon.Data.Repositories
         public async Task<bool> AddDeviceAsync(Device device)
         {
             int rowsAffected = 0;
-            string insertQuery = @"INSERT INTO Devices(Name, Vendor,IPAddress, CommunityString)
-                                    SELECT $Name, $Vendor, $IPAddress, $CommunityString
+            string insertQuery = @"INSERT INTO Devices(Name, Vendor,IPAddress, CommunityString, CategoryID)
+                                    SELECT $Name, $Vendor, $IPAddress, $CommunityString, $CategoryID
                                     WHERE NOT EXISTS(
 	                                    SELECT 1 FROM Devices WHERE IPAddress = $IPAddress);";
 
@@ -34,6 +34,7 @@ namespace snmpMon.Data.Repositories
                         cmd.Parameters.AddWithValue("$Vendor", device.Vendor ?? "");
                         cmd.Parameters.AddWithValue("$IPAddress", device.IPAddress);
                         cmd.Parameters.AddWithValue("$CommunityString", device.CommunityString);
+                        cmd.Parameters.AddWithValue("$CategoryID", device.CategoryID);
 
                         rowsAffected = await cmd.ExecuteNonQueryAsync();
 
@@ -93,12 +94,47 @@ namespace snmpMon.Data.Repositories
 
             return rowsAf > 0;
         }
+        public async Task<List<Category>> GetAllCategoriesAsync()
+        {
+            string query = @"SELECT * FROM Categories";
+            List<Category> categories = new();
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+                    using (var cmd = new SqliteCommand(query, con))
+                    {
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    Category category = new()
+                                    {
+                                        ID = Convert.ToInt32(reader["ID"]),
+                                        Name = reader["Category"].ToString() ?? "N/A",
+                                    };
+                                    categories.Add(category);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
 
+                return categories;
+            }
+        }
         public async Task<List<Device>> GetAllDevicesAsync()
         {
             List<Device> _devices = new List<Device>();
-            string sqlQuery = @"SELECT ID, Name, Vendor, IPAddress, CommunityString
-                              FROM Devices;";
+            string sqlQuery = @"SELECT DeviceID, Name, Vendor, IPAddress, CommunityString, Category
+                                FROM DevicesView;";
             using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
             {
                 try
@@ -115,12 +151,12 @@ namespace snmpMon.Data.Repositories
                                 while (await reader.ReadAsync())
                                 {
                                     Device d = new Device();
-                                    d.ID = Convert.ToInt32(reader["ID"]);
+                                    d.ID = Convert.ToInt32(reader["DeviceID"]);
                                     d.Name = reader["Name"].ToString() ?? "N/A";
                                     d.IPAddress = reader["IPAddress"].ToString() ?? "N/A";
                                     d.Vendor = reader["Vendor"].ToString() ?? "N/A";
                                     d.CommunityString = reader["CommunityString"].ToString() ?? "N/A";
-
+                                    d.Category = reader["Category"].ToString() ?? "N/A";
                                     _devices.Add(d);
 
                                 }
@@ -262,6 +298,92 @@ namespace snmpMon.Data.Repositories
                 }
 
                 return _endPoints;
+            }
+        }
+        public async Task<long> AddTemplatePathAsync(string Path)
+        {
+            string query = @"INSERT INTO Templates (TemplatePATH)
+                                VALUES ($TemplatePath);
+                                SELECT last_insert_rowid();";
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+
+                    using (var cmd = new SqliteCommand(query , con))
+                    {
+                        cmd.Parameters.AddWithValue("$TemplatePath", Path);
+
+                        long newID = Convert.ToInt64(await cmd.ExecuteScalarAsync());
+                        return newID;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
+                return 0;
+            }
+        }
+        public async Task<bool> AddCategoryAsync(string Category, long ReleatedID)
+        {
+            string query = @"INSERT INTO Categories(Category, TemplateID)
+	                           VALUES($Category, $TemplateID);";
+
+            using(var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+
+                    using (var cmd = new SqliteCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("$Category", Category);
+                        cmd.Parameters.AddWithValue("$TemplateID", ReleatedID);
+
+                        var rowsAf = await cmd.ExecuteNonQueryAsync();
+                        return (rowsAf > 0);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
+                return false;
+            }
+        }
+        public async Task<List<string>> GetTemplatePathsAsync()
+        {
+            string query = @"SELECT TemplatePATH FROM Templates;";
+            List<string> templates = new();
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+                    using (var cmd = new SqliteCommand(query, con))
+                    {
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (await reader.ReadAsync())
+                                {
+                                    templates.Add(reader["TemplatePATH"].ToString() ?? "N/A");
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                }
+
+                return templates;
             }
         }
     }

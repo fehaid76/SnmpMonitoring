@@ -54,7 +54,7 @@ namespace snmpMon.ViewModels.CardViewModels
                 new LineSeries<ObservablePoint>
                 {
                     Values = LatencyValues,
-                    Fill = null,
+                    Fill = new SolidColorPaint(SKColors.DodgerBlue.WithAlpha(35)),
                     GeometrySize = 0,
                     LineSmoothness = 0.4,
                     Stroke = new SolidColorPaint(SKColors.DodgerBlue){StrokeThickness = 2},
@@ -67,7 +67,7 @@ namespace snmpMon.ViewModels.CardViewModels
                 {
                     Name = "Inbound (kbps)",
                     Values = InTrafficValues,
-                    Fill = null,
+                    Fill = new SolidColorPaint(SKColors.DodgerBlue.WithAlpha(35)),
                     GeometrySize = 0,
                     LineSmoothness = 0.4,
                     Stroke = new SolidColorPaint(SKColors.DodgerBlue){StrokeThickness = 2},
@@ -77,7 +77,7 @@ namespace snmpMon.ViewModels.CardViewModels
                 {
                     Name = "Outbound (kbps)",
                     Values = OutTrafficValues,
-                    Fill = null,
+                    Fill = new SolidColorPaint(SKColors.GreenYellow.WithAlpha(35)),
                     GeometrySize = 0,
                     LineSmoothness = 0.4,
                     Stroke = new SolidColorPaint(SKColors.GreenYellow){StrokeThickness = 2},

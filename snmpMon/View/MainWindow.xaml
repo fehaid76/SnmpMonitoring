@@ -61,6 +61,12 @@
                                Content="Devices" FontSize="14" Command="{Binding DevicesCmd}"/>
                     <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/Messages.png"
                                Content="SNMP Alerts" FontSize="14" Command="{Binding SnmpAlerts}"/>
+                    <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/Analyzing.png"
+                               Content="Quick Analyzing" FontSize="14"/>
+                    <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/DeviceTemplates.png"
+                               Content="Device Templates" FontSize="14" Command="{Binding DeviceTemplates}"/>
+                    <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/Settings.png"
+                               Content="Settings" FontSize="14"/>
                 </StackPanel>
             </Border>
 

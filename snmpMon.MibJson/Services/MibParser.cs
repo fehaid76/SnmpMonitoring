@@ -9,12 +9,16 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using snmpMon.MibParse.Models;
 using System.Net.Http;
+using System.Text.Json.Nodes;
+using snmpMon.MibJson.Models;
+using JsonNode = snmpMon.MibJson.Models.JsonNode;
 
 namespace snmpMon.MibJson.Services
 {
     public class MibParser : IMibParser
     {
         Dictionary<string, MibNode> _genericMibTree;
+        Dictionary<string, JsonNode> _jsonTemplatesNodes; 
         Dictionary<string, MibNode> _enterpriseMibTree;
         Dictionary<string, MibNode> _processMibTree;
         private readonly HttpClient _httpClient;
@@ -26,10 +30,57 @@ namespace snmpMon.MibJson.Services
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("C# HttpClient/snmpMonAPP");
         }
 
-       
-
-        public async Task ParseMibJson()
+        
+        private async Task PrepareOidsTemplates(List<string> paths)
         {
+            var templatesString = await ReadJsonFiles(paths);
+            var Items = ProcessAllJsonFiles(templatesString);
+            ConvertJsonNodesToDictionary(Items);
+
+        }
+
+        private async Task<List<string>> ReadJsonFiles(List<string> Paths)
+        {
+            List<string> templatesString = new();
+            string tempString = string.Empty;
+            foreach (var Path in Paths)
+            {
+                tempString = await File.ReadAllTextAsync(Path);
+                templatesString.Add(tempString);
+            }
+
+            return templatesString;
+        }
+
+        private List<JsonNode> ProcessAllJsonFiles(List<string> templates)
+        {
+            List<JsonNode> result = new();
+            foreach (var path in templates)
+            {
+                var jsonDeserialized = JsonConvert.DeserializeObject<JsonNode>(path);
+                result.Add(jsonDeserialized);
+            }
+            return result;
+        }
+
+        private void ConvertJsonNodesToDictionary(List<JsonNode> jsonNodes)
+        {
+            _jsonTemplatesNodes = jsonNodes.ToDictionary(item => item.Name ?? string.Empty, item => item);
+        }
+
+        public JsonNode GetDeviceNode(string key)
+        {
+            if(_jsonTemplatesNodes != null && _jsonTemplatesNodes.TryGetValue(key, out var node))
+            {
+                return node;
+            }
+
+            return new JsonNode();
+        }
+        
+        public async Task ParseMibJson(List<string> paths)
+        {
+            await PrepareOidsTemplates(paths);  
             if (_initializationTcs.Task.IsCompleted) return;
             try
             {
@@ -37,7 +88,6 @@ namespace snmpMon.MibJson.Services
                 string genericOidUrl = "https://raw.githubusercontent.com/fehaid76/mib_json/refs/heads/main/vendor-generic.json";
                 string enterpriseOidUrl = "https://raw.githubusercontent.com/fehaid76/mib_json/refs/heads/main/cisco_memory_pool_mib.json";
                 string cisco_process_mib = "https://raw.githubusercontent.com/fehaid76/mib_json/refs/heads/main/cisco_process_mib.json";
-
 
                 string genericOidjsonString = await _httpClient.GetStringAsync(genericOidUrl, cts.Token);
                 string enterpriseOidJsonString = await _httpClient.GetStringAsync(enterpriseOidUrl, cts.Token);

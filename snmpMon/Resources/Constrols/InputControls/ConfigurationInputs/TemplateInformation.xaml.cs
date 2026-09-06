@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace snmpMon.Resources.Constrols.InputControls.ConfigurationInputs
+{
+    /// <summary>
+    /// Interaction logic for TemplateInformation.xaml
+    /// </summary>
+    public partial class TemplateInformation : UserControl
+    {
+        public TemplateInformation()
+        {
+            InitializeComponent();
+        }
+
+
+
+        public string TemplateName
+        {
+            get { return (string)GetValue(TemplateNameProperty); }
+            set { SetValue(TemplateNameProperty, value); }
+        }
+
+        public static readonly DependencyProperty TemplateNameProperty =
+            DependencyProperty.Register("TemplateName", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
+
+
+
+        public string Vendor
+        {
+            get { return (string)GetValue(VendorProperty); }
+            set { SetValue(VendorProperty, value); }
+        }
+
+        public static readonly DependencyProperty VendorProperty =
+            DependencyProperty.Register("Vendor", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
+
+
+
+
+        public string MemoryUsed
+        {
+            get { return (string)GetValue(MemoryUsedProperty); }
+            set { SetValue(MemoryUsedProperty, value); }
+        }
+
+        public static readonly DependencyProperty MemoryUsedProperty =
+            DependencyProperty.Register("MemoryUsed", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
+
+
+
+        public string MemoryFree
+        {
+            get { return (string)GetValue(MemoryFreeProperty); }
+            set { SetValue(MemoryFreeProperty, value); }
+        }
+
+        public static readonly DependencyProperty MemoryFreeProperty =
+            DependencyProperty.Register("MemoryFree", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
+
+
+
+
+
+        public string CPUUsage
+        {
+            get { return (string)GetValue(CPUUsageProperty); }
+            set { SetValue(CPUUsageProperty, value); }
+        }
+
+        public static readonly DependencyProperty CPUUsageProperty =
+            DependencyProperty.Register("CPUUsage", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
+
+
+
+        public string DeviceTemperature
+        {
+            get { return (string)GetValue(DeviceTemperatureProperty); }
+            set { SetValue(DeviceTemperatureProperty, value); }
+        }
+
+        public static readonly DependencyProperty DeviceTemperatureProperty =
+            DependencyProperty.Register("DeviceTemperature", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
+
+
+
+        public ICommand ConfirmCommand
+        {
+            get { return (ICommand)GetValue(ConfirmCommandProperty); }
+            set { SetValue(ConfirmCommandProperty, value); }
+        }
+
+        public static readonly DependencyProperty ConfirmCommandProperty =
+            DependencyProperty.Register("ConfirmCommand", typeof(ICommand), typeof(TemplateInformation), new PropertyMetadata(default));
+
+
+
+    }
+}

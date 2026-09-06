@@ -15,5 +15,9 @@ namespace snmpMon.Data.Repositories
         Task<List<DeviceEndpoint>> GetDeviceEndpointsAsync();
         Task<List<DeviceAlert>> GetAllMessagesAsync(string IPAddress);
         Task<bool> DeleteDeviceAsync(string ipAddress);
+        Task<long> AddTemplatePathAsync(string Path);
+        Task<bool> AddCategoryAsync(string Category, long ReleatedID);
+        Task<List<Category>> GetAllCategoriesAsync();
+        Task<List<string>> GetTemplatePathsAsync();
     }
 }
