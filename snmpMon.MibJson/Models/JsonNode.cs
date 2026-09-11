@@ -22,13 +22,27 @@ namespace snmpMon.MibJson.Models
 
     public class ResourcesOIDs
     {
-        [JsonProperty("memoryUsed")]
-        public string? MemoryUsed {  get; set; }
-        [JsonProperty("memoryFree")]
-        public string? MemoryFree {  get; set; }
+        //[JsonProperty("memoryUsed")]
+        //public string? MemoryUsed {  get; set; }
+        //[JsonProperty("memoryFree")]
+        //public string? MemoryFree {  get; set; }
+        [JsonProperty("memoryConfig")]
+        public MemoryConfig? MemoryConfig { get; set; }
         [JsonProperty("cpuUsage")]
         public string? CpuUsage {  get; set; }
         [JsonProperty("deviceTemperature")]
         public string? DeviceTemperature {  get; set; }
+    }
+
+    public class MemoryConfig
+    {
+        [JsonProperty("memoryInputType")]
+        public int MemoryInputType {  get; set; }
+        [JsonProperty("memoryUsedOid")]
+        public string? MemoryOid {  get; set; }
+        [JsonProperty("memoryFreeOid")]
+        public string? MemoryFreeOid { get;set; }
+        [JsonProperty("memoryUsageOid")]
+        public string? MemoryUsageOID {  get; set; }
     }
 }

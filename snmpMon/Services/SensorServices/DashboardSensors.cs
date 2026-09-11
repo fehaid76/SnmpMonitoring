@@ -1,8 +1,11 @@
-﻿using Lextm.SharpSnmpLib;
+﻿using Flee;
+using Flee.PublicTypes;
+using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using snmpMon.Core.Services;
 using snmpMon.Engine.Helper;
 using snmpMon.Engine.Services.SnmpServices;
+using snmpMon.Extensions;
 using snmpMon.Helper;
 using snmpMon.Helper.EventHandle;
 using snmpMon.MibJson.Extenstions;
@@ -21,7 +24,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-
 namespace snmpMon.Services.SensorServices
 {
     public class DashboardSensors : IDisposable, IDashboardSensors
@@ -38,9 +40,13 @@ namespace snmpMon.Services.SensorServices
         private string _ipAddress;
         private string _communityString;
         private string _deviceCategory;
+        private int _calculatingMode;
         private CancellationTokenSource _cts;
         private bool _isMonitoring = false;
         private Task _upTimeTask;
+
+        private readonly ExpressionContext _context = new();
+        private readonly DynamicExpresso.Interpreter _interpreter = new();
 
         private readonly ISnmpListener _snmpListener;
         private readonly ISnmpService _snmpService;
@@ -73,18 +79,30 @@ namespace snmpMon.Services.SensorServices
 
 
 
-        private (ObjectIdentifier freeMemory, ObjectIdentifier usedMemory, ObjectIdentifier cpuTotal1Min) FetchUtilizationNodes()
+        private (string MemoryUsage, ObjectIdentifier cpuTotal1Min) FetchUtilizationNodes()
         {
-            var freeMemoryTask = _mibParser.GetDeviceNode(_deviceCategory);
-            var usedMemoryTask = _mibParser.GetDeviceNode(_deviceCategory);
-            var cpuTotal1MinTask = _mibParser.GetDeviceNode(_deviceCategory);
+            try
+            {
+                var deviceNode = _mibParser.GetDeviceNode(_deviceCategory);
 
+                if (deviceNode?.Resources == null)
+                {
+                    throw new InvalidOperationException("Device node or resources configuration is null.");
+                }
 
-            return (new ObjectIdentifier(freeMemoryTask.Resources.MemoryFree.ToFirstIntanceOid()),
-                new ObjectIdentifier(usedMemoryTask.Resources.MemoryUsed.ToFirstIntanceOid()),
-                new ObjectIdentifier(cpuTotal1MinTask.Resources.CpuUsage.ToFirstIntanceOid()));
+                var memoryOid = deviceNode.Resources.MemoryConfig?.MemoryUsageOID;
+                var cpuOid = deviceNode.Resources.CpuUsage;
 
-
+                return (
+                    string.IsNullOrEmpty(memoryOid) ? string.Empty : memoryOid,
+                    string.IsNullOrEmpty(cpuOid) ? new ObjectIdentifier(string.Empty) : new ObjectIdentifier(cpuOid)
+                );
+            }
+            catch (Exception ex)
+            {
+                Engine.Helper.Logger.LogCriticalException(ex, ex.Message);
+                return (string.Empty, new ObjectIdentifier(string.Empty));
+            }
         }
 
         public void StartMonitoring(string ipAddress, string communityString, string deviceCategory)
@@ -98,13 +116,13 @@ namespace snmpMon.Services.SensorServices
             int failRepetation = 0;
             IPEndPoint ip = new IPEndPoint(IPAddress.Parse(_ipAddress), 161);
             OctetString community = new OctetString(communityString);
-            
+
             Task.Run(async () =>
             {
                 var utilizationNodes = FetchUtilizationNodes();
                 var nodeChecker = await _mibParser.GetNode("sysDescr");
                 var sysNode = await _mibParser.GetNode("system");
-                
+
                 try
                 {
                     _ = GetUpTime();
@@ -118,7 +136,7 @@ namespace snmpMon.Services.SensorServices
                             try
                             {
                                 var systemNameTask = GetSystemName(ip, community, new ObjectIdentifier(sysNode.Oid.ToString()));
-                                var resourceUsageTask = GetResourceUsage(ip, community, utilizationNodes.freeMemory, utilizationNodes.usedMemory, utilizationNodes.cpuTotal1Min);
+                                var resourceUsageTask = GetResourceUsage(ip, community, utilizationNodes.MemoryUsage, utilizationNodes.cpuTotal1Min);
                                 await Task.WhenAll(systemNameTask, resourceUsageTask);
 
                             }
@@ -146,7 +164,7 @@ namespace snmpMon.Services.SensorServices
 
                 }
                 catch (TaskCanceledException) { }
-                
+
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Monitoring Core Error : {ex}");
@@ -159,7 +177,14 @@ namespace snmpMon.Services.SensorServices
 
         }
 
+        private double EvaluateFormal(string formal)
+        {
+            var expression = formal.ReplaceSpaces().Trim('{', '}').AddDecimalToInt();
+            var result = _interpreter.Eval(expression);
+           
 
+            return Convert.ToDouble(result);
+        }
         public async Task GetUpTime()
         {
             if (_upTimeTask != null && !_upTimeTask.IsCompleted)
@@ -197,7 +222,7 @@ namespace snmpMon.Services.SensorServices
             }
         }
 
-    
+
         private async Task<(MibNode Desc, MibNode Speed, MibNode Admin, MibNode Oper)> fetchInterfaceOidsAsync()
         {
             var descTask = _mibParser.GetNode("ifDescr");
@@ -245,12 +270,12 @@ namespace snmpMon.Services.SensorServices
             }
         }
 
-        private T GetParsedValue<T> (object value) where T : struct 
+        private T GetParsedValue<T>(object value) where T : struct
         {
             if (value != null && Convert.ChangeType(value.ToString(), typeof(T)) is T result)
                 return result;
             return default;
-            
+
         }
 
         private async Task GetInterfacesAsync()
@@ -263,7 +288,7 @@ namespace snmpMon.Services.SensorServices
             _interfaces.AddRange(MapToDevicceInterfaces(rawResults));
 
             OnDeviceInterfaceReceived?.Invoke(_interfaces);
-        }     
+        }
 
         private void _snmpListener_OnInterfaceStatusChanged(string arg1, bool arg2)
         {
@@ -273,30 +298,58 @@ namespace snmpMon.Services.SensorServices
             OnInterfaceStatusChanged?.Invoke(arg1, interfaceStatus);
         }
 
-
-        private async Task<(double memoryUsed, double memoryFree)> FetchMemoryUsage(IPEndPoint ip, OctetString Community, ObjectIdentifier freeMemoryOid, ObjectIdentifier usedMemoryOid)
+        private async Task<double> CalculateOidsString(string value, IPEndPoint ip, OctetString Community)
         {
-            var usedMemoryTask = _snmpService.GetIntAsyn(ip, Community, usedMemoryOid);
-            var freeMemoryTask = _snmpService.GetIntAsyn(ip, Community, freeMemoryOid);
-
-            await Task.WhenAll(usedMemoryTask, freeMemoryTask);
-
-            return (usedMemoryTask.Result, freeMemoryTask.Result);
-        }
-        private async Task<double> GetMemeoryUsageAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier freeMemoryOid, ObjectIdentifier usedMemoryOid)
-        {
-
-
-            var memoryUsageDetails = await FetchMemoryUsage(ip, Community, freeMemoryOid, usedMemoryOid);
-
-            if ((memoryUsageDetails.memoryUsed + memoryUsageDetails.memoryFree) > 0)
+            var group = value.ConvertToOidList();
+            var sd = new StringBuilder(value);
+            var resultGroup = await _snmpService.GetGroupDoubleAsync(_ipAddress, _communityString, group);
+            foreach (var o in resultGroup)
             {
-                var _memoryUsage = (memoryUsageDetails.memoryUsed / (memoryUsageDetails.memoryUsed + memoryUsageDetails.memoryFree) * 100);
-                return Math.Round(_memoryUsage, 2);
+                sd.Replace(o.oid, o.result.ToString());
             }
+            return EvaluateFormal(sd.ToString());
+        }
+
+        private async Task<double> GetIntAsyc(IPEndPoint ip, OctetString Community, string oid)
+        {
+            return await _snmpService.GetIntAsync(ip.ToString(), Community.ToString(), oid);
+        }
+
+        private async Task<double> FetchMemoryUsage(IPEndPoint ip, OctetString Community, string MemoryOid)
+        {
+            Task<double> MemoryTask = null;
+
+            if (MemoryOid.ToString().GetOidsCount() > 1)
+            {
+                 MemoryTask =  CalculateOidsString(MemoryOid.ToString(), ip, Community);
+            }
+            else
+            {
+                 MemoryTask = _snmpService.GetDoubleAsync(ip, Community, new ObjectIdentifier(MemoryOid));
+  
+            }
+            
+            return await MemoryTask;
+
+            // var MemoryTask = _snmpService.GetIntAsyn(ip, Community, MemoryOid);
+
+            //await MemoryTask;
+
+            //return MemoryTask;
+        }
+        private async Task<double> GetMemeoryUsageAsync(IPEndPoint ip, OctetString Community, string MemoryOid)
+        {
+
+            var memoryUsageDetails = await FetchMemoryUsage(ip, Community, MemoryOid);
+            return Math.Round(memoryUsageDetails, 2);
+            //if ((memoryUsageDetails.memoryUsed + memoryUsageDetails.memoryFree) > 0)
+            //{
+            //    var _memoryUsage = (memoryUsageDetails.memoryUsed / (memoryUsageDetails.memoryUsed + memoryUsageDetails.memoryFree) * 100);
+            //    return Math.Round(_memoryUsage, 2);
+            //}
 
             return 0;
-        }    
+        }
 
         private async Task<int> GetCPUtilizationAsync(IPEndPoint ip, OctetString Community, ObjectIdentifier cpuUtilizationOid)
         {
@@ -305,9 +358,9 @@ namespace snmpMon.Services.SensorServices
             return cpuUtilization;
         }
 
-        private async Task GetResourceUsage(IPEndPoint ip, OctetString communityString, ObjectIdentifier freeMemoryOid, ObjectIdentifier usedMemoryOid, ObjectIdentifier cpuUtilizationOid)
+        private async Task GetResourceUsage(IPEndPoint ip, OctetString communityString, string MemoryUsageOid, ObjectIdentifier cpuUtilizationOid)
         {
-            var memoryUsageTask = GetMemeoryUsageAsync(ip, communityString, freeMemoryOid, usedMemoryOid);
+            var memoryUsageTask = GetMemeoryUsageAsync(ip, communityString, MemoryUsageOid);
             var cpuUtilization = GetCPUtilizationAsync(ip, communityString, cpuUtilizationOid);
 
             await Task.WhenAll(memoryUsageTask, cpuUtilization);
@@ -321,14 +374,14 @@ namespace snmpMon.Services.SensorServices
         {
             var systemInformation = await _snmpService.GetBulkAsync(ip, Community, sysOid);
 
-            if(systemInformation != null)
+            if (systemInformation != null)
             {
-                    Debug.WriteLine($"## {systemInformation.Count} ##");
+                Debug.WriteLine($"## {systemInformation.Count} ##");
             }
-                
+
         }
 
-        
+
 
         private async Task<bool> pingAsync()
         {

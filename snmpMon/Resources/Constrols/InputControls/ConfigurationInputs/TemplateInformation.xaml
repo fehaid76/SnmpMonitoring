@@ -34,8 +34,7 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-            <inputCtrl:TextInput Grid.Row="0" Title="Memory Used" Text="{Binding MemoryUsed, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
-            <inputCtrl:TextInput Grid.Row="1" Title="Memory Free" Text="{Binding MemoryFree, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
+            <inputCtrl:TextInput Grid.Row="0" Title="Memory Usage" Text="{Binding MemoryUsage, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
 
             <inputCtrl:TextInput Grid.Row="2" Title="CPU Usage" Text="{Binding CPUUsage, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
             <inputCtrl:TextInput Grid.Row="3" Title="Device Temperature" Text="{Binding DeviceTemperature, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>

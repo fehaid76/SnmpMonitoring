@@ -35,6 +35,17 @@ namespace snmpMon.ViewModels
             }
         }
 
+        private MemoryConfig _memoryConfig = new();
+
+        public MemoryConfig MemoryConfig
+        {
+            get => _memoryConfig;
+            set
+            {
+                _memoryConfig = value;
+                SetProperty(ref _memoryConfig, value);
+            }
+        }
 
         public ICommand ConfirmCommand {  get; set; }
         private readonly IManageTemplateServices _manageTemplateServices;
@@ -54,6 +65,7 @@ namespace snmpMon.ViewModels
             if(JsonNode != null)
             {
                 _jsonNode.Resources = ResourcesOIDs;
+                ResourcesOIDs.MemoryConfig = MemoryConfig;
                 return await _manageTemplateServices.ConfirmNode(JsonNode, JsonNode.Name);
             }
             return false;
@@ -65,6 +77,7 @@ namespace snmpMon.ViewModels
             {
                 JsonNode = new();
                 ResourcesOIDs = new();
+                MemoryConfig = new();
             }
                 
         }

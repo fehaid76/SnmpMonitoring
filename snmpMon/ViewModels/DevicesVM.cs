@@ -157,6 +157,7 @@ namespace snmpMon.ViewModels
                     CommunityString = d.CommunityString,
                     Vendor = d.Vendor,      
                     Category = d.Category,
+
                 };
 
                 Devices.Add(deviceInfo);

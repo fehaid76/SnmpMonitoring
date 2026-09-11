@@ -23,5 +23,8 @@ namespace snmpMon.Engine.Services.SnmpServices
         Task<List<Variable>> GetWalkAsync(string ip, string communityString, string oid, int port = 161);
         Task<List<SnmpVariable>> GetBulkAsync(string ip, string communityString, string oid, int maxRepetation = 10);
         Task<List<SnmpVariable>> GetBulkAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid, int maxRepetation = 10);
+        Task<List<(string oid, double result)>> GetGroupDoubleAsync(string ip, string communityString, List<string> OIDs, int port = 161);
+        Task<double> GetDoubleAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid);
+        Task<double> GetDoubleAsync(string ip, string communityString, string oid, int port = 161);
     }
 }

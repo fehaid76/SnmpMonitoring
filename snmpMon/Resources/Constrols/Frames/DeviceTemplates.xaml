@@ -30,8 +30,10 @@
                     <TabItem Header="New Template" Grid.Column="0" Style="{StaticResource TabItem_Style}">
                         <Inputs:TemplateInformation x:Name="TemplateInputs" TemplateName="{Binding JsonNode.Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                     Vendor="{Binding JsonNode.Vendor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                    MemoryUsed="{Binding ResourcesOIDs.MemoryUsed, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                    MemoryFree="{Binding ResourcesOIDs.MemoryFree, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    SelectedType="{Binding MemoryConfig.MemoryInputType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    MemoryUsed="{Binding MemoryConfig.MemoryUsedOid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    MemoryFree="{Binding MemoryConfig.MemoryFreeOid, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    MemoryUsage="{Binding MemoryConfig.MemoryUsageOID, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                     CPUUsage="{Binding ResourcesOIDs.CpuUsage, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                     DeviceTemperature="{Binding ResourcesOIDs.DeviceTemperature, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                     ConfirmCommand="{Binding ConfirmCommand}"/>

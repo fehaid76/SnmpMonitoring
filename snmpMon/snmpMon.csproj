@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
+    <PackageReference Include="DynamicExpresso.Core" Version="2.19.5" />
+    <PackageReference Include="Flee" Version="2.0.0" />
     <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.5" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />

@@ -7,6 +7,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="DynamicExpresso.Core" Version="2.19.5" />
+		<PackageReference Include="Flee" Version="2.0.0" />
 		<PackageReference Include="Lextm.SharpSnmpLib" Version="12.5.7" />
 		<PackageReference Include="Lextm.SharpSnmpLib.MibParser" Version="1.0.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

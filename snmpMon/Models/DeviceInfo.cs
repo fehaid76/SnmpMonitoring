@@ -19,7 +19,17 @@ namespace snmpMon.Models
         private string _category;
         private int _portsCount;
         private bool _isConnected;
+        private int _calculatinType;
 
+        public int CalculatingType
+        {
+            get => _calculatinType;
+            set
+            {
+                _calculatinType = value;
+                OnPropertyChanged(nameof(CalculatingType));
+            }
+        }
         public string Category
         {
             get => _category;

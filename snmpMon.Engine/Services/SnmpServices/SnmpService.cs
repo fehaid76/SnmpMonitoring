@@ -18,6 +18,45 @@ namespace snmpMon.Engine.Services.SnmpServices
 {
     public class SnmpService : ISnmpService
     {
+        public async Task<double> GetDoubleAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
+        {
+            var vcl = new[] { new Variable(oid) };
+
+            try
+            {
+                var result = await Messenger.GetAsync(VersionCode.V2,
+                    ip, communityString, vcl);
+                if(result != null && result?.Count > 0)
+                {
+                    if (result[0].Data is Gauge32 snmpGauge)
+                    {
+                        return snmpGauge.ToUInt32();
+                    }
+                    else if (result[0].Data is Counter32 counter32)
+                    {
+                        return counter32.ToUInt32();
+                    }
+                    else if (result[0].Data is Counter64 counter64)
+                    {
+                        return counter64.ToUInt64();
+                    }
+                }
+            }
+            catch (System.Net.Sockets.SocketException socketEx)
+            {
+                Logger.LogCriticalException(socketEx, socketEx.Message);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+            }
+
+            return 0;
+        }
+        public async Task<double> GetDoubleAsync(string ip, string communityString, string oid, int port = 161)
+        {
+            return await GetDoubleAsync(new IPEndPoint(IPAddress.Parse(ip), port), new OctetString(communityString), new ObjectIdentifier(oid));
+        }
         public async Task<long> GetLongAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
             var vcl = new[] { new Variable(oid) };
@@ -29,7 +68,7 @@ namespace snmpMon.Engine.Services.SnmpServices
                     ip, communityString,
                     vcl);
 
-                if (result != null && result.Count > 0)
+                if (result != null && result?.Count > 0)
                 {
                     if (result[0].Data is Gauge32 snmpGauge)
                     {
@@ -97,6 +136,16 @@ namespace snmpMon.Engine.Services.SnmpServices
             }
 
             return 0;
+        }
+        public async Task<List<(string oid, double result)>> GetGroupDoubleAsync(string ip, string communityString, List<string> OIDs, int port = 161)
+        {
+            List<(string oid, double result)> results = new();
+            foreach (var o in OIDs)
+            {
+                var result = await GetDoubleAsync(ip, communityString, o);
+                results.Add((o, result));
+            }
+            return results;
         }
         public async Task<int> GetIntAsync(string ip, string communityString, string oid, int port = 161)
         {

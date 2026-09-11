@@ -1,4 +1,5 @@
-﻿using snmpMon.MibJson.Models;
+﻿using snmpMon.Enums;
+using snmpMon.MibJson.Models;
 using snmpMon.MibJson.Services;
 using snmpMon.MibParse.Models;
 using System;
@@ -31,19 +32,28 @@ namespace snmpMon.Services
             JsonNode mibNode = new JsonNode()
             {
                 Name = node.Name,
-                Resources = new ResourcesOIDs
-                {
-                    MemoryFree = node.Resources.MemoryFree,
-                    MemoryUsed = node.Resources.MemoryUsed,
-                    CpuUsage = node.Resources.CpuUsage,
-                    DeviceTemperature = node.Resources.DeviceTemperature,
-                },
+                Resources = GetPreparedResourcesObject(node),
                 Vendor = node.Vendor,
                 Unit = node.Unit
 
             };
 
             return mibNode;
+        }
+
+        private ResourcesOIDs GetPreparedResourcesObject(JsonNode node)
+        {
+            ResourcesOIDs resources = new();
+            resources.MemoryConfig = new();
+            if(node != null)
+            {
+                resources.MemoryConfig.MemoryUsageOID = node.Resources.MemoryConfig.MemoryUsageOID;
+                resources.CpuUsage = node.Resources.CpuUsage;
+                resources.DeviceTemperature = node.Resources.DeviceTemperature;
+            }
+
+            return resources;
+
         }
 
         private async Task<bool> SerializeNodes(string TemplateName)

@@ -27,6 +27,17 @@ namespace snmpMon.Resources.Constrols.InputControls.ConfigurationInputs
 
 
 
+
+        public int SelectedType
+        {
+            get { return (int)GetValue(SelectedTypeProperty); }
+            set { SetValue(SelectedTypeProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectedTypeProperty =
+            DependencyProperty.Register("SelectedType", typeof(int), typeof(TemplateInformation), new PropertyMetadata(default));
+
+
         public string TemplateName
         {
             get { return (string)GetValue(TemplateNameProperty); }
@@ -70,6 +81,17 @@ namespace snmpMon.Resources.Constrols.InputControls.ConfigurationInputs
         public static readonly DependencyProperty MemoryFreeProperty =
             DependencyProperty.Register("MemoryFree", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
 
+
+
+
+        public string MemoryUsage
+        {
+            get { return (string)GetValue(MemoryUsageProperty); }
+            set { SetValue(MemoryUsageProperty, value); }
+        }
+
+        public static readonly DependencyProperty MemoryUsageProperty =
+            DependencyProperty.Register("MemoryUsage", typeof(string), typeof(TemplateInformation), new PropertyMetadata(string.Empty));
 
 
 
