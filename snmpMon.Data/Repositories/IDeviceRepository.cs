@@ -19,5 +19,6 @@ namespace snmpMon.Data.Repositories
         Task<bool> AddCategoryAsync(string Category, long ReleatedID);
         Task<List<Category>> GetAllCategoriesAsync();
         Task<List<string>> GetTemplatePathsAsync();
+        Task<bool> DeleteTemplateAsync(string categoryName);
     }
 }

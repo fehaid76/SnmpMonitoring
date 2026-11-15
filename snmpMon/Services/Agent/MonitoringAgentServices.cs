@@ -35,6 +35,7 @@ namespace snmpMon.Services.Agent
         public async Task<ActionDisposableAggregation> StartMonitoring(string ipAddress, string communityString, DeviceInfo deviceInfo)
         {
             _deviceInfo = deviceInfo ?? new DeviceInfo();
+            var PollingDuration = TimeSpan.FromSeconds(5);
             if (string.IsNullOrWhiteSpace(_deviceInfo.DeviceName))
                 _deviceInfo.DeviceName = "Unknown device";
 
@@ -42,7 +43,7 @@ namespace snmpMon.Services.Agent
             {
                 try
                 {
-                    await sensor.PollAsync(ipAddress, communityString, _cts.Token);
+                    await sensor.PollAsync(ipAddress, communityString, _cts.Token).WaitAsync(PollingDuration);
                 }
                 catch (OperationCanceledException) { }
                 catch(Exception ex)

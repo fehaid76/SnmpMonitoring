@@ -11,5 +11,6 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
         UserControl GetAlertsFrame();
         UserControl GetDeviceTemplatesFrame();
 
+
     }
 }

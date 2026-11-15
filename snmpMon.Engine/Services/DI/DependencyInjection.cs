@@ -18,7 +18,7 @@ namespace snmpMon.Engine.Services.DI
             services.AddTransient<IDeviceRepository, DeviceRepository>();
             services.AddTransient<ISnmpService, SnmpService>();
             services.AddSingleton<ISnmpSeverityAnalyzer, SnmpSeverityAnalyzer>();
-
+            services.AddSingleton<IMibParser, MibParser>();
             return services;
         }
     }

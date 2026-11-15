@@ -7,11 +7,14 @@ using LiveCharts.Definitions.Series;
 using LiveCharts.Wpf;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView.Extensions;
+using snmpMon.Engine.Helper.EventHandle;
 using snmpMon.Engine.Services.SnmpServices;
+using snmpMon.Helper.EventHandle;
 using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames.FrameServices;
 using snmpMon.Resources.Constrols.LabelControls;
 using snmpMon.Services.AlertServices;
+using snmpMon.Services.DeviceServices;
 using snmpMon.Services.SensorServices;
 using snmpMon.Services.WindowServices;
 using System;
@@ -49,6 +52,9 @@ namespace snmpMon.ViewModels
                 if(SetProperty(ref _device, value))
                 {
                     _startMonitoring();
+                    GetSystemDetails();
+
+
                 }
             }
         }
@@ -57,7 +63,7 @@ namespace snmpMon.ViewModels
         [ObservableProperty]
         private double _memoryUsage;
         [ObservableProperty]
-        private int _cpuUtilization;
+        private double _cpuUtilization;
         [ObservableProperty]
         private List<string> _labelsY = new();
         [ObservableProperty]
@@ -69,14 +75,15 @@ namespace snmpMon.ViewModels
         private readonly IDashboardSensors _dashboardSensors;
         private readonly IAlertNotify _alertNotify;
         private readonly IWindowService _windowService;
-        public DeviceMonitoringVM(IDashboardSensors dashboardSensors, IAlertNotify alertNotify, IWindowService windowService)
+        private readonly IDeviceInformationServices _deviceInformationServices;
+        public DeviceMonitoringVM(IDashboardSensors dashboardSensors, IAlertNotify alertNotify, IWindowService windowService, IDeviceInformationServices deviceInformationServices)
         {
 
             _dashboardSensors = dashboardSensors;
             _windowService = windowService;
             _alertNotify = alertNotify;
+            _deviceInformationServices = deviceInformationServices;
             EventSubscribe();
-
 
 
             GetSeriesCollection();
@@ -89,7 +96,28 @@ namespace snmpMon.ViewModels
                 _windowService.ShowInterfaceOverview(Device.IPAddress, Device.CommunityString, d.IfIndex, d.Description);
 
             });
+            
         }
+
+        private void GetSystemDetails()
+        {
+            Task.Run(async () =>
+            {
+                //var processDuration = TimeSpan.FromSeconds(5);
+                var sysDetails = await _deviceInformationServices.GetSysDetails(Device.IPAddress, Device.CommunityString);
+                AssignSystemDetails(sysDetails.sysName, sysDetails.sysLocation, sysDetails.sysStatus);
+            });
+
+        }
+
+        private void AssignSystemDetails(string sysName, string sysLocation, bool sysStatus)
+        {
+            SystemInforamtion.SystemName = sysName;
+            SystemInforamtion.Location = sysLocation;
+            SystemInforamtion.IsConnected = sysStatus;
+
+        }
+
 
         private void OnDeviceStatusChanged(object sender, Helper.EventHandle.DeviceStatusEventArgs e)
         {
@@ -127,6 +155,30 @@ namespace snmpMon.ViewModels
             _dashboardSensors.OnUpTimeReceived += OnUpTimeReceived;
         }
 
+        private void OnInterfaceStatusChanged(object sender, InterfaceStatusEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (Interfaces.Count > 0)
+                {
+                    if (Device.IPAddress == e.IPAddress)
+                    {
+                        for (int i = 0; i < Interfaces.Count; i++)
+                        {
+                            if (Interfaces[i].Description == e.IfDescr)
+                            {
+
+                                Interfaces[i].AdminStatus = e.IsUp? 1 : 2;
+                                Interfaces[i].OperationStatus = e.IsUp ? 1 : 2;
+                            }
+                        }
+                    }
+
+
+                }
+            });
+        }
+
         private void EventUnsubscribe()
         {
             _dashboardSensors.OnDeviceInterfaceReceived -= OnDeviceInterfaceRecieved;
@@ -136,9 +188,11 @@ namespace snmpMon.ViewModels
 
         private void OnDeviceStatusChangedToUp(string IPAddress, string CommunityString)
         {
-            _alertNotify.ShowSuccess($"{Device.DeviceName} status changed to up");
-            _startMonitoring();
             EventSubscribe();
+            _alertNotify.ShowSuccess($"{Device.DeviceName} status changed to up");
+            SystemInforamtion.IsConnected = true;
+            _startMonitoring();
+            
             
         }
 
@@ -154,6 +208,7 @@ namespace snmpMon.ViewModels
             SystemInforamtion.UpTime = new TimeSpan();
             CpuUtilization = 0;
             MemoryUsage = 0;
+            SystemInforamtion.IsConnected = false;
             Interfaces.Clear();
 
         }
@@ -163,26 +218,6 @@ namespace snmpMon.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
                 SystemInforamtion.UpTime = obj;
-            });
-
-        }
-
-        private void OnInterfaceStatusChanged(string arg1, int arg2)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                if (Interfaces.Count > 0)
-                {
-                    for (int i = 0; i < Interfaces.Count; i++)
-                    {
-                        if (Interfaces[i].Description == arg1)
-                        {
-
-                            Interfaces[i].AdminStatus = arg2;
-                            Interfaces[i].OperationStatus = arg2;
-                        }
-                    }
-                }
             });
 
         }
@@ -244,10 +279,10 @@ namespace snmpMon.ViewModels
             AddMemoryLineChartValue(value);
         }
 
-        private void CpuUtilizationLogger(int value)
+        private void CpuUtilizationLogger(double value)
         {
             CpuUtilization = value;
-            AddCpuUtilzationLineChartValue((double)value);
+            AddCpuUtilzationLineChartValue(value);
         }
 
         private void ChecKForChartValuesCount()
@@ -292,7 +327,10 @@ namespace snmpMon.ViewModels
 
         private void _startMonitoring()
         {
+
             _dashboardSensors.StartMonitoring(Device.IPAddress, Device.CommunityString, Device.Category);
+
+            
         }
 
 

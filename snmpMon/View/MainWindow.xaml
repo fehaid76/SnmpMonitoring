@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:snmpMon"
         xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="850"  MinHeight="600" MinWidth="950" WindowStartupLocation="CenterScreen"  Background="#242124">
+        Title="SNMP Monitor" Height="850"  MinHeight="600" MinWidth="950" WindowStartupLocation="CenterScreen"  Background="#242124">
     <Grid>
 
         <Grid.RowDefinitions>
@@ -62,7 +62,7 @@
                     <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/Messages.png"
                                Content="SNMP Alerts" FontSize="14" Command="{Binding SnmpAlerts}"/>
                     <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/Analyzing.png"
-                               Content="Quick Analyzing" FontSize="14"/>
+                               Content="Quick Analyzing" FontSize="14" Command="{Binding QuickAnalyzing}"/>
                     <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/DeviceTemplates.png"
                                Content="Device Templates" FontSize="14" Command="{Binding DeviceTemplates}"/>
                     <RadioButton GroupName="MainMenue" Style="{StaticResource RadioButton_Style}" Tag="/Resources/Imgs/Settings.png"

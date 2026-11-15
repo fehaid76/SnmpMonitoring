@@ -2,6 +2,7 @@
 using snmpMon.Core.Services;
 using snmpMon.Data.Model;
 using snmpMon.Engine.Helper;
+using snmpMon.Helper.EventHandle;
 using snmpMon.MibJson.Services;
 using snmpMon.MibParse.Models;
 using System;
@@ -19,9 +20,7 @@ namespace snmpMon.Services.Agent
 {
     public class OverviewServices : IOverviewServices
     {
-        public event Action<double> OnInboundKbps;
-        public event Action<double> OnOutboundKbps;
-        public event Action<string> OnTopInboundDevice;
+        public event EventHandler<DeviceTrafficEventArgs> DeviceTrafficReceived;
         public event Action<double> OnAverageNetworkLatency;
         public event Action<int> OnUpDevices;
         private List<Device> devices = new List<Device>();
@@ -42,11 +41,11 @@ namespace snmpMon.Services.Agent
             
             
         }
-        public async Task StartNetworkAverageLatencyCalculateAsync(List<Device> devicesIPs)
+        public async Task StartNetworkAverageLatencyCalculateAsync(List<Device> devicesIPs, CancellationTokenSource cancellationToken = null)
         {
             devices = devicesIPs;
 
-            _cancellation = new CancellationTokenSource();
+            _cancellation = cancellationToken != null ? cancellationToken : new CancellationTokenSource();
             var token = _cancellation.Token;
             double ave = 0;
             while (!token.IsCancellationRequested)
@@ -75,9 +74,9 @@ namespace snmpMon.Services.Agent
 
         }
 
-        public void StartTrafficMonitoring()
+        public void StartTrafficMonitoring(CancellationTokenSource cancellationToken = null)
         {
-            var _cancellation = new CancellationTokenSource();
+            var _cancellation = cancellationToken != null ? cancellationToken: new CancellationTokenSource();
             _ = StartInboundTraffic(_cancellation);
 
         }
@@ -105,9 +104,8 @@ namespace snmpMon.Services.Agent
 
                     await Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        OnInboundKbps?.Invoke(inTraaffic);
-                        OnOutboundKbps?.Invoke(outboundTraffic);
-                        getTopTrafficConsumerDevice(interfacesServices);
+                        var topConsumerDevice = getTopTrafficConsumerDevice(interfacesServices);
+                        DeviceTrafficReceived?.Invoke(this, new DeviceTrafficEventArgs(inTraaffic, outboundTraffic, topConsumerDevice));
                     });
                 }
                 catch (OperationCanceledException) when (token.IsCancellationRequested)
@@ -133,13 +131,15 @@ namespace snmpMon.Services.Agent
 
         }
 
-        private void getTopTrafficConsumerDevice(IDeviceInterfacesServices interfacesServices)
+        private string  getTopTrafficConsumerDevice(IDeviceInterfacesServices interfacesServices)
         {
             var consumerDevice = interfacesServices.GetTopInboundDevice();
             if (!string.IsNullOrEmpty(consumerDevice))
             {
-                OnTopInboundDevice?.Invoke(consumerDevice);
+                return consumerDevice;
             }
+
+            return "N/A";
         }
 
         public void MemoryCleaner()

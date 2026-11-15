@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:snmpMon.View"
         xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.Frames"
         mc:Ignorable="d"
-        Title="InterfaceOverview" Height="760" Width="950" Background="Transparent">
+        Title="Interface Overview" Height="760" Width="950" Background="Transparent">
     <Grid>
         <ctrl:InterfaceOverviewFrm x:Name="InterfaceOverviewFrm"/>
     </Grid>

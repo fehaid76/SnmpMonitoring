@@ -22,7 +22,8 @@
             <TextBlock Text="Template Information" FontFamily="{StaticResource Google_Sans}" FontSize="15" HorizontalAlignment="Center"
                        VerticalAlignment="Center" Foreground="White"/>
         </Border>
-        <inputCtrl:TextInput Grid.Row="1" Title="Template Name" Icon="/Resources/Imgs/Hashtag.png" Text="{Binding TemplateName, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
+        <inputCtrl:TextInput Grid.Row="1" Title="Template Name" Icon="/Resources/Imgs/Hashtag.png" Text="{Binding TemplateName, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"
+                             IsReadOnly="{Binding TemplateNameIsReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
         <inputCtrl:TextInput Grid.Row="2" Title="Vendor" Icon="/Resources/Imgs/Hashtag.png" Text="{Binding Vendor, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}"/>
         <Border Grid.Row="3" Background="White" Opacity="0.4" Height="0.6" Margin="2,10,2,4"/>
         <TextBlock Text="OIDs Details" FontFamily="{StaticResource Exo_2}" Foreground="White" Grid.Row="4" HorizontalAlignment="Left"
@@ -41,6 +42,7 @@
         </Grid>
 
         <Button Grid.Row="6" Style="{StaticResource Button_Modern}" Content="Confirm" Height="30" Width="100" Background="Green"  Tag="/Resources/Imgs/Add.png"
-                Command="{Binding ConfirmCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                Command="{Binding ConfirmCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                CommandParameter="{Binding CommandPar, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
     </Grid>
 </UserControl>

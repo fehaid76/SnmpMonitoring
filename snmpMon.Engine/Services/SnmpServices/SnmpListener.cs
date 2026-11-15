@@ -15,13 +15,15 @@ using snmpMon.Engine.Services.SnmpTraslatorServices;
 using snmpMon.Engine.Services.SnmpTraslatorServices.Model;
 using snmpMon.Data.Repositories;
 using System.Text.RegularExpressions;
+using snmpMon.Engine.Helper.EventHandle;
 
 namespace snmpMon.Engine.Services.SnmpServices
 {
     public class SnmpListener : ISnmpListener
     {
         public event Action<string, SnmpAlert> OnSnmpTrapRecieved;
-        public event Action<string, bool> OnInterfaceStatusChanged;
+        public event EventHandler<InterfaceStatusEventArgs> OnInterfaceStatusChanged;
+        private string _ipAddress;
         private string _cachedInterfaceIndex = string.Empty;
         private Listener _listener;
         private SnmpEngine _engine;
@@ -65,7 +67,7 @@ namespace snmpMon.Engine.Services.SnmpServices
                     {
                         string message = string.Empty;
                         string routerIP = e.Sender.Address.ToString();
-
+                        _ipAddress = routerIP;
                         var trapMessage = trapsAnalys(e);
                         if (!string.IsNullOrWhiteSpace(trapMessage.AlertMessage))
                         {
@@ -111,7 +113,9 @@ namespace snmpMon.Engine.Services.SnmpServices
                 var snmpEngineFactory = ConfigureSnmpEnvironment();
                 _engine = new SnmpEngine(snmpEngineFactory.Factory, _listener, snmpEngineFactory.Group);
 
-                StartListenerProcess(); HandleIncomingTrap(); StartEngineProcess();
+                StartListenerProcess();
+                HandleIncomingTrap();
+                StartEngineProcess();
 
             }
             catch (Exception ex)
@@ -129,29 +133,6 @@ namespace snmpMon.Engine.Services.SnmpServices
                                  snmpAlert.AlertLevel, snmpAlert.AlertTime, ipAddress);
             }
 
-
-        }
-        private void FitleringInterfacesTraps(Variable varBind)
-        {
-            var oid = varBind.Id.ToString();
-            bool isUp = false;
-
-
-            if (oid.StartsWith("1.3.6.1.4.1.9.9.138.1.3.3.1.3."))
-            {
-                _cachedInterfaceIndex = varBind.Data.ToString();
-            }
-            else if(oid.StartsWith("1.3.6.1.4.1.9.9.138.1.3.3.1.4."))
-            {
-                string statusValue = varBind.Data.ToString();
-                isUp = statusValue != "1";
-            }
-
-            if (!string.IsNullOrEmpty(_cachedInterfaceIndex))
-            {
-                OnInterfaceStatusChanged?.Invoke(_cachedInterfaceIndex, isUp);
-                _cachedInterfaceIndex = string.Empty;
-            }
 
         }
 
@@ -183,7 +164,8 @@ namespace snmpMon.Engine.Services.SnmpServices
                 {
                     interfaceName = match.Groups[1].Value.TrimEnd(',');
                     isUp = trapMessage.ToLower().Contains("up");
-                    OnInterfaceStatusChanged?.Invoke(interfaceName, isUp);
+                    OnInterfaceStatusChanged?.Invoke(this, new InterfaceStatusEventArgs(_ipAddress, interfaceName, isUp));
+
                 }
 
             }   

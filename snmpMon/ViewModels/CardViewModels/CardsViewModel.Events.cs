@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CA1416
 using LiveChartsCore.Defaults;
 using snmpMon.Data.Model;
+using snmpMon.Helper.EventHandle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +21,15 @@ namespace snmpMon.ViewModels.CardViewModels
             _overviewServices.OnUpDevices += HandleUpDevices;
             _devicesServices.OnDeviceDeleted += OnDeviceDeleted;
             _devicesServices.OnDeviceAdded += OnDeviceAdded;
-            _overviewServices.OnInboundKbps += HandleInboundKbps;
-            _overviewServices.OnTopInboundDevice += HandleTopInboundDevice;
-            _overviewServices.OnOutboundKbps += HandleOutboundKbps;
+            _overviewServices.DeviceTrafficReceived += DeviceTrafficHandler;
+
+        }
+
+        private void DeviceTrafficHandler(object sender, DeviceTrafficEventArgs e)
+        {
+            HandleInboundKbps(e.InboundTraffic);
+            HandleOutboundKbps(e.OutboundTraffic);
+            HandleTopInboundDevice(e.TopConsumerDevice);
         }
 
         private void HandleSnmpTraps(string arg1, Engine.Services.SnmpTraslatorServices.Model.SnmpAlert arg2)
@@ -145,9 +152,7 @@ namespace snmpMon.ViewModels.CardViewModels
             _overviewServices.OnUpDevices -= HandleUpDevices;
             _devicesServices.OnDeviceDeleted -= OnDeviceDeleted;
             _devicesServices.OnDeviceAdded -= OnDeviceAdded;
-            _overviewServices.OnInboundKbps -= HandleInboundKbps;
-            _overviewServices.OnTopInboundDevice -= HandleTopInboundDevice;
-            _overviewServices.OnOutboundKbps -= HandleOutboundKbps;
+            _overviewServices.DeviceTrafficReceived -= DeviceTrafficHandler;
         }
     }
 }

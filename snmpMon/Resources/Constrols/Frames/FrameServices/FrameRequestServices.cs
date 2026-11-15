@@ -15,7 +15,6 @@ namespace snmpMon.Resources.Constrols.Frames.FrameServices
         private readonly SnmpAlerts snmpAlerts = new();
         private readonly DeviceTemplates deviceTemplates = new();
 
-
         public UserControl GetDevicesFrame()
         {
 

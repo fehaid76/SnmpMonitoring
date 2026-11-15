@@ -68,7 +68,7 @@ namespace snmpMon.Services.SensorServices
         }
         private async Task startFetchDataProccessAsync()
         {
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(30)); 
             var trafficVolumeNodes = await getTrafficNodes();
             string trafficInOid = trafficVolumeNodes.trafficInVolume;
             string trafficOutOid = trafficVolumeNodes.trafficOutVolume;
@@ -82,22 +82,12 @@ namespace snmpMon.Services.SensorServices
             {
                 try
                 {
-                    Debug.WriteLine("#####################################");
-                    Debug.WriteLine("####[ before fetchAndRaiseTrafficDataAsync, outside Exception]####");
-                    Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
-                    Debug.WriteLine("#####################################");
+
                     await fetchAndRaiseTrafficDataAsync(trafficInOid, trafficOutOid);
-                    Debug.WriteLine("#####################################");
-                    Debug.WriteLine("####[ after fetchAndRaiseTrafficDataAsync, outside Exception]####");
-                    Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
-                    Debug.WriteLine("#####################################");
+
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("#####################################");
-                    Debug.WriteLine("####[ startFetchDataProccessAsync, Inside Exception]####");
-                    Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
-                    Debug.WriteLine("#####################################");
 
                     Logger.LogCriticalException(ex, ex.Message);
                 }
@@ -133,18 +123,18 @@ namespace snmpMon.Services.SensorServices
         }
         private async Task fetchAndRaiseTrafficDataAsync(string trafficInOid, string trafficOutOid)
         {
+
             try
             {
-                Debug.WriteLine("#####################################");
-                Debug.WriteLine("####[ Inside fetchAndRaiseTrafficDataAsync, outside Exception]####");
-                Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
-                Debug.WriteLine("#####################################");
+
                 var currentTime = DateTime.Now;
                 var elapsedTime = HandleTimePoll(currentTime);
 
                 var trafficValues = await GetTrafficValuesAsync(trafficInOid, trafficOutOid);
+
                 if (trafficValues.TrafficInValue < 0 || trafficValues.TrafficOutValue < 0)
                 {
+
                     return;
                 }
                 var differenceValues = GetTrafficValuesDifferenceInBytes(trafficValues.TrafficInValue, trafficValues.TrafficOutValue);
@@ -168,10 +158,7 @@ namespace snmpMon.Services.SensorServices
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("#####################################");
-                Debug.WriteLine("####[ Inside fetchAndRaiseTrafficDataAsync, Inside Exception]####");
-                Debug.WriteLine($"####[ Execption Time {DateTime.Now}]####");
-                Debug.WriteLine("#####################################");
+
                 Logger.LogCriticalException(ex, ex.Message);
             }
         }
@@ -197,14 +184,25 @@ namespace snmpMon.Services.SensorServices
 
         private async Task<(long TrafficInValue, long TrafficOutValue)> GetTrafficValuesAsync(string trafficInOid, string trafficOutOid)
         {
-            var trafficInTask = GetTrafficValueAsync(trafficInOid);
-            var trafficOutTask = GetTrafficValueAsync(trafficOutOid);
+            try
+            {
+                var timeoutDuration = TimeSpan.FromSeconds(5);
+                var trafficInTask = GetTrafficValueAsync(trafficInOid).WaitAsync(timeoutDuration);
+                var trafficOutTask = GetTrafficValueAsync(trafficOutOid).WaitAsync(timeoutDuration);
 
-            await Task.WhenAll(trafficInTask, trafficOutTask);
+                await Task.WhenAll(trafficInTask, trafficOutTask);
 
-            long trafficIn = await trafficInTask;
-            long trafficOut = await trafficOutTask;
-            return (trafficIn, trafficOut);
+                long trafficIn = await trafficInTask;
+                long trafficOut = await trafficOutTask;
+
+                return (trafficIn, trafficOut);
+            }
+            catch(Exception ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+                return (0, 0);
+            }
+
         }
 
         private (long TrafficIn, long TrafficOut) GetTrafficValuesDifferenceInBytes(long trafficIn, long trafficOut)

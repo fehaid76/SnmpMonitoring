@@ -5,6 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <ApplicationIcon>app_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\Imgs\AlertImgs\Alert.png" />
@@ -32,9 +33,11 @@
     <None Remove="Resources\Imgs\MessageBoxIcons\Question.png" />
     <None Remove="Resources\Imgs\MessageBoxIcons\Warning.png" />
     <None Remove="Resources\Imgs\Messages.png" />
+    <None Remove="Resources\Imgs\Modify.png" />
     <None Remove="Resources\Imgs\Overview.png" />
     <None Remove="Resources\Imgs\PrevBtn.png" />
     <None Remove="Resources\Imgs\protect.png" />
+    <None Remove="Resources\Imgs\QuickAnalyze.png" />
     <None Remove="Resources\Imgs\Refresh.png" />
     <None Remove="Resources\Imgs\RightBtn.png" />
     <None Remove="Resources\Imgs\Settings.png" />
@@ -43,6 +46,9 @@
     <None Remove="Resources\Imgs\VerificationIcons\failure.gif" />
     <None Remove="Resources\Imgs\VerificationIcons\loading.gif" />
     <None Remove="Resources\Imgs\VerificationIcons\success.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app_icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
@@ -112,9 +118,11 @@
     <Resource Include="Resources\Imgs\MessageBoxIcons\Question.png" />
     <Resource Include="Resources\Imgs\MessageBoxIcons\Warning.png" />
     <Resource Include="Resources\Imgs\Messages.png" />
+    <Resource Include="Resources\Imgs\Modify.png" />
     <Resource Include="Resources\Imgs\Overview.png" />
     <Resource Include="Resources\Imgs\PrevBtn.png" />
     <Resource Include="Resources\Imgs\protect.png" />
+    <Resource Include="Resources\Imgs\QuickAnalyze.png" />
     <Resource Include="Resources\Imgs\Refresh.png" />
     <Resource Include="Resources\Imgs\RightBtn.png" />
     <Resource Include="Resources\Imgs\Settings.png" />

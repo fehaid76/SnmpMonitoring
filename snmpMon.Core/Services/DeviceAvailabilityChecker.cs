@@ -25,20 +25,27 @@ namespace snmpMon.Core.Services
 
 
         private readonly ISnmpService _snmpService;
-        
-        public DeviceAvailabilityChecker(ISnmpService snmpService)
+        private readonly IMibParser _mibParser;
+        public DeviceAvailabilityChecker(ISnmpService snmpService, IMibParser mibParser)
         {
             _snmpService = snmpService;
+            _mibParser = mibParser;
             
 
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-
-        public async Task StartDeviceChecker(string ipAddress, string communityString, MibNode CheckNode)
+        private async Task<MibNode> sysNode()
         {
-            _iPAddress = ipAddress; _communityString = communityString; _sysDescNode = CheckNode;
-          
+            var node = await _mibParser.GetNode("sysDescr");
+            return node;
+        }
+        public async Task StartDeviceChecker(string ipAddress, string communityString)
+        {
+            _iPAddress = ipAddress;
+            _communityString = communityString;
+            _sysDescNode = await sysNode();
+
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
             try
             {

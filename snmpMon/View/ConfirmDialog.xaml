@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:snmpMon.View"
         xmlns:converter="clr-namespace:snmpMon.Converters"
         mc:Ignorable="d"
-        Title="ConfirmDialog" Height="150" Width="450"
+        Title="Confirm Dialog" Height="150" Width="450"
         
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"

@@ -1,20 +1,20 @@
 ﻿using snmpMon.Data.Model;
+using snmpMon.Helper.EventHandle;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace snmpMon.Services.Agent
 {
     public interface IOverviewServices
     {
+        event EventHandler<DeviceTrafficEventArgs> DeviceTrafficReceived;
         event Action<double> OnAverageNetworkLatency;
-        event Action<double> OnInboundKbps;
-        event Action<double> OnOutboundKbps;
         event Action<int> OnUpDevices;
-        event Action<string> OnTopInboundDevice;
 
-        Task StartNetworkAverageLatencyCalculateAsync(List<Device> devicesIPs);
-        void StartTrafficMonitoring();
+        Task StartNetworkAverageLatencyCalculateAsync(List<Device> devicesIPs, CancellationTokenSource cancellationToken = null);
+        void StartTrafficMonitoring(CancellationTokenSource cancellationToken = null);
         void MemoryCleaner();
     }
 }

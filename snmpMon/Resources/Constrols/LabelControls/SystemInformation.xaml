@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
              mc:Ignorable="d" 
              d:DesignHeight="180" d:DesignWidth="400">
+
     <Grid>
         <Border CornerRadius="10" SnapsToDevicePixels="True"
                 Padding="5" Margin="5" Background="#1B1B1B">
@@ -36,7 +37,7 @@
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10,10,0,0">
                         <TextBlock Text="Status:" FontFamily="{StaticResource Google_Sans}" Foreground="White" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding Status, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="{StaticResource Google_Sans}" Foreground="White" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <TextBlock Text="{Binding Status, RelativeSource={RelativeSource AncestorType=UserControl}}" FontFamily="{StaticResource Google_Sans}" Foreground="WhiteSmoke" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="10,10,0,0">
                         <TextBlock Text="System name:" FontFamily="{StaticResource Google_Sans}" Foreground="White" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Center"/>

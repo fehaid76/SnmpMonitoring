@@ -26,6 +26,7 @@ namespace snmpMon.Resources.Constrols.Frames
         {
             InitializeComponent();
             this.DataContext = App.serviceProvider.GetRequiredService<NewTemplateViewModel>();
+            TemplatesView.DataContext = App.serviceProvider.GetRequiredService<TemplatesViewModel>();
         }
     }
 }

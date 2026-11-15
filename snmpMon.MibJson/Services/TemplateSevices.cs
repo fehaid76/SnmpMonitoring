@@ -25,6 +25,24 @@ namespace snmpMon.MibJson.Services
             return string.Empty;
         }
 
+        public void RemoveJsonFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                
+            }
+        }
+        
+        public void ModifyExistsFile(JsonNode node, string path)
+        {
+            var jsonStream = JsonConvert.SerializeObject(node);
+            if(!string.IsNullOrWhiteSpace(jsonStream))
+            {
+                CreateNewJsonTemplateFile(jsonStream, path);
+            }
+        }
+
         private void CreateNewJsonTemplateFile(string jsonStream, string path)
         {
             try
@@ -35,7 +53,11 @@ namespace snmpMon.MibJson.Services
 
         }
 
-        
+        private JsonNode ConvertToObjectNode(string data)
+        {
+            JsonNode? jsonNode = JsonConvert.DeserializeObject<JsonNode>(data);
+            return jsonNode ?? new JsonNode();
+        }
         private string GetTemplatesFolderPath()
         {
             string PATH = Path.Combine(
@@ -49,6 +71,20 @@ namespace snmpMon.MibJson.Services
         {
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
+        }
+
+        public List<JsonNode> GetGroupOfJsonNodes(List<string> paths)
+        {
+            string strFile = string.Empty;
+            List<JsonNode> nodes = new();
+            foreach (string path in paths)
+            {
+                strFile = File.ReadAllText(path);
+                var node = ConvertToObjectNode(strFile);
+                node.TemplatePath = path;
+                nodes.Add(node);
+            }
+            return nodes;
         }
     }
 }

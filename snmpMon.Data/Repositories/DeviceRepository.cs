@@ -386,5 +386,61 @@ namespace snmpMon.Data.Repositories
                 return templates;
             }
         }
+        private void CratePragmaCommand(SqliteConnection connection)
+        {
+            using var pragmaCmd = connection.CreateCommand();
+            pragmaCmd.CommandText = "PRAGMA foreign_keys = ON;";
+            pragmaCmd.ExecuteNonQuery();
+        }
+        public async Task<bool> DeleteTemplateAsync(string categoryName)
+        {
+            string firstQuery = @"DELETE FROM Templates
+                                  WHERE ID = ( SELECT TemplateID FROM Categories WHERE Category = $Category);";
+            string seconQuery = @"DELETE FROM Categories
+                                  WHERE Category = $Category;";
+            bool isDeleted = false;
+            int rowsDeleted = 0;
+            using (var con = new SqliteConnection(ConnectionString.GetConnectionString()))
+            {
+                try
+                {
+                    await con.OpenAsync();
+                    using (var transaction = con.BeginTransaction())
+                    {
+                        var command = con.CreateCommand();
+                        command.Transaction = transaction;
+
+                        try
+                        {
+                            command.CommandText = firstQuery;
+                            command.Parameters.AddWithValue("$Category", categoryName);
+                            rowsDeleted = await command.ExecuteNonQueryAsync();
+
+                            command.Parameters.Clear();
+
+                            command.CommandText = seconQuery;
+                            command.Parameters.AddWithValue("$Category", categoryName);
+                            rowsDeleted =  await command.ExecuteNonQueryAsync();
+
+                            transaction.Commit();
+                            isDeleted = true;
+
+                        }
+                        catch(Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                            isDeleted = false;
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    isDeleted = false;
+                }
+                return isDeleted;
+            }
+
+        }
     }
 }

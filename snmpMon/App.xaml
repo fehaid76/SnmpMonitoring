@@ -30,6 +30,7 @@
                 <ResourceDictionary Source="/Resources/Styles/TabControl_Style.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/ComboBox_Style.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/NavigationButton_Style.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/Rectangle_Button.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="bool2VisibilityConverter"/>
 

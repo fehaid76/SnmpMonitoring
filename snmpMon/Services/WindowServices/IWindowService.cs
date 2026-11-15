@@ -1,4 +1,5 @@
 ﻿using snmpMon.Data.Model;
+using snmpMon.MibJson.Models;
 using snmpMon.Models;
 using snmpMon.ViewModels;
 using System;
@@ -18,6 +19,7 @@ namespace snmpMon.Services.WindowServices
         void ShowDeviceMonitoringWin(DeviceInfo device);
         bool ShowConfirmDialog(string message, string title, MessageBoxIcon icon);
         void ShowInterfaceOverview(string ipAddress, string CommunityString, string ifIndex, string ifDesc);
+        void ModifyTemplateWindow(JsonNode node);
 
 
     }

@@ -19,8 +19,6 @@ namespace snmpMon.MibJson.Services
     {
         Dictionary<string, MibNode> _genericMibTree;
         Dictionary<string, JsonNode> _jsonTemplatesNodes; 
-        Dictionary<string, MibNode> _enterpriseMibTree;
-        Dictionary<string, MibNode> _processMibTree;
         private readonly HttpClient _httpClient;
         private TaskCompletionSource<bool> _initializationTcs = new TaskCompletionSource<bool>();
 
@@ -31,6 +29,8 @@ namespace snmpMon.MibJson.Services
         }
 
         
+        
+
         private async Task PrepareOidsTemplates(List<string> paths)
         {
             var templatesString = await ReadJsonFiles(paths);
@@ -86,21 +86,12 @@ namespace snmpMon.MibJson.Services
             {
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 string genericOidUrl = "https://raw.githubusercontent.com/fehaid76/mib_json/refs/heads/main/vendor-generic.json";
-                string enterpriseOidUrl = "https://raw.githubusercontent.com/fehaid76/mib_json/refs/heads/main/cisco_memory_pool_mib.json";
-                string cisco_process_mib = "https://raw.githubusercontent.com/fehaid76/mib_json/refs/heads/main/cisco_process_mib.json";
 
                 string genericOidjsonString = await _httpClient.GetStringAsync(genericOidUrl, cts.Token);
-                string enterpriseOidJsonString = await _httpClient.GetStringAsync(enterpriseOidUrl, cts.Token);
-                string process_mibOidJsonString = await _httpClient.GetStringAsync(cisco_process_mib, cts.Token);
-
-                if (!string.IsNullOrEmpty(genericOidjsonString) && !string.IsNullOrEmpty(enterpriseOidJsonString))
+                if (!string.IsNullOrEmpty(genericOidjsonString))
                 {
                     var genericOidResult = JsonConvert.DeserializeObject<Dictionary<string, MibNode>>(genericOidjsonString);
-                    var enterpriseOidResult = JsonConvert.DeserializeObject<Dictionary<string, MibNode>>(enterpriseOidJsonString);
-                    var process_mibResult = JsonConvert.DeserializeObject<Dictionary<string, MibNode>>(process_mibOidJsonString); 
                     _genericMibTree = genericOidResult ?? new Dictionary<string, MibNode>();
-                    _enterpriseMibTree = enterpriseOidResult ?? new Dictionary<string, MibNode>();
-                    _processMibTree = process_mibResult ?? new Dictionary<string, MibNode>();
                     
                 }
 
@@ -110,34 +101,10 @@ namespace snmpMon.MibJson.Services
             catch (Exception ex)
             {
                 _genericMibTree = new Dictionary<string, MibNode>();
-                _enterpriseMibTree = new Dictionary<string, MibNode>();
-                _processMibTree = new Dictionary<string, MibNode>();
                 _initializationTcs.TrySetResult(false);
                 Debug.WriteLine(ex.Message);
 
             }
-        }
-
-        public async Task<MibNode> GetProccessMibNode(string nodeName)
-        {
-            await _initializationTcs.Task;
-            if(_processMibTree != null && _processMibTree.TryGetValue(nodeName, out var node))
-            {
-                return node;
-            }
-            return new MibNode();
-        }
-
-        public async Task<MibNode> GetMemoryNode(string nodeName)
-        {
-
-            await _initializationTcs.Task;
-
-            if (_enterpriseMibTree != null && _enterpriseMibTree.TryGetValue(nodeName, out var node))
-            {
-                return node;
-            }
-            return new MibNode();
         }
 
         public async Task<MibNode> GetNode(string nodeName)

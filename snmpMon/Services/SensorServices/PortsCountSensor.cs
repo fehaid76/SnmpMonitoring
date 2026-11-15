@@ -35,6 +35,18 @@ namespace snmpMon.Services.SensorServices
 
         }
 
+        private (IPEndPoint ipAddress, OctetString communityString) GetDeviceAuthInformation(string ipAddress, string communityString)
+        {
+            return (new IPEndPoint(IPAddress.Parse(ipAddress), 161), new OctetString(communityString));
+        }
+
+        private async Task<ObjectIdentifier> GetifNumberOid()
+        {
+            var oid = await _mibParser.GetNode("ifNumber");
+            var objectOid = new ObjectIdentifier(oid.Oid.ToScalarOid());
+            return objectOid;
+        }
+
         public async Task PollAsync(string ipAddress, string communityString, CancellationToken cts)
         {
             if (isRunning) return; 
@@ -42,26 +54,19 @@ namespace snmpMon.Services.SensorServices
 
             try
             {
-                var ip = new IPEndPoint(IPAddress.Parse(ipAddress), 161);
-                var comString = new OctetString(communityString);
-                var oid = await _mibParser.GetNode("ifNumber");
-                var objectOid = new ObjectIdentifier(oid.Oid.ToScalarOid());
-                int currentTimeTick = 3; 
-                using var timer = new PeriodicTimer(TimeSpan.FromSeconds(currentTimeTick));
+                var deviceAuthInformation = GetDeviceAuthInformation(ipAddress, communityString);
+                var objectOid = await GetifNumberOid();
+                using var timer = new PeriodicTimer(TimeSpan.FromSeconds(120));
 
-
-
-                while (!cts.IsCancellationRequested || !_cts.IsCancellationRequested)
+                do
                 {
-                    
                     try
                     {
-
-                        var portsResult = await _snmpService.GetIntAsyn(ip, comString, objectOid);
+                        if (cts.IsCancellationRequested || _cts.IsCancellationRequested)
+                            break;
+                        var portsResult = await _snmpService.GetIntAsyn(deviceAuthInformation.ipAddress, deviceAuthInformation.communityString, objectOid);
 
                         OnSensorExecuted?.Invoke(ipAddress, portsResult);
-                        await Task.Delay(TimeSpan.FromSeconds(60));
-                        
 
                     }
                     catch (Lextm.SharpSnmpLib.Messaging.TimeoutException timeOutEx)
@@ -80,9 +85,7 @@ namespace snmpMon.Services.SensorServices
                     {
                         Logger.LogCriticalException(ex, ex.Message);
                     }
-
-
-                }
+                } while (await timer.WaitForNextTickAsync(cts));
             }
             finally
             {

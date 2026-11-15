@@ -1,6 +1,7 @@
 ﻿using Lextm.SharpSnmpLib;
 using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
+using snmpMon.Data.Extensions;
 using snmpMon.Engine.Helper;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,10 @@ namespace snmpMon.Engine.Services.SnmpServices
                     else if (result[0].Data is Counter64 counter64)
                     {
                         return counter64.ToUInt64();
+                    }
+                    else if (result[0].Data is Integer32 integerNumber)
+                    {
+                        return integerNumber.ToInt32();
                     }
                 }
             }

@@ -7,6 +7,6 @@ namespace snmpMon.Core.Services
     {
         event Action<string, string> DevicePowerRestored;
 
-        Task StartDeviceChecker(string ipAddress, string communityString, MibNode CheckNode);
+        Task StartDeviceChecker(string ipAddress, string communityString);
     }
 }

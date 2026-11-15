@@ -28,6 +28,28 @@ namespace snmpMon.Resources.Constrols.InputControls.ConfigurationInputs
 
 
 
+        public object CommandPar
+        {
+            get { return (object)GetValue(CommandParProperty); }
+            set { SetValue(CommandParProperty, value); }
+        }
+
+        public static readonly DependencyProperty CommandParProperty =
+            DependencyProperty.Register("CommandPar", typeof(object), typeof(TemplateInformation), new PropertyMetadata(default));
+
+
+
+        public bool TemplateNameIsReadOnly
+        {
+            get { return (bool)GetValue(TemplateNameIsReadOnlyProperty); }
+            set { SetValue(TemplateNameIsReadOnlyProperty, value); }
+        }
+
+        public static readonly DependencyProperty TemplateNameIsReadOnlyProperty =
+            DependencyProperty.Register("TemplateNameIsReadOnly", typeof(bool), typeof(TemplateInformation), new PropertyMetadata(false));
+
+
+
         public int SelectedType
         {
             get { return (int)GetValue(SelectedTypeProperty); }

@@ -40,7 +40,7 @@
         <Border Grid.Row="2" Padding="5" Margin="5" SnapsToDevicePixels="True"
                 CornerRadius="7" Background="#211E21" Width="auto"
                 Height="auto">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Style="{StaticResource SrollViewer_Style}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Height="595"  Grid.Row="2" Style="{StaticResource SrollViewer_Style}">
                 <ItemsControl Grid.Row="2" ItemsSource="{Binding Devices}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

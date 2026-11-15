@@ -15,94 +15,28 @@ using System.Windows.Input;
 
 namespace snmpMon.ViewModels
 {
-    public class AddDeviceVM : ObservableObject
+    public partial class AddDeviceVM : ObservableObject
     {
         public event Action RequestCloseEvent; 
         public Device Device;
+        [ObservableProperty]
         private ObservableCollection<Category> _categories = new();
+        [ObservableProperty]
         private bool _canAddDevice;
+        [ObservableProperty]
         private string _deviceName;
+        [ObservableProperty]
         private string _ipAddress;
+        [ObservableProperty]
         private string _comString;
+        [ObservableProperty]
         private string _deviceVendor;
+        [ObservableProperty]
         private Category _selectedCategoty;
+        [ObservableProperty]
         private int _categoryID;
-        public int CategoryID
-        {
-            get => _categoryID;
-            set
-            {
-                _categoryID = value;
-                OnPropertyChanged(nameof(CategoryID));
-            }
-        }
-        public ObservableCollection<Category> Categories
-        {
-            get => _categories;
-            set
-            {
-                _categories = value;
-                OnPropertyChanged(nameof(Categories));
-            }
-        }
 
-        public Category SelectedCategory
-        {
-            get => _selectedCategoty;
-            set
-            {
-                _selectedCategoty = value;
-                OnPropertyChanged(nameof(SelectedCategory));
-            }
-        }
 
-        public string DeviceName
-        {
-            get => _deviceName;
-            set
-            {
-                _deviceName = value;
-                OnPropertyChanged(nameof(DeviceName));
-            }
-        }
-        public string IpAddress
-        {
-            get => _ipAddress;
-            set
-            {
-                _ipAddress = value;
-                OnPropertyChanged(nameof(IpAddress));
-            }
-        }
-        public string ComString
-        {
-            get => _comString;
-            set
-            {
-                _comString = value;
-                OnPropertyChanged(nameof(ComString));
-            }
-        }
-        public bool CanAddDevice
-        {
-            get => _canAddDevice;
-            set
-            {
-                _canAddDevice = value;
-                OnPropertyChanged(nameof(CanAddDevice));
-                
-            }
-        }
-
-        public string DeviceVendor
-        {
-            get => _deviceVendor;
-            set
-            {
-                _deviceVendor = value;
-                OnPropertyChanged(nameof(DeviceVendor));
-            }
-        }
 
         public IRelayCommand AddCMD {  get; set; }
         public ICommand CloseCMD {  get; set; }

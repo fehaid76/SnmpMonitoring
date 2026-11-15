@@ -7,8 +7,12 @@
              xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.Charts"
              xmlns:ctrl_alert="clr-namespace:snmpMon.Resources.Constrols.BoxesControls"
              xmlns:ctrl_lb="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
+             xmlns:converter="clr-namespace:snmpMon.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="850" d:DesignWidth="1200" Background="#242124">
+    <UserControl.Resources>
+        <converter:SystemStatusConverter x:Key="StatusConverter"/>
+    </UserControl.Resources>
     <Grid>
 
         <Grid.RowDefinitions>
@@ -32,19 +36,19 @@
                              LabelsY="{Binding LabelsX, UpdateSourceTrigger=PropertyChanged}"/>
             <ctrl:Gauge Width="220" Height="250"
                         Title="CPU Utilization"
-                        Value="{Binding CpuUtilization,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                        Value="{Binding CpuUtilization,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:N1} %}"
                         FromValue="0"
-                        ToValue="95"/>
+                        ToValue="100"/>
 
             <ctrl:Gauge Width="220" Height="250"
                         Title="Memory Usage"
-                        Value="{Binding MemoryUsage,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                        Value="{Binding MemoryUsage,UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, StringFormat={}{0:N1} %}"
                         FromValue="0"
                         ToValue="100"/>
 
             <ctrl:Gauge Width="220" Height="250"
                         Title="Device Temperature"
-                        Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                        Value="{Binding Value, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N1} °C}"
                         FromValue="0"
                         ToValue="95"/>
 
@@ -111,7 +115,7 @@
                     <ctrl_lb:SystemInformation Grid.Column="1" Height="auto" Width="450"
                                                SystemName="{Binding SystemInforamtion.SystemName, UpdateSourceTrigger=PropertyChanged}"
                                                Location="{Binding SystemInforamtion.Location, UpdateSourceTrigger=PropertyChanged}"
-                                               Status="{Binding SystemInforamtion.IsConnected, UpdateSourceTrigger=PropertyChanged}"
+                                               Status="{Binding SystemInforamtion.IsConnected, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StatusConverter}}"
                                                UpTime="{Binding SystemInforamtion.UpTime, UpdateSourceTrigger=PropertyChanged}"/>
                     <ctrl_alert:AlertingBox Height="335" x:Name="AlertBox" Width="450" IsDeviceNameVisiable="Collapsed"
                                             RouterIP="{Binding DataContext.Device.IPAddress, RelativeSource={RelativeSource AncestorType=UserControl}}"/>

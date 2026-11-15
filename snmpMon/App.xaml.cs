@@ -11,6 +11,7 @@ using snmpMon.Resources.Constrols.Frames.FrameServices;
 using snmpMon.Services;
 using snmpMon.Services.Agent;
 using snmpMon.Services.AlertServices;
+using snmpMon.Services.DeviceServices;
 using snmpMon.Services.SensorServices;
 using snmpMon.Services.WindowServices;
 using snmpMon.View;
@@ -42,10 +43,17 @@ namespace snmpMon
         private void ConfigurationServices(IServiceCollection service)
         {
             // Under Test
+            service.AddTransient<IDeviceInformationServices,  DeviceInformationServices>(); 
+            service.AddTransient<IDeviceDashboardFacade,  DeviceDashboardFacade>();
+            service.AddTransient<IResourceMonitoringService, ResourceMonitoringService>();
+            service.AddTransient<INetworkInterfaceService, NetworkInterfaceService>();
+            service.AddTransient<IDeviceUptimeService, DeviceUptimeService>();
             service.AddTransient<IInterfacesSensors, InterfacesSensors>();
             service.AddTransient<IDeviceAvailabilityChecker, DeviceAvailabilityChecker>();
             service.AddTransient<ITemplateSevices, TemplateSevices>();
-            service.AddTransient<IManageTemplateServices, ManageTemplateServices>();
+            service.AddScoped<IManageTemplateServices, ManageTemplateServices>();
+            service.AddTransient<TemplatesViewModel>();
+            service.AddTransient<ModifyTemplateViewModel>();
             ///////
             service.AddTransient<IDeviceInterfacesServices, DeviceInterfacesServices>();
             service.AddTransient<NewTemplateViewModel>();
@@ -72,7 +80,10 @@ namespace snmpMon
             service.AddSingleton<DevicesVM>();
             ////////////////////////////////////////////////
             service.AddTransient<AlertViewModel>();
+
+            // IRouterWindowMonitor Was singletone, I changed it when i was trying to solve interface traps problem 
             service.AddSingleton<IRouterWindowMonitor, RouterWindowMonitor>();
+
             service.AddSingleton<IDeviceVerficationServices, DeviceVerficationServices>();
             service.AddTransient<IOverviewServices, OverviewServices>();
             service.AddTransient<UptimeDowntineStreamVM>();

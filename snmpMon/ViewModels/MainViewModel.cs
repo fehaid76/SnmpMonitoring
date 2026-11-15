@@ -66,6 +66,8 @@ namespace snmpMon.ViewModels
                 CurrentView = _requestServices.GetDeviceTemplatesFrame();
             });
 
+
+
         }
 
     }

@@ -8,7 +8,7 @@
         xmlns:dev="clr-namespace:snmpMon.Resources.Constrols.Devices"
         xmlns:ctrl="clr-namespace:snmpMon.Resources.Constrols.LabelControls"
         mc:Ignorable="d"
-        Title="AddDevicWin" Height="600" Width="400" MaxHeight="650" MaxWidth="500"
+        Title="Add Device" Height="600" Width="400" MaxHeight="650" MaxWidth="500"
         MinHeight="650" MinWidth="400" WindowStartupLocation="CenterScreen"  WindowStyle="None" MouseDown="Window_MouseDown"  Background="#292629">
     <Grid>
         <Grid.RowDefinitions>

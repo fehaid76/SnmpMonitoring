@@ -17,16 +17,41 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="auto"/>
+
                 </Grid.RowDefinitions>
                 <TextBlock Text="Device Templates" FontSize="15" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,7,0,3" Foreground="White"
                    FontFamily="{StaticResource Google_Sans}"/>
                 <Border Background="Transparent" Height="10.8" BorderBrush="#edede9" BorderThickness="0,0.5,0,0" Margin="5" Grid.Row="1"/>
                 <infoCtrl:Information Grid.Row="2" Height="60" Margin="10,5,10,10"
                                       Image="/Resources/Imgs/Information.png"
-                                      Title="This section add custome template devices to monitor it."/>
+                                      Title="This section is used to add custom device templates for monitoring."/>
                 <TabControl Grid.Row="4" Style="{StaticResource TabControl_Style}" Background="Transparent" BorderThickness="0" SelectedIndex="2">
-                    <TabItem Header="Templates" Grid.Column="0" Style="{StaticResource TabItem_Style}"/>
+                    <TabItem Header="Templates" Grid.Column="0" Style="{StaticResource TabItem_Style}">
+                        <DataGrid x:Name="TemplatesView" SelectedItem="{Binding SelectedNode, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource IntTrafficColumnHeader}" ItemsSource="{Binding Templates, UpdateSourceTrigger=PropertyChanged}"
+                                  RowBackground="#141212" HeadersVisibility="Column" HorizontalContentAlignment="Center" CanUserDeleteRows="False"
+                                  CanUserSortColumns="False" Height="Auto" VerticalAlignment="Stretch" Grid.Row="1" IsReadOnly="True"
+                                  RowHeaderWidth="0" CanUserAddRows="False" GridLinesVisibility="None" AutoGenerateColumns="False" Padding="5">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="S.No" Width="auto" Binding="{Binding Index}"/>
+                                <DataGridTextColumn Header="Template Name" Width="*" Binding="{Binding Name}"/>
+                                <DataGridTextColumn Header="Vendor" Width="*" Binding="{Binding Vendor}"/>
+                                <DataGridTemplateColumn Header="Action" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button ToolTip="Edit" Style="{StaticResource Racetangle_Button}" Tag="/Resources/Imgs/Modify.png"
+                                                        Command="{Binding DataContext.ModifyCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                                <Button ToolTip="Remove" Style="{StaticResource Racetangle_Button}"
+                                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                        Tag="/Resources/Imgs/Delete.png"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
                     <TabItem Header="New Template" Grid.Column="0" Style="{StaticResource TabItem_Style}">
                         <Inputs:TemplateInformation x:Name="TemplateInputs" TemplateName="{Binding JsonNode.Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                     Vendor="{Binding JsonNode.Vendor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
@@ -40,19 +65,6 @@
                     </TabItem>
 
                 </TabControl>
-                <Border CornerRadius="7" Grid.Row="5" Background="#242124" SnapsToDevicePixels="True" Margin="5,0,5,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0" Margin="10,5,0,5" Style="{StaticResource NavigationButton_Style}" Tag="/Resources/Imgs/PrevBtn.png" Background="Green"/>
-                        <Button Grid.Column="2" Margin="0,5,10,5" Style="{StaticResource NavigationButton_Style}" Tag="/Resources/Imgs/RightBtn.png" Background="Green"/>
-
-                    </Grid>
-                </Border>
 
                 
 

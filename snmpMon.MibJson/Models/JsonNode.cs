@@ -9,6 +9,7 @@ namespace snmpMon.MibJson.Models
 {
     public class JsonNode
     {
+        public int Index {  get; set; }
         [JsonProperty("name")]
         public string? Name { get; set; }
         [JsonProperty("resourcesOid")]
@@ -17,15 +18,12 @@ namespace snmpMon.MibJson.Models
         public string? Vendor { get; set; }
         [JsonProperty("unit")]
         public string? Unit { get; set; }
-
+        public string? TemplatePath {  get; set; }
     }
 
     public class ResourcesOIDs
     {
-        //[JsonProperty("memoryUsed")]
-        //public string? MemoryUsed {  get; set; }
-        //[JsonProperty("memoryFree")]
-        //public string? MemoryFree {  get; set; }
+
         [JsonProperty("memoryConfig")]
         public MemoryConfig? MemoryConfig { get; set; }
         [JsonProperty("cpuUsage")]

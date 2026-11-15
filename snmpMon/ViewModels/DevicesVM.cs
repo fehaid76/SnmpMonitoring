@@ -130,6 +130,7 @@ namespace snmpMon.ViewModels
                 IPAddress = obj.IPAddress,
                 CommunityString = obj.CommunityString,
                 Vendor = obj.Vendor,
+                Category = obj.Category,
             };
             Devices.Add(deviceInfo);
             _= StartDeviceMonitoringAsync(deviceInfo);

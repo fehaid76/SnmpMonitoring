@@ -78,6 +78,7 @@ namespace snmpMon.ViewModels
                 JsonNode = new();
                 ResourcesOIDs = new();
                 MemoryConfig = new();
+               
             }
                 
         }

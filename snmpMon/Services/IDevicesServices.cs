@@ -19,6 +19,7 @@ namespace snmpMon.Services
         Task<bool> AddCategoryAsync(string categroyName, string path);
         Task<List<Category>> GetAllCategoriesAsync();
         Task<List<string>> GetAllTemplatePathsAsync();
+        Task<bool> DeleteTemplateAsync(string categoryName);
 
     }
 }

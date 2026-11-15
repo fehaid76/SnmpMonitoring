@@ -9,7 +9,9 @@ namespace snmpMon.Models
 {
     public partial class SystemInformation : ObservableObject
     {
-        public bool isConnected {  get; set; }
+        // public bool isConnected {  get; set; }
+        [ObservableProperty]
+        private bool _isConnected;
         public string SysDesc {  get; set; }
         public string Contact {  get; set; }
         [ObservableProperty]
@@ -17,26 +19,8 @@ namespace snmpMon.Models
         public int SysSevices {  get; set; }
         [ObservableProperty]
         private string _location;
-        //public string Location
-        //{
-        //    get => _location;
-        //    set
-        //    {
-        //        _location = value;
-        //        OnPropertyChanged(nameof(Location));
-        //    }
-        //}
-
         [ObservableProperty]
         private TimeSpan _upTime;
-        //public TimeSpan UpTime
-        //{
-        //    get => _upTime;
-        //    set
-        //    {
-        //        _upTime = value;
-        //        OnPropertyChanged(nameof(UpTime));
-        //    }
-        //}
+
     }
 }

@@ -19,51 +19,19 @@ using System.Windows.Interop;
 
 namespace snmpMon.ViewModels
 {
-    public class AlertViewModel : ObservableObject
+    public partial class AlertViewModel : ObservableObject
     {
        
         private Dictionary<string, string> _devicesDetails = new Dictionary<string, string>();
-        private ObservableCollection<SnmpAlertDetails> _alerts = new ObservableCollection<SnmpAlertDetails>();
+        [ObservableProperty]
+        private ObservableCollection<SnmpAlertDetails> _alerts = new();
+        [ObservableProperty]
         private string _routerIP;
+        [ObservableProperty]
         private int _routerID;
+        [ObservableProperty]
         private int _alertsCount;
-        public int AlertsCount
-        {
-            get => _alertsCount;
-            set
-            {
-                _alertsCount = value;
-                OnPropertyChanged(nameof(AlertsCount));
-            }
-        }
         public bool IsGeneric = false; 
-        public int RouterID
-        {
-            get => _routerID;
-            set
-            {
-                _routerID = value;
-                OnPropertyChanged(nameof(RouterID));
-            }
-        }
-        public string RouterIP
-        {
-            get => _routerIP;
-            set
-            {
-                _routerIP = value;
-                OnPropertyChanged(nameof(RouterIP));
-            }
-        }
-        public ObservableCollection<SnmpAlertDetails> Alerts
-        {
-            get => _alerts;
-            set
-            {
-                _alerts = value;
-                OnPropertyChanged(nameof(Alerts));
-            }
-        }
 
         public IRelayCommand CleanupCommand {  get; set; }
 

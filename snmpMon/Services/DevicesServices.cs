@@ -77,6 +77,10 @@ namespace snmpMon.Services
         {
             return await _deviceRepository.GetTemplatePathsAsync();
         }
+        public async Task<bool> DeleteTemplateAsync(string categoryName)
+        {
+            return await _deviceRepository.DeleteTemplateAsync(categoryName);
+        }
 
     }
 }

@@ -87,17 +87,17 @@ namespace snmpMon
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            if (!await CheckForConnection())
-            {
-                MessageBox.Show("Please check your internet connection and try again.");
+            //if (!await CheckForConnection())
+            //{
+            //    MessageBox.Show("Please check your internet connection and try again.");
 
-                this.Close();
-            }
+            //    this.Close();
+            //}
             try
             {
                 var paths = await devicesServices.GetAllTemplatePathsAsync();
                 await mibParser.ParseMibJson(paths);
-               // await snmpSeverityAnalyzer.StartSeverityLevelsMapping();
+               
             }
             catch (Exception ex)
             {

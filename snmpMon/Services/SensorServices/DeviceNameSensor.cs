@@ -35,56 +35,58 @@ namespace snmpMon.Services.SensorServices
 
         }
 
+        private (IPEndPoint ipAddress, OctetString communityString) GetDeviceAuthInformation(string ipAddress, string communityString)
+        {
+            return (new IPEndPoint(IPAddress.Parse(ipAddress), 161), new OctetString(communityString));
+        }
+
+        private async Task<ObjectIdentifier> GetSysNameOid()
+        {
+            var oid = await _mibParser.GetNode("sysName");
+            var objectID = new ObjectIdentifier(oid.Oid.ToScalarOid());
+            return objectID;
+        }
+
         public async Task PollAsync(string ipAddress, string communityString, CancellationToken cts)
         {
             if (isRunning) return;
             isRunning = true;
-            
 
+
+            var deviceAuthDetails = GetDeviceAuthInformation(ipAddress, communityString);
+            var objectID = await GetSysNameOid();
+
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(20));
+
+            do
+            {
                 try
                 {
-                    var ip = new IPEndPoint(IPAddress.Parse(ipAddress), 161);
-                    var comString = new OctetString(communityString);
-                    var oid = await _mibParser.GetNode("sysName");
-                    var objectID = new ObjectIdentifier(oid.Oid.ToScalarOid());
+                    if (cts.IsCancellationRequested || this._cts.IsCancellationRequested)
+                        break;
 
-                    using var timer = new PeriodicTimer(TimeSpan.FromSeconds(20));
-
-                    while (!cts.IsCancellationRequested || !this._cts.IsCancellationRequested)
-                    {
-                        
-                        try
-                        {
-                            var _deviceNameResult = await _snmpService.GetStringAsync(ip, comString, objectID);
-                            OnSensorExecuted?.Invoke(ipAddress, _deviceNameResult);
-                            await Task.Delay(TimeSpan.FromSeconds(10));
-                    }
-                        catch (TaskCanceledException)
-                        {
-                            break;
-
-                        }
-                        catch (System.Net.Sockets.SocketException ex)
-                        {
-                            Logger.LogCriticalException(ex, ex.Message);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogCriticalException(ex, ex.Message);
-                        }
-                  
-
-                    }
-
+                    var _deviceNameResult = await _snmpService.GetStringAsync(deviceAuthDetails.ipAddress, deviceAuthDetails.communityString, objectID);
+                    OnSensorExecuted?.Invoke(ipAddress, _deviceNameResult);
+                }
+                catch (TaskCanceledException)
+                {
+                    break;
+                }
+                catch (System.Net.Sockets.SocketException ex)
+                {
+                    Logger.LogCriticalException(ex, ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCriticalException(ex, ex.Message);
                 }
                 finally
                 {
                     isRunning = false;
                 }
-          
 
-            
-            
+            } while (await timer.WaitForNextTickAsync());
+
         }
 
         public void Dispose()

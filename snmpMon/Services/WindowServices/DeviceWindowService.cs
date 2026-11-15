@@ -2,6 +2,7 @@
 using snmpMon.Core.Models;
 using snmpMon.Data.Model;
 using snmpMon.Engine.Model;
+using snmpMon.MibJson.Models;
 using snmpMon.Models;
 using snmpMon.Resources.Constrols.Frames;
 using snmpMon.Services.SensorServices;
@@ -11,9 +12,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using JsonNode = snmpMon.MibJson.Models.JsonNode;
 
 
 namespace snmpMon.Services.WindowServices
@@ -26,7 +29,14 @@ namespace snmpMon.Services.WindowServices
         {
             _routerWindowMonitor = routerWindowMonitor;
         }
-
+        public void ModifyTemplateWindow(JsonNode node)
+        {
+            var dataContext = App.serviceProvider.GetRequiredService<ModifyTemplateViewModel>();
+            dataContext.FetchNodeObject(node);
+            var win = new ModifyTemplate();
+            win.DataContext = dataContext;
+            win.Show();
+        }
         public void ShowInterfaceOverview(string ipAddress, string CommunityString, string ifIndex, string ifDesc)
         {
 
