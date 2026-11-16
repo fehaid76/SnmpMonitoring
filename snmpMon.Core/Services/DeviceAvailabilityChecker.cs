@@ -21,8 +21,8 @@ namespace snmpMon.Core.Services
         private CancellationTokenSource _cancellationTokenSource;
         private string _iPAddress;
         private string _communityString;
-        private MibNode _sysDescNode; 
-
+        private MibNode _sysDescNode;
+        private readonly SemaphoreSlim _lock; 
 
         private readonly ISnmpService _snmpService;
         private readonly IMibParser _mibParser;
@@ -30,7 +30,7 @@ namespace snmpMon.Core.Services
         {
             _snmpService = snmpService;
             _mibParser = mibParser;
-            
+            _lock = new SemaphoreSlim(1, 1);
 
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -45,18 +45,34 @@ namespace snmpMon.Core.Services
             _iPAddress = ipAddress;
             _communityString = communityString;
             _sysDescNode = await sysNode();
-
+            TimeSpan timeoutDuration = TimeSpan.FromSeconds(3);
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+
             try
             {
                 do
                 {
-                    bool pingSuccess = await SendPingAsync();
-                    if(await SendPingAsync() && await SendSnmpRequest())
+                    try
                     {
-                        DevicePowerRestored?.Invoke(ipAddress, communityString);
-                        return;
+                        if (!await _lock.WaitAsync(0))
+                            continue;
+
+                        bool pingSuccess = await SendPingAsync();
+                        if (pingSuccess)
+                        {
+                            if (await SendSnmpRequest(timeoutDuration))
+                            {
+                                DevicePowerRestored?.Invoke(ipAddress, communityString);
+                                return;
+                            }
+
+                        }
                     }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
 
 
                 } while (await timer.WaitForNextTickAsync(_cancellationTokenSource.Token));
@@ -99,12 +115,12 @@ namespace snmpMon.Core.Services
             
 
         }
-        private async Task<bool> SendSnmpRequest()
+        private async Task<bool> SendSnmpRequest(TimeSpan timeoutDuration)
         {
             try
             {
                 var sysDescOid = GetSnmpSysDescrNode();
-                var snmpResponse = await _snmpService.GetStringAsync(_iPAddress, _communityString, sysDescOid.Oid.ToScalarOid());
+                var snmpResponse = await _snmpService.GetStringAsync(_iPAddress, _communityString, sysDescOid.Oid.ToScalarOid()).WaitAsync(timeoutDuration);
                 return (snmpResponse != null);
             }
             catch (Exception ex)

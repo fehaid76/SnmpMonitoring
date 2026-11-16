@@ -19,14 +19,36 @@ namespace snmpMon.Engine.Services.SnmpServices
 {
     public class SnmpService : ISnmpService
     {
+        private readonly byte[] _pingBuffer = new byte[32];
+        private readonly PingOptions _pingOptions = new PingOptions(64, true);
+
+        private async Task<bool> PingAsync(string ipAddress)
+        {
+            using Ping ping = new();
+            try
+            {
+                var pingEcho = await ping.SendPingAsync(ipAddress, 4000, _pingBuffer, _pingOptions);
+                return pingEcho.Status == IPStatus.Success;
+
+            }
+            catch(PingException ex)
+            {
+                Logger.LogCriticalException(ex, ex.Message);
+                return false;
+            }
+        }
         public async Task<double> GetDoubleAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
+            if (!await PingAsync(ip.Address.ToString()))
+                return 0;
+
             var vcl = new[] { new Variable(oid) };
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
             try
             {
                 var result = await Messenger.GetAsync(VersionCode.V2,
-                    ip, communityString, vcl);
+                    ip, communityString, vcl).WaitAsync(cts.Token);
                 if(result != null && result?.Count > 0)
                 {
                     if (result[0].Data is Gauge32 snmpGauge)
@@ -62,16 +84,22 @@ namespace snmpMon.Engine.Services.SnmpServices
         {
             return await GetDoubleAsync(new IPEndPoint(IPAddress.Parse(ip), port), new OctetString(communityString), new ObjectIdentifier(oid));
         }
+
         public async Task<long> GetLongAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
-            var vcl = new[] { new Variable(oid) };
 
+            if (!await PingAsync(ip.Address.ToString()))
+                return 0;
+
+            var vcl = new[] { new Variable(oid) };
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
             try
             {
+                    
 
-                var result = await Messenger.GetAsync(VersionCode.V2,
+                    var result = await Messenger.GetAsync(VersionCode.V2,
                     ip, communityString,
-                    vcl);
+                    vcl).WaitAsync(cts.Token);
 
                 if (result != null && result?.Count > 0)
                 {
@@ -86,6 +114,7 @@ namespace snmpMon.Engine.Services.SnmpServices
 
                 }
             }
+            catch (OperationCanceledException) { }
             catch (System.Net.Sockets.SocketException socketEx)
             {
                 Logger.LogCriticalException(socketEx, socketEx.Message);
@@ -99,24 +128,24 @@ namespace snmpMon.Engine.Services.SnmpServices
 
 
         }
-
         public async Task<long> GetLongAsync(string ip, string communityString, string oid, int port = 161)
         {
             return await GetLongAsync(new IPEndPoint(IPAddress.Parse(ip), port), new OctetString(communityString), new ObjectIdentifier(oid));
         }
 
-
         public async Task<int> GetIntAsyn(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
-
+            if (!await PingAsync(ip.Address.ToString()))
+                return 0;
             var vcl = new[] { new Variable(oid) };
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
             try
             {
 
                 var result = await Messenger.GetAsync(VersionCode.V2,
                     ip, communityString,
-                    vcl);
+                    vcl).WaitAsync(cts.Token);
 
                 if (result != null && result.Count > 0)
                 {
@@ -144,6 +173,7 @@ namespace snmpMon.Engine.Services.SnmpServices
         }
         public async Task<List<(string oid, double result)>> GetGroupDoubleAsync(string ip, string communityString, List<string> OIDs, int port = 161)
         {
+
             List<(string oid, double result)> results = new();
             foreach (var o in OIDs)
             {
@@ -158,20 +188,26 @@ namespace snmpMon.Engine.Services.SnmpServices
         }
         public async Task<string> GetStringAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
-
+            if (!await PingAsync(ip.Address.ToString()))
+                return string.Empty;
             var vcl = new [] { new Variable(oid) };
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
             try
             {
-                var reault = await Messenger.GetAsync(VersionCode.V2, ip, communityString, vcl);
+                var result = await Messenger.GetAsync(VersionCode.V2, ip, communityString, vcl).WaitAsync(cts.Token);
 
-                if (reault != null && reault.Count > 0)
+                if (result != null && result.Count > 0)
                 {
-                    if (reault[0].Data is OctetString octet)
+                    if (result[0].Data is OctetString octet)
                     {
                         return octet.ToString();
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                
             }
             catch (SocketException ex)
             {
@@ -222,8 +258,10 @@ namespace snmpMon.Engine.Services.SnmpServices
 
             return timeSpan;
         }
+
         public async Task<List<Variable>> GetWalkAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid)
         {
+
             var internalList = new List<Variable>();
             int timeoutMilliseconds = 2000; 
             try
@@ -257,12 +295,11 @@ namespace snmpMon.Engine.Services.SnmpServices
             return await GetWalkAsync(new IPEndPoint(IPAddress.Parse(ip), port), new OctetString(communityString), new ObjectIdentifier(oid));
         }
 
-        
-
         public async Task<List<SnmpVariable>> GetBulkAsync(IPEndPoint ip, OctetString communityString, ObjectIdentifier oid, int maxRepetation = 10)
         {
             var internalList = new List<Variable>();
             var _snmpVariables = new List<SnmpVariable>();
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
 
             try
             {
@@ -275,7 +312,7 @@ namespace snmpMon.Engine.Services.SnmpServices
                     maxRepetation,
                     WalkMode.WithinSubtree,
                     null,
-                    null);
+                    null).WaitAsync(cts.Token);
 
                 SnmpVariable snmpVariable;
                 foreach (var v in internalList)

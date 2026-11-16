@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,10 +19,12 @@ namespace snmpMon.Services.SensorServices
     public class InterfacesSensors : IInterfacesSensors
     {
         public event EventHandler<TrafficEventArgs> TrafficDataReady;
+        private readonly SemaphoreSlim _lock;
         private string _ipAddress { get; set; }
         private string _communityString { get; set; }
         private string _ifIndex { get; set; }
         private bool _isPortSpeedRecieved {  get; set; }
+        private TimeSpan _processTime;
         #region PreviousValues
         private long _previousTrafficIn;
         private long _previousTrafficOut;
@@ -36,7 +39,13 @@ namespace snmpMon.Services.SensorServices
         {
             _mibParser = mibParser;
             _snmpService = snmpService;
+
+            _processTime = TimeSpan.FromSeconds(5);
+            _lock = new SemaphoreSlim(1, 1);
+
         }
+
+
 
         public async Task StartFetchInterfaceDetails(string ipAddress, string communityString, string ifIndex)
         {
@@ -51,12 +60,12 @@ namespace snmpMon.Services.SensorServices
         {
             try
             {
-                var fetchTrafficInTask = _mibParser.GetNode("ifInOctets");
-                var fetchTrafficOutTask = _mibParser.GetNode("ifOutOctets");
+                var fetchTrafficInTask = _mibParser.GetNode("ifInOctets").WaitAsync(_processTime);
+                var fetchTrafficOutTask = _mibParser.GetNode("ifOutOctets").WaitAsync(_processTime);
                 await Task.WhenAll(fetchTrafficInTask, fetchTrafficOutTask);
 
-                MibNode trafficInNode = await fetchTrafficInTask;
-                MibNode trafficOutNode = await fetchTrafficOutTask;
+                MibNode trafficInNode = await fetchTrafficInTask.WaitAsync(_processTime);
+                MibNode trafficOutNode = await fetchTrafficOutTask.WaitAsync(_processTime);
                 return (trafficInNode.Oid, trafficOutNode.Oid);
             }
             catch (Exception ex)
@@ -68,8 +77,9 @@ namespace snmpMon.Services.SensorServices
         }
         private async Task startFetchDataProccessAsync()
         {
-            var timer = new PeriodicTimer(TimeSpan.FromSeconds(30)); 
-            var trafficVolumeNodes = await getTrafficNodes();
+
+            var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+            var trafficVolumeNodes = await getTrafficNodes().WaitAsync(_processTime);
             string trafficInOid = trafficVolumeNodes.trafficInVolume;
             string trafficOutOid = trafficVolumeNodes.trafficOutVolume;
             if(string.IsNullOrEmpty(trafficInOid) || string.IsNullOrEmpty(trafficOutOid))
@@ -78,21 +88,34 @@ namespace snmpMon.Services.SensorServices
                 return;
             }
 
-            do
+            try
             {
-                try
+                do
                 {
+                    if (!await _lock.WaitAsync(0))
+                        continue;
 
-                    await fetchAndRaiseTrafficDataAsync(trafficInOid, trafficOutOid);
+                    try
+                    {
 
-                }
-                catch (Exception ex)
-                {
+                        await fetchAndRaiseTrafficDataAsync(trafficInOid, trafficOutOid).WaitAsync(_processTime);
 
-                    Logger.LogCriticalException(ex, ex.Message);
-                }
 
-            } while (await timer.WaitForNextTickAsync());
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Logger.LogCriticalException(ex, ex.Message);
+                    }
+                    finally
+                    {
+                        _lock.Release();
+                    }
+
+                } while (await timer.WaitForNextTickAsync());
+            }
+            catch (OperationCanceledException) { }
+            
 
         }
 
@@ -130,7 +153,7 @@ namespace snmpMon.Services.SensorServices
                 var currentTime = DateTime.Now;
                 var elapsedTime = HandleTimePoll(currentTime);
 
-                var trafficValues = await GetTrafficValuesAsync(trafficInOid, trafficOutOid);
+                var trafficValues = await GetTrafficValuesAsync(trafficInOid, trafficOutOid).WaitAsync(_processTime);
 
                 if (trafficValues.TrafficInValue < 0 || trafficValues.TrafficOutValue < 0)
                 {

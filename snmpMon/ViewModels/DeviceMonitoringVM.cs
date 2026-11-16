@@ -103,8 +103,8 @@ namespace snmpMon.ViewModels
         {
             Task.Run(async () =>
             {
-                //var processDuration = TimeSpan.FromSeconds(5);
-                var sysDetails = await _deviceInformationServices.GetSysDetails(Device.IPAddress, Device.CommunityString);
+                var processDuration = TimeSpan.FromSeconds(5);
+                var sysDetails = await _deviceInformationServices.GetSysDetails(Device.IPAddress, Device.CommunityString).WaitAsync(processDuration);
                 AssignSystemDetails(sysDetails.sysName, sysDetails.sysLocation, sysDetails.sysStatus);
             });
 
